@@ -1,0 +1,105 @@
+/* Obsidian Stone & Aged Brass Theme */
+/* Premium Property Management Color System */
+
+:root {
+  /* Primary Colors */
+  --obsidian-primary: #0F2F2E;
+  --obsidian-light: #1A4A48;
+  --stone-primary: #D6CFC4;
+  --stone-light: #E8E4DD;
+  --brass-primary: #B08D57;
+  --brass-light: #C29A5B;
+  --eucalyptus-primary: #5F7F73;
+  
+  /* Neutral System */
+  --porcelain: #F5F4F1;
+  --porcelain-dark: #E8E6E1;
+  --charcoal: #1C1F23;
+  --charcoal-light: #2A2D32;
+  --architectural: #8E9491;
+  
+  /* Semantic Colors */
+  --success: #4E7C6A;
+  --warning: #C29A5B;
+  --error: #8F3E3E;
+  
+  /* Text Colors */
+  --text-primary: #1C1F23;
+  --text-secondary: #8E9491;
+  --text-light: #F5F4F1;
+  
+  /* Background Colors */
+  --bg-primary: #F5F4F1;
+  --bg-secondary: #D6CFC4;
+  --bg-dark: #0F2F2E;
+}
+
+/* Dark Mode */
+.dark {
+  --obsidian-primary: #1A4A48;
+  --stone-primary: #B8AFA3;
+  --charcoal: #2A2D32;
+  --porcelain: #E8E6E1;
+  --text-primary: #F5F4F1;
+  --text-secondary: #B8AFA3;
+  --bg-primary: #1C1F23;
+  --bg-secondary: #2A2D32;
+}
+
+/* Base Typography */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Ensure no pure white backgrounds */
+.bg-white {
+  background-color: var(--porcelain) !important;
+}
+
+/* Accessibility: Ensure proper contrast */
+.text-obsidian {
+  color: var(--obsidian-primary);
+}
+
+.bg-obsidian {
+  background-color: var(--obsidian-primary);
+  color: var(--text-light);
+}
+
+.bg-stone {
+  background-color: var(--stone-primary);
+}
+
+.bg-porcelain {
+  background-color: var(--porcelain);
+}
+
+.text-charcoal {
+  color: var(--charcoal);
+}
+
+.text-architectural {
+  color: var(--architectural);
+}
+
+/* Brass accents */
+.text-brass {
+  color: var(--brass-primary);
+}
+
+.bg-brass {
+  background-color: var(--brass-primary);
+  color: white;
+}
+
+/* Eucalyptus for success states */
+.text-eucalyptus {
+  color: var(--eucalyptus-primary);
+}
+
+.bg-eucalyptus {
+  background-color: var(--eucalyptus-primary);
+  color: white;
+}
+
