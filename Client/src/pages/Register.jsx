@@ -7,34 +7,134 @@ function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    mobileNumber: '',
     password: '',
     confirmPassword: '',
     role: 'tenant'
   });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const validateField = (name, value) => {
+    let error = '';
+    
+    switch (name) {
+      case 'name':
+        if (!value.trim()) {
+          error = 'Full name is required';
+        } else if (value.trim().length < 2) {
+          error = 'Name must be at least 2 characters';
+        } else if (!/^[a-zA-Z\s'-]+$/.test(value.trim())) {
+          error = 'Name can only contain letters, spaces, hyphens, and apostrophes';
+        }
+        break;
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+      case 'mobileNumber':
+        if (!value.trim()) {
+          error = 'Mobile number is required';
+        } else if (!/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/.test(value.trim())) {
+          error = 'Please enter a valid mobile number (e.g., +1234567890 or 123-456-7890)';
+        } else if (value.replace(/\D/g, '').length < 10) {
+          error = 'Mobile number must contain at least 10 digits';
+        }
+        break;
+      case 'password':
+        if (!value) {
+          error = 'Password is required';
+        } else if (value.length < 6) {
+          error = 'Password must be at least 6 characters';
+        } else if (value.length > 50) {
+          error = 'Password must be less than 50 characters';
+        } else if (!/(?=.*[a-z])/.test(value)) {
+          error = 'Password must contain at least one lowercase letter';
+        } else if (!/(?=.*[A-Z])/.test(value)) {
+          error = 'Password must contain at least one uppercase letter';
+        } else if (!/(?=.*\d)/.test(value)) {
+          error = 'Password must contain at least one number';
+        }
+        break;
+      case 'confirmPassword':
+        if (!value) {
+          error = 'Please confirm your password';
+        } else if (value !== formData.password) {
+          error = 'Passwords do not match';
+        }
+        break;
+      default:
+        break;
+    }
+    
+    return error;
+  };
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
+    });
+    
+    // Validate on change if field has been touched
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors({
+        ...errors,
+        [name]: error
+      });
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched({
+      ...touched,
+      [name]: true
+    });
+    
+    const error = validateField(name, value);
+    setErrors({
+      ...errors,
+      [name]: error
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    
+    // Mark all fields as touched
+    const allTouched = Object.keys(formData).reduce((acc, key) => {
+      acc[key] = true;
+      return acc;
+    }, {});
+    setTouched(allTouched);
+    
+    // Validate all fields
+    const newErrors = {};
+    Object.keys(formData).forEach(key => {
+      if (key !== 'role') {
+        const error = validateField(key, formData[key]);
+        if (error) {
+          newErrors[key] = error;
+        }
+      }
+    });
+    
+    setErrors(newErrors);
+    
+    // Check if there are any errors
+    if (Object.keys(newErrors).length > 0) {
+      setError('Please fix the errors in the form');
       return;
     }
 
@@ -45,7 +145,8 @@ function Register() {
         formData.email,
         formData.password,
         formData.name,
-        formData.role
+        formData.role,
+        formData.mobileNumber
       );
       login(response.user, response.token);
       navigate('/');
@@ -59,9 +160,9 @@ function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-porcelain px-4 py-8">
       <div className="max-w-md w-full bg-stone-100 rounded-2xl shadow-lg p-8 border border-stone-200">
-        <h2 className="text-3xl font-bold text-center mb-2 text-obsidian-500">Create Your Free Account</h2>
+        <h2 className="text-3xl font-bold text-center mb-2 text-obsidian">Create Your Free Account</h2>
         <p className="text-center text-architectural mb-6 text-sm">
-          Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">See how it works</Link>
+          Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian font-semibold hover:text-brass transition-colors">See how it works</Link>
         </p>
         
         {error && (
@@ -73,90 +174,136 @@ function Register() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
-              Full Name
+              Full Name <span className="text-error">*</span>
             </label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
+              onBlur={handleBlur}
               required
-              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain"
+              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                errors.name ? 'border-error' : 'border-stone-300'
+              }`}
               placeholder="Enter your full name"
             />
+            {errors.name && touched.name && (
+              <p className="mt-1 text-sm text-error">{errors.name}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
-              Email
+              Email <span className="text-error">*</span>
             </label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
+              onBlur={handleBlur}
               required
-              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain"
+              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                errors.email ? 'border-error' : 'border-stone-300'
+              }`}
               placeholder="Enter your email"
             />
+            {errors.email && touched.email && (
+              <p className="mt-1 text-sm text-error">{errors.email}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
-              Role <span className="text-architectural text-xs">(Choose based on what you want to do)</span>
+              Mobile Number <span className="text-error">*</span>
+            </label>
+            <input
+              type="tel"
+              name="mobileNumber"
+              value={formData.mobileNumber}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                errors.mobileNumber ? 'border-error' : 'border-stone-300'
+              }`}
+              placeholder="e.g., +1234567890 or 123-456-7890"
+            />
+            {errors.mobileNumber && touched.mobileNumber && (
+              <p className="mt-1 text-sm text-error">{errors.mobileNumber}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-charcoal mb-1">
+              Role <span className="text-error">*</span> <span className="text-architectural text-xs">(Choose based on what you want to do)</span>
             </label>
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
               required
-              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain"
+              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain"
             >
               <option value="tenant">Tenant - Looking for a property to rent</option>
               <option value="property_owner">Property Owner - Want to list and manage properties</option>
-              <option value="user">User - Just want to browse properties</option>
             </select>
-            <p className="mt-2 text-xs text-eucalyptus-500">
+            <p className="mt-2 text-xs text-eucalyptus">
               {formData.role === 'tenant' && '✓ Search properties, contact owners, save favorites'}
               {formData.role === 'property_owner' && '✓ List properties, manage tenants, track income (no commission fees!)'}
-              {formData.role === 'user' && '✓ Browse properties without full account features'}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
-              Password
+              Password <span className="text-error">*</span>
             </label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
+              onBlur={handleBlur}
               required
-              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain"
+              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                errors.password ? 'border-error' : 'border-stone-300'
+              }`}
               placeholder="Enter your password"
             />
+            {errors.password && touched.password && (
+              <p className="mt-1 text-sm text-error">{errors.password}</p>
+            )}
+            {!errors.password && formData.password && (
+              <p className="mt-1 text-xs text-architectural">Must contain uppercase, lowercase, and number</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
-              Confirm Password
+              Confirm Password <span className="text-error">*</span>
             </label>
             <input
               type="password"
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              onBlur={handleBlur}
               required
-              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain"
+              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                errors.confirmPassword ? 'border-error' : 'border-stone-300'
+              }`}
               placeholder="Confirm your password"
             />
+            {errors.confirmPassword && touched.confirmPassword && (
+              <p className="mt-1 text-sm text-error">{errors.confirmPassword}</p>
+            )}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-obsidian-500 text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Registering...' : 'Register'}
           </button>
@@ -164,7 +311,7 @@ function Register() {
 
         <p className="mt-6 text-center text-architectural">
           Already have an account?{' '}
-          <Link to="/login" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">
+          <Link to="/login" className="text-obsidian font-semibold hover:text-brass transition-colors">
             Login here
           </Link>
         </p>

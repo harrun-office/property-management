@@ -22,7 +22,7 @@ function PropertyCard({ property, noLink = false }) {
           <h3 className="text-xl font-semibold text-charcoal mb-2 line-clamp-1">
             {property.title}
           </h3>
-          <p className="text-brass-500 text-2xl font-bold mb-3">
+          <p className="text-brass text-2xl font-bold mb-3">
             {formatPrice(property.price)}
           </p>
           <p className="text-architectural text-sm mb-4 line-clamp-2">

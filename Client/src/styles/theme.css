@@ -1,49 +1,49 @@
-/* Obsidian Stone & Aged Brass Theme */
-/* Premium Property Management Color System */
+/* Dramatic Warm & Friendly Theme */
+/* Premium Property Management Color System - Bold, Vibrant & Inviting */
 
 :root {
-  /* Primary Colors */
-  --obsidian-primary: #0F2F2E;
-  --obsidian-light: #1A4A48;
-  --stone-primary: #D6CFC4;
-  --stone-light: #E8E4DD;
-  --brass-primary: #B08D57;
-  --brass-light: #C29A5B;
-  --eucalyptus-primary: #5F7F73;
+  /* Primary Colors - Bold & Vibrant */
+  --obsidian-primary: #2D5F5F;
+  --obsidian-light: #3D7A7A;
+  --stone-primary: #F0E6D6;
+  --stone-light: #F8F2E8;
+  --brass-primary: #E8B86D;
+  --brass-light: #F5C98A;
+  --eucalyptus-primary: #5FB896;
   
-  /* Neutral System */
-  --porcelain: #F5F4F1;
-  --porcelain-dark: #E8E6E1;
-  --charcoal: #1C1F23;
-  --charcoal-light: #2A2D32;
-  --architectural: #8E9491;
+  /* Neutral System - Enhanced Warmth */
+  --porcelain: #FFFEFB;
+  --porcelain-dark: #FAF7F0;
+  --charcoal: #3A3D42;
+  --charcoal-light: #4A4D52;
+  --architectural: #6B7875;
   
-  /* Semantic Colors */
-  --success: #4E7C6A;
-  --warning: #C29A5B;
-  --error: #8F3E3E;
+  /* Semantic Colors - Enhanced Vibrancy */
+  --success: #4FA87A;
+  --warning: #F5C98A;
+  --error: #D67A7A;
   
   /* Text Colors */
-  --text-primary: #1C1F23;
-  --text-secondary: #8E9491;
-  --text-light: #F5F4F1;
+  --text-primary: #3A3D42;
+  --text-secondary: #6B7875;
+  --text-light: #FFFEFB;
   
   /* Background Colors */
-  --bg-primary: #F5F4F1;
-  --bg-secondary: #D6CFC4;
-  --bg-dark: #0F2F2E;
+  --bg-primary: #FFFEFB;
+  --bg-secondary: #F0E6D6;
+  --bg-dark: #2D5F5F;
 }
 
-/* Dark Mode */
+/* Dark Mode - Maintained Warmth */
 .dark {
-  --obsidian-primary: #1A4A48;
-  --stone-primary: #B8AFA3;
-  --charcoal: #2A2D32;
-  --porcelain: #E8E6E1;
-  --text-primary: #F5F4F1;
-  --text-secondary: #B8AFA3;
-  --bg-primary: #1C1F23;
-  --bg-secondary: #2A2D32;
+  --obsidian-primary: #3D7A7A;
+  --stone-primary: #E8D4C0;
+  --charcoal: #4A4D52;
+  --porcelain: #FAF7F0;
+  --text-primary: #FFFEFB;
+  --text-secondary: #E8D4C0;
+  --bg-primary: #3A3D42;
+  --bg-secondary: #4A4D52;
 }
 
 /* Base Typography */

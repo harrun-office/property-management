@@ -52,7 +52,7 @@ function PropertyManagerDashboard() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
@@ -70,11 +70,11 @@ function PropertyManagerDashboard() {
             </div>
             <div className="bg-white rounded-2xl shadow-md p-6">
               <h3 className="text-sm font-medium text-gray-600 mb-2">Completed</h3>
-              <p className="text-3xl font-bold text-emerald-600">{reports.completedTasks}</p>
+              <p className="text-3xl font-bold text-eucalyptus">{reports.completedTasks}</p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-6">
               <h3 className="text-sm font-medium text-gray-600 mb-2">Pending</h3>
-              <p className="text-3xl font-bold text-yellow-600">{reports.pendingTasks}</p>
+              <p className="text-3xl font-bold text-warning">{reports.pendingTasks}</p>
             </div>
           </div>
         )}
@@ -126,9 +126,9 @@ function PropertyManagerDashboard() {
                     <p className="text-sm text-gray-600">Property ID: {task.propertyId}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    task.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                    task.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                    'bg-yellow-100 text-yellow-700'
+                    task.status === 'completed' ? 'bg-eucalyptus/20 text-eucalyptus' :
+                    task.status === 'in_progress' ? 'bg-obsidian/20 text-obsidian-500' :
+                    'bg-warning/20 text-warning'
                   }`}>
                     {task.status}
                   </span>
@@ -144,7 +144,7 @@ function PropertyManagerDashboard() {
             <h2 className="text-2xl font-bold text-gray-900">Vendors</h2>
             <Link
               to="/property-manager/vendors"
-              className="px-4 py-2 bg-slate-700 text-white rounded-xl hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 bg-obsidian text-porcelain rounded-xl hover:bg-obsidian-600 transition-colors"
             >
               Manage All
             </Link>
@@ -161,8 +161,8 @@ function PropertyManagerDashboard() {
                     <p className="text-sm text-gray-500">{vendor.serviceTypes.join(', ')}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    vendor.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                    'bg-yellow-100 text-yellow-700'
+                    vendor.status === 'active' ? 'bg-eucalyptus/20 text-eucalyptus' :
+                    'bg-warning/20 text-warning'
                   }`}>
                     {vendor.status}
                   </span>

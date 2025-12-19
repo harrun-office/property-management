@@ -78,7 +78,7 @@ function MyProperties() {
           </div>
           <Link
             to="/owner/properties/new"
-            className="px-6 py-3 bg-obsidian-500 text-white rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
+            className="px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
           >
             + Post New Property
           </Link>
@@ -133,7 +133,7 @@ function MyProperties() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-red-400 text-error rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
@@ -143,7 +143,7 @@ function MyProperties() {
             <p className="text-architectural text-lg mb-4">You haven't posted any properties yet.</p>
             <Link
               to="/owner/properties/new"
-              className="inline-block px-6 py-3 bg-obsidian-500 text-white rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
+              className="inline-block px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
             >
               Post Your First Property
             </Link>
@@ -189,13 +189,13 @@ function MyProperties() {
                   <div className="flex space-x-2">
                     <Link
                       to={`/owner/properties/${property.id}/edit`}
-                      className="flex-1 px-4 py-2 bg-obsidian-500 text-white rounded-lg hover:bg-obsidian-600 text-center text-sm font-medium"
+                      className="flex-1 px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 text-center text-sm font-medium transition-colors"
                     >
                       Edit
                     </Link>
                     <button
                       onClick={() => handleDelete(property.id)}
-                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
+                      className="flex-1 px-4 py-2 bg-error text-porcelain rounded-lg hover:opacity-90 text-sm font-medium transition-colors"
                     >
                       Delete
                     </button>

@@ -1,9 +1,20 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import HeroSection from '../components/HeroSection';
 import FeatureCard from '../components/FeatureCard';
 import CTASection from '../components/CTASection';
 
 function Landing() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Redirect admins to their dashboard if they try to access the home page
+    if (user && user.role === 'super_admin') {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
   const features = [
     {
       icon: (
@@ -95,19 +106,19 @@ function Landing() {
               <p className="text-architectural">Manage multiple properties, assign vendors, and track maintenance tasks</p>
             </div>
           </div>
-          <div className="mt-8 p-6 bg-obsidian-500 text-porcelain rounded-xl">
-            <h3 className="text-2xl font-semibold mb-3">Key Differentiators</h3>
+          <div className="mt-8 p-6 bg-obsidian text-porcelain rounded-xl">
+            <h3 className="text-2xl font-semibold mb-3 text-porcelain">Key Differentiators</h3>
             <div className="grid md:grid-cols-3 gap-4 text-left">
               <div>
-                <span className="font-semibold">✓ No Commission Fees</span>
+                <span className="font-semibold text-porcelain">✓ No Commission Fees</span>
                 <p className="text-stone-200 text-sm mt-1">Owners keep 100% of rental income</p>
               </div>
               <div>
-                <span className="font-semibold">✓ All-in-One Platform</span>
+                <span className="font-semibold text-porcelain">✓ All-in-One Platform</span>
                 <p className="text-stone-200 text-sm mt-1">Everything you need in one place</p>
               </div>
               <div>
-                <span className="font-semibold">✓ Secure & Trusted</span>
+                <span className="font-semibold text-porcelain">✓ Secure & Trusted</span>
                 <p className="text-stone-200 text-sm mt-1">Industry-standard security measures</p>
               </div>
             </div>
@@ -123,7 +134,7 @@ function Landing() {
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="text-obsidian-500 mb-4">
+              <div className="text-obsidian mb-4">
                 <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -139,12 +150,12 @@ function Landing() {
                 <li>✓ Save favorite properties</li>
                 <li>✓ Track applications</li>
               </ul>
-              <Link to="/for-tenants" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">
+              <Link to="/for-tenants" className="text-obsidian font-semibold hover:text-brass transition-colors">
                 Learn more →
               </Link>
             </div>
             <div className="text-center">
-              <div className="text-obsidian-500 mb-4">
+              <div className="text-obsidian mb-4">
                 <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
@@ -160,12 +171,12 @@ function Landing() {
                 <li>✓ Tenant management tools</li>
                 <li>✓ Analytics & reports</li>
               </ul>
-              <Link to="/for-owners" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">
+              <Link to="/for-owners" className="text-obsidian font-semibold hover:text-brass transition-colors">
                 Learn more →
               </Link>
             </div>
             <div className="text-center">
-              <div className="text-obsidian-500 mb-4">
+              <div className="text-obsidian mb-4">
                 <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -181,7 +192,7 @@ function Landing() {
                 <li>✓ Secure payment processing</li>
                 <li>✓ Mobile-friendly design</li>
               </ul>
-              <Link to="/features" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">
+              <Link to="/features" className="text-obsidian font-semibold hover:text-brass transition-colors">
                 View features →
               </Link>
             </div>
@@ -204,7 +215,7 @@ function Landing() {
           <div className="text-center mt-8">
             <Link
               to="/features"
-              className="inline-block px-6 py-3 bg-obsidian-500 text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
+              className="inline-block px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors"
             >
               View All Features
             </Link>
@@ -218,35 +229,35 @@ function Landing() {
           <h2 className="text-4xl font-bold text-center mb-12 text-charcoal">Get Started in 3 Simple Steps</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-obsidian-500 text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">1</div>
+              <div className="w-16 h-16 bg-obsidian text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">1</div>
               <h3 className="text-xl font-semibold mb-3 text-charcoal">Browse Properties</h3>
               <p className="text-architectural mb-4">Explore available properties without creating an account. Use filters to find exactly what you're looking for.</p>
-              <Link to="/properties" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors text-sm">
+              <Link to="/properties" className="text-obsidian font-semibold hover:text-brass transition-colors text-sm">
                 Browse now →
               </Link>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-obsidian-500 text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">2</div>
+              <div className="w-16 h-16 bg-obsidian text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">2</div>
               <h3 className="text-xl font-semibold mb-3 text-charcoal">Choose Your Role</h3>
               <p className="text-architectural mb-4">Register as a Tenant to find properties, or as a Property Owner to list and manage your properties.</p>
-              <Link to="/how-it-works" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors text-sm">
+              <Link to="/how-it-works" className="text-obsidian font-semibold hover:text-brass transition-colors text-sm">
                 Learn more →
               </Link>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-obsidian-500 text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">3</div>
+              <div className="w-16 h-16 bg-obsidian text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">3</div>
               <h3 className="text-xl font-semibold mb-3 text-charcoal">Start Using</h3>
               <p className="text-architectural mb-4">Create your free account in seconds. No credit card required. Start managing properties or finding your next home today.</p>
-              <Link to="/register" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors text-sm">
+              <Link to="/register" className="text-obsidian font-semibold hover:text-brass transition-colors text-sm">
                 Register now →
               </Link>
             </div>
           </div>
           <div className="text-center mt-12">
-            <p className="text-architectural mb-4">Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">See how it works</Link></p>
+            <p className="text-architectural mb-4">Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian font-semibold hover:text-brass transition-colors">See how it works</Link></p>
             <Link
               to="/register"
-              className="inline-block px-8 py-4 bg-brass-500 text-white rounded-xl font-semibold text-lg hover:bg-brass-600 transition-colors shadow-lg"
+              className="inline-block px-8 py-4 bg-brass text-porcelain rounded-xl font-semibold text-lg hover:bg-brass-light transition-colors shadow-lg"
             >
               Create Your Free Account
             </Link>
@@ -255,29 +266,29 @@ function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-obsidian-500 text-porcelain">
+      <section className="py-16 px-4 bg-obsidian text-porcelain">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Trusted by Property Owners and Tenants</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-porcelain">Trusted by Property Owners and Tenants</h2>
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-5xl font-bold mb-2 text-brass-500">100+</div>
-              <div className="text-stone-200">Properties Listed</div>
-              <div className="text-stone-300 text-sm mt-1">And growing daily</div>
+              <div className="text-5xl font-bold mb-2 text-brass">100+</div>
+              <div className="text-porcelain">Properties Listed</div>
+              <div className="text-stone-200 text-sm mt-1">And growing daily</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2 text-brass-500">500+</div>
-              <div className="text-stone-200">Active Users</div>
-              <div className="text-stone-300 text-sm mt-1">Tenants and owners</div>
+              <div className="text-5xl font-bold mb-2 text-brass">500+</div>
+              <div className="text-porcelain">Active Users</div>
+              <div className="text-stone-200 text-sm mt-1">Tenants and owners</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2 text-brass-500">98%</div>
-              <div className="text-stone-200">Satisfaction Rate</div>
-              <div className="text-stone-300 text-sm mt-1">Happy customers</div>
+              <div className="text-5xl font-bold mb-2 text-brass">98%</div>
+              <div className="text-porcelain">Satisfaction Rate</div>
+              <div className="text-stone-200 text-sm mt-1">Happy customers</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2 text-brass-500">24/7</div>
-              <div className="text-stone-200">Support Available</div>
-              <div className="text-stone-300 text-sm mt-1">Always here to help</div>
+              <div className="text-5xl font-bold mb-2 text-brass">24/7</div>
+              <div className="text-porcelain">Support Available</div>
+              <div className="text-stone-200 text-sm mt-1">Always here to help</div>
             </div>
           </div>
         </div>

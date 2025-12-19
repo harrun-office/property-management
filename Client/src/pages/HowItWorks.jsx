@@ -98,10 +98,10 @@ function HowItWorks() {
 
   return (
     <div className="min-h-screen bg-porcelain">
-      <section className="bg-gradient-to-r from-obsidian-500 to-eucalyptus-500 text-porcelain py-20 px-4">
+      <section className="bg-obsidian text-porcelain py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">How It Works</h1>
-          <p className="text-xl md:text-2xl text-stone-100 max-w-3xl mx-auto">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-porcelain">How It Works</h1>
+          <p className="text-xl md:text-2xl text-stone-200 max-w-3xl mx-auto">
             Simple steps to find your perfect property or manage your listings
           </p>
         </div>
@@ -139,7 +139,7 @@ function HowItWorks() {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-stone-100 p-8 rounded-xl shadow-md border-2 border-stone-300">
               <div className="flex items-center mb-4">
-                <svg className="w-12 h-12 text-obsidian-500 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-12 h-12 text-obsidian mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 <h3 className="text-2xl font-semibold text-charcoal">I'm a Tenant</h3>
@@ -147,32 +147,32 @@ function HowItWorks() {
               <p className="text-architectural mb-4">Looking for a property to rent? Register as a tenant to:</p>
               <ul className="space-y-2 mb-6 text-architectural">
                 <li className="flex items-start">
-                  <span className="text-obsidian-500 mr-2">✓</span>
+                  <span className="text-obsidian mr-2">✓</span>
                   <span>Search and filter thousands of properties</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-obsidian-500 mr-2">✓</span>
+                  <span className="text-obsidian mr-2">✓</span>
                   <span>Save favorite properties</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-obsidian-500 mr-2">✓</span>
+                  <span className="text-obsidian mr-2">✓</span>
                   <span>Contact property owners directly</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-obsidian-500 mr-2">✓</span>
+                  <span className="text-obsidian mr-2">✓</span>
                   <span>Track your applications</span>
                 </li>
               </ul>
               <Link
                 to="/for-tenants"
-                className="inline-block px-6 py-3 bg-obsidian-500 text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
+                className="inline-block px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors"
               >
                 Learn More About Tenant Features
               </Link>
             </div>
             <div className="bg-stone-100 p-8 rounded-xl shadow-md border-2 border-stone-300">
               <div className="flex items-center mb-4">
-                <svg className="w-12 h-12 text-obsidian-500 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-12 h-12 text-obsidian mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
                 <h3 className="text-2xl font-semibold text-charcoal">I'm a Property Owner</h3>
@@ -180,25 +180,25 @@ function HowItWorks() {
               <p className="text-architectural mb-4">Managing rental properties? Register as an owner to:</p>
               <ul className="space-y-2 mb-6 text-architectural">
                 <li className="flex items-start">
-                  <span className="text-obsidian-500 mr-2">✓</span>
+                  <span className="text-obsidian mr-2">✓</span>
                   <span>List unlimited properties (no commission fees!)</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-obsidian-500 mr-2">✓</span>
+                  <span className="text-obsidian mr-2">✓</span>
                   <span>Reach thousands of potential tenants</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-obsidian-500 mr-2">✓</span>
+                  <span className="text-obsidian mr-2">✓</span>
                   <span>Manage tenants and track income</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-obsidian-500 mr-2">✓</span>
+                  <span className="text-obsidian mr-2">✓</span>
                   <span>View analytics and reports</span>
                 </li>
               </ul>
               <Link
                 to="/for-owners"
-                className="inline-block px-6 py-3 bg-obsidian-500 text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
+                className="inline-block px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors"
               >
                 Learn More About Owner Features
               </Link>
@@ -217,7 +217,7 @@ function HowItWorks() {
           <div className="space-y-8">
             {tenantSteps.map((step) => (
               <div key={step.number} className="flex items-start">
-                <div className="flex-shrink-0 w-16 h-16 bg-obsidian-500 text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mr-6">
+                <div className="flex-shrink-0 w-16 h-16 bg-obsidian text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mr-6">
                   {step.number}
                 </div>
                 <div className="flex-1">
@@ -233,7 +233,7 @@ function HowItWorks() {
           <div className="text-center mt-12">
             <Link
               to="/for-tenants"
-              className="inline-block px-8 py-4 bg-obsidian-500 text-porcelain rounded-xl font-semibold text-lg hover:bg-obsidian-600 transition-colors"
+              className="inline-block px-8 py-4 bg-obsidian text-porcelain rounded-xl font-semibold text-lg hover:bg-obsidian-light transition-colors"
             >
               Learn More About Tenant Features
             </Link>
@@ -251,7 +251,7 @@ function HowItWorks() {
           <div className="space-y-8">
             {ownerSteps.map((step) => (
               <div key={step.number} className="flex items-start">
-                <div className="flex-shrink-0 w-16 h-16 bg-obsidian-500 text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mr-6">
+                <div className="flex-shrink-0 w-16 h-16 bg-obsidian text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mr-6">
                   {step.number}
                 </div>
                 <div className="flex-1">
@@ -267,7 +267,7 @@ function HowItWorks() {
           <div className="text-center mt-12">
             <Link
               to="/for-owners"
-              className="inline-block px-8 py-4 bg-obsidian-500 text-porcelain rounded-xl font-semibold text-lg hover:bg-obsidian-600 transition-colors"
+              className="inline-block px-8 py-4 bg-obsidian text-porcelain rounded-xl font-semibold text-lg hover:bg-obsidian-light transition-colors"
             >
               Learn More About Owner Features
             </Link>
@@ -291,22 +291,22 @@ function HowItWorks() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-4 bg-obsidian-500 text-porcelain">
+      <section className="py-16 px-4 bg-obsidian text-porcelain">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl text-stone-100 mb-8">
+          <h2 className="text-4xl font-bold mb-4 text-porcelain">Ready to Get Started?</h2>
+          <p className="text-xl text-stone-200 mb-8">
             Join thousands of users who are simplifying property management
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/register"
-              className="px-8 py-4 bg-brass-500 text-white rounded-xl font-semibold text-lg hover:bg-brass-600 transition-colors shadow-lg"
+              className="px-8 py-4 bg-brass text-porcelain rounded-xl font-semibold text-lg hover:bg-brass-light transition-colors shadow-lg"
             >
               Create Account
             </Link>
             <Link
               to="/properties"
-              className="px-8 py-4 bg-transparent border-2 border-porcelain text-porcelain rounded-xl font-semibold text-lg hover:bg-porcelain hover:text-obsidian-500 transition-colors"
+              className="px-8 py-4 bg-transparent border-2 border-porcelain text-porcelain rounded-xl font-semibold text-lg hover:bg-porcelain hover:text-obsidian transition-colors"
             >
               Browse Properties
             </Link>

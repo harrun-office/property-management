@@ -110,7 +110,7 @@ function TaskManagement() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}

@@ -84,7 +84,7 @@ function Applications() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-red-400 text-error rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
@@ -221,7 +221,7 @@ function Applications() {
                     />
                     <button
                       onClick={handleAddNote}
-                      className="w-full px-4 py-2 bg-obsidian-500 text-white rounded-lg hover:bg-slate-800"
+                      className="w-full px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 transition-colors"
                     >
                       Add Note
                     </button>
@@ -230,13 +230,13 @@ function Applications() {
                   <div className="flex space-x-2 pt-4 border-t">
                     <button
                       onClick={() => handleStatusChange(selectedApplication.id, 'approved')}
-                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                      className="flex-1 px-4 py-2 bg-eucalyptus text-porcelain rounded-lg hover:bg-eucalyptus-600 transition-colors"
                     >
                       Approve
                     </button>
                     <button
                       onClick={() => handleStatusChange(selectedApplication.id, 'rejected')}
-                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      className="flex-1 px-4 py-2 bg-error text-porcelain rounded-lg hover:opacity-90 transition-colors"
                     >
                       Reject
                     </button>

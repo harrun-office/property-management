@@ -40,7 +40,7 @@ function Tenants() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
@@ -64,7 +64,7 @@ function Tenants() {
                   <p><span className="font-medium">Lease Start:</span> {new Date(tenant.leaseStartDate).toLocaleDateString()}</p>
                   <p><span className="font-medium">Status:</span> 
                     <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
-                      tenant.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      tenant.status === 'active' ? 'bg-eucalyptus/20 text-eucalyptus' : 'bg-stone-200 text-charcoal'
                     }`}>
                       {tenant.status}
                     </span>

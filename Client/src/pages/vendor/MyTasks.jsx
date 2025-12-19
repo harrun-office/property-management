@@ -55,69 +55,69 @@ function MyTasks() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading tasks...</p>
+      <div className="min-h-screen bg-porcelain flex items-center justify-center">
+        <p className="text-architectural">Loading tasks...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Tasks</h1>
-          <p className="text-gray-600">View and manage your assigned tasks</p>
+          <h1 className="text-4xl font-bold text-charcoal mb-2">My Tasks</h1>
+          <p className="text-architectural">View and manage your assigned tasks</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
 
         {tasks.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl shadow-md">
-            <p className="text-gray-600 text-lg">No tasks assigned yet.</p>
+          <div className="text-center py-12 bg-stone-100 rounded-2xl shadow-md">
+            <p className="text-architectural text-lg">No tasks assigned yet.</p>
           </div>
         ) : (
           <div className="space-y-6">
             {tasks.map((task) => (
-              <div key={task.id} className="bg-white rounded-2xl shadow-md p-6">
+              <div key={task.id} className="bg-stone-100 rounded-2xl shadow-md p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{task.title}</h3>
-                    <p className="text-gray-600 mb-4">{task.description}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <h3 className="text-xl font-semibold text-charcoal mb-2">{task.title}</h3>
+                    <p className="text-architectural mb-4">{task.description}</p>
+                    <div className="flex items-center space-x-4 text-sm text-architectural">
                       <span>Property ID: {task.propertyId}</span>
                       {task.dueDate && (
                         <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
                       )}
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        task.priority === 'high' ? 'bg-red-100 text-red-700' :
-                        task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-gray-100 text-gray-700'
+                        task.priority === 'high' ? 'bg-error/20 text-error' :
+                        task.priority === 'medium' ? 'bg-warning/20 text-warning' :
+                        'bg-stone-200 text-charcoal'
                       }`}>
                         {task.priority}
                       </span>
                     </div>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    task.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                    task.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                    'bg-yellow-100 text-yellow-700'
+                    task.status === 'completed' ? 'bg-eucalyptus/20 text-eucalyptus' :
+                    task.status === 'in_progress' ? 'bg-obsidian/20 text-obsidian-500' :
+                    'bg-warning/20 text-warning'
                   }`}>
                     {task.status}
                   </span>
                 </div>
 
                 {/* Status Update */}
-                <div className="mb-4 pt-4 border-t">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
+                <div className="mb-4 pt-4 border-t border-stone-300">
+                  <label className="block text-sm font-medium text-charcoal mb-2">Update Status</label>
                   <div className="flex space-x-2">
                     {task.status !== 'pending' && (
                       <button
                         onClick={() => handleStatusUpdate(task.id, 'pending')}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                        className="px-4 py-2 bg-stone-200 text-charcoal rounded-lg hover:bg-stone-300 transition-colors"
                       >
                         Mark as Pending
                       </button>
@@ -125,7 +125,7 @@ function MyTasks() {
                     {task.status !== 'in_progress' && (
                       <button
                         onClick={() => handleStatusUpdate(task.id, 'in_progress')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 transition-colors"
                       >
                         Start Work
                       </button>
@@ -133,7 +133,7 @@ function MyTasks() {
                     {task.status !== 'completed' && (
                       <button
                         onClick={() => handleStatusUpdate(task.id, 'completed')}
-                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                        className="px-4 py-2 bg-eucalyptus text-porcelain rounded-lg hover:bg-eucalyptus-600 transition-colors"
                       >
                         Mark Complete
                       </button>
@@ -142,27 +142,27 @@ function MyTasks() {
                 </div>
 
                 {/* File Upload */}
-                <div className="pt-4 border-t">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Upload Files</label>
+                <div className="pt-4 border-t border-stone-300">
+                  <label className="block text-sm font-medium text-charcoal mb-2">Upload Files</label>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleFileInput(task.id, 'photo')}
                       disabled={uploadingFile === task.id}
-                      className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50"
+                      className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 disabled:opacity-50 transition-colors"
                     >
                       Upload Photo
                     </button>
                     <button
                       onClick={() => handleFileInput(task.id, 'invoice')}
                       disabled={uploadingFile === task.id}
-                      className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50"
+                      className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 disabled:opacity-50 transition-colors"
                     >
                       Upload Invoice
                     </button>
                     <button
                       onClick={() => handleFileInput(task.id, 'report')}
                       disabled={uploadingFile === task.id}
-                      className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50"
+                      className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 disabled:opacity-50 transition-colors"
                     >
                       Upload Report
                     </button>
@@ -171,8 +171,8 @@ function MyTasks() {
 
                 {/* Attachments */}
                 {task.attachments && task.attachments.length > 0 && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Attachments:</p>
+                  <div className="mt-4 pt-4 border-t border-stone-300">
+                    <p className="text-sm font-medium text-charcoal mb-2">Attachments:</p>
                     <div className="flex flex-wrap gap-2">
                       {task.attachments.map((att, idx) => (
                         <a
@@ -180,7 +180,7 @@ function MyTasks() {
                           href={att.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"
+                          className="px-3 py-1 bg-porcelain text-charcoal rounded-lg text-sm hover:bg-stone-200 transition-colors"
                         >
                           {att.fileName || att.type}
                         </a>

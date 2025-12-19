@@ -118,10 +118,10 @@ function Features() {
 
   return (
     <div className="min-h-screen bg-porcelain">
-      <section className="bg-gradient-to-r from-obsidian-500 to-eucalyptus-500 text-porcelain py-20 px-4">
+      <section className="bg-obsidian text-porcelain py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">Platform Features</h1>
-          <p className="text-xl md:text-2xl text-stone-100 max-w-3xl mx-auto">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-porcelain">Platform Features</h1>
+          <p className="text-xl md:text-2xl text-stone-200 max-w-3xl mx-auto">
             Everything you need to manage properties and find your perfect home
           </p>
         </div>
@@ -162,7 +162,7 @@ function Features() {
           {/* Tenant Features */}
           <div className="mb-12">
             <h3 className="text-2xl font-semibold mb-6 text-charcoal flex items-center">
-              <svg className="w-8 h-8 mr-2 text-obsidian-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 mr-2 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               Tenant Features
@@ -177,7 +177,7 @@ function Features() {
           {/* Owner Features */}
           <div className="mb-12">
             <h3 className="text-2xl font-semibold mb-6 text-charcoal flex items-center">
-              <svg className="w-8 h-8 mr-2 text-obsidian-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 mr-2 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
               Property Owner Features
@@ -192,7 +192,7 @@ function Features() {
           {/* Shared Features */}
           <div>
             <h3 className="text-2xl font-semibold mb-6 text-charcoal flex items-center">
-              <svg className="w-8 h-8 mr-2 text-obsidian-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 mr-2 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Shared Features
@@ -213,7 +213,7 @@ function Features() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse bg-stone-100 rounded-xl shadow-md border border-stone-200">
               <thead>
-                <tr className="bg-obsidian-500 text-porcelain">
+                <tr className="bg-obsidian text-porcelain">
                   <th className="p-4 text-left">Feature</th>
                   <th className="p-4 text-center">Tenant</th>
                   <th className="p-4 text-center">Property Owner</th>
@@ -330,10 +330,10 @@ function Features() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {comingSoonFeatures.map((feature, index) => (
               <div key={index} className="bg-porcelain rounded-2xl shadow-md p-8 opacity-75 border border-stone-200">
-                <div className="text-obsidian-500 mb-4">{feature.icon}</div>
+                <div className="text-obsidian mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-semibold text-charcoal mb-3">{feature.title}</h3>
                 <p className="text-architectural leading-relaxed">{feature.description}</p>
-                <span className="inline-block mt-4 px-3 py-1 bg-obsidian-100 text-obsidian-500 rounded-full text-sm font-semibold">
+                <span className="inline-block mt-4 px-3 py-1 bg-obsidian-100 text-obsidian rounded-full text-sm font-semibold">
                   Coming Soon
                 </span>
               </div>

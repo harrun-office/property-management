@@ -94,7 +94,7 @@ function PropertyDetails() {
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-obsidian-500' : 'bg-porcelain bg-opacity-50'
+                        index === currentImageIndex ? 'bg-obsidian' : 'bg-porcelain bg-opacity-50'
                       }`}
                     />
                   ))}

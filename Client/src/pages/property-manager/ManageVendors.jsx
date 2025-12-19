@@ -78,37 +78,37 @@ function ManageVendors() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading vendors...</p>
+      <div className="min-h-screen bg-porcelain flex items-center justify-center">
+        <p className="text-architectural">Loading vendors...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Manage Vendors</h1>
-            <p className="text-gray-600">Create and manage vendors</p>
+            <h1 className="text-4xl font-bold text-charcoal mb-2">Manage Vendors</h1>
+            <p className="text-architectural">Create and manage vendors</p>
           </div>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="px-6 py-3 bg-slate-700 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors"
+            className="px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
           >
             {showCreateForm ? 'Cancel' : '+ Create Vendor'}
           </button>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
 
         {showCreateForm && (
-          <div className="bg-white rounded-2xl shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Create Vendor</h2>
+          <div className="bg-stone-100 rounded-2xl shadow-md p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-charcoal">Create Vendor</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -195,7 +195,7 @@ function ManageVendors() {
               </div>
               <button
                 type="submit"
-                className="px-6 py-3 bg-slate-700 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors"
+                className="px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
               >
                 Create & Send Invitation
               </button>
@@ -205,28 +205,28 @@ function ManageVendors() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {vendors.map((vendor) => (
-            <div key={vendor.id} className="bg-white rounded-2xl shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-2 text-gray-900">{vendor.companyName}</h3>
-              <p className="text-gray-600 mb-2">{vendor.contactName}</p>
-              <p className="text-sm text-gray-500 mb-4">{vendor.email}</p>
+            <div key={vendor.id} className="bg-stone-100 rounded-2xl shadow-md p-6">
+              <h3 className="text-xl font-semibold mb-2 text-charcoal">{vendor.companyName}</h3>
+              <p className="text-architectural mb-2">{vendor.contactName}</p>
+              <p className="text-sm text-architectural mb-4">{vendor.email}</p>
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-1">Service Types:</p>
+                <p className="text-sm font-medium text-charcoal mb-1">Service Types:</p>
                 <div className="flex flex-wrap gap-2">
                   {vendor.serviceTypes.map((type, idx) => (
-                    <span key={idx} className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs capitalize">
+                    <span key={idx} className="px-2 py-1 bg-obsidian-100 text-obsidian-500 rounded text-xs capitalize">
                       {type}
                     </span>
                   ))}
                 </div>
               </div>
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-1">Assigned Properties:</p>
-                <p className="text-sm text-gray-600">{vendor.assignedProperties?.length || 0} properties</p>
+                <p className="text-sm font-medium text-charcoal mb-1">Assigned Properties:</p>
+                <p className="text-sm text-architectural">{vendor.assignedProperties?.length || 0} properties</p>
               </div>
               <div className="flex items-center justify-between">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  vendor.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                  'bg-yellow-100 text-yellow-700'
+                  vendor.status === 'active' ? 'bg-eucalyptus/20 text-eucalyptus' :
+                  'bg-warning/20 text-warning'
                 }`}>
                   {vendor.status}
                 </span>
@@ -237,7 +237,7 @@ function ManageVendors() {
                       handleAssignProperty(vendor.id, parseInt(propertyId), vendor.permissionScope);
                     }
                   }}
-                  className="px-3 py-1 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-800"
+                  className="px-3 py-1 text-sm bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 transition-colors"
                 >
                   Assign Property
                 </button>
@@ -247,11 +247,11 @@ function ManageVendors() {
         </div>
 
         {vendors.length === 0 && !showCreateForm && (
-          <div className="text-center py-12 bg-white rounded-2xl shadow-md">
-            <p className="text-gray-600 text-lg mb-4">No vendors yet. Create one to get started.</p>
+          <div className="text-center py-12 bg-stone-100 rounded-2xl shadow-md">
+            <p className="text-architectural text-lg mb-4">No vendors yet. Create one to get started.</p>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="px-6 py-3 bg-slate-700 text-white rounded-xl font-semibold hover:bg-slate-800"
+              className="px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
             >
               Create Your First Vendor
             </button>

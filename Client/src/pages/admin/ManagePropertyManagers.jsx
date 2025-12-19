@@ -14,6 +14,8 @@ function ManagePropertyManagers() {
     name: '',
     assignedProperties: []
   });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
@@ -37,14 +39,89 @@ function ManagePropertyManagers() {
     }
   };
 
+  const validateField = (name, value) => {
+    let error = '';
+    
+    switch (name) {
+      case 'name':
+        if (!value.trim()) {
+          error = 'Name is required';
+        } else if (value.trim().length < 2) {
+          error = 'Name must be at least 2 characters';
+        } else if (!/^[a-zA-Z\s'-]+$/.test(value.trim())) {
+          error = 'Name can only contain letters, spaces, hyphens, and apostrophes';
+        }
+        break;
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+      default:
+        break;
+    }
+    
+    return error;
+  };
+
+  const handleFieldChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    
+    // Validate on change if field has been touched
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors({
+        ...errors,
+        [name]: error
+      });
+    }
+  };
+
+  const handleFieldBlur = (name, value) => {
+    setTouched({
+      ...touched,
+      [name]: true
+    });
+    
+    const error = validateField(name, value);
+    setErrors({
+      ...errors,
+      [name]: error
+    });
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     setError('');
+    
+    // Mark all fields as touched
+    setTouched({ name: true, email: true });
+    
+    // Validate all fields
+    const newErrors = {
+      name: validateField('name', formData.name),
+      email: validateField('email', formData.email)
+    };
+    
+    setErrors(newErrors);
+    
+    // Check if there are any errors
+    if (Object.values(newErrors).some(err => err)) {
+      setError('Please fix the errors in the form');
+      return;
+    }
 
     try {
       await adminAPI.createPropertyManager(formData);
       setShowCreateForm(false);
       setFormData({ email: '', name: '', assignedProperties: [] });
+      setErrors({});
+      setTouched({});
       loadData();
     } catch (err) {
       setError(err.message);
@@ -98,7 +175,7 @@ function ManagePropertyManagers() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
@@ -108,24 +185,36 @@ function ManagePropertyManagers() {
             <h2 className="text-2xl font-bold mb-4 text-gray-900">Create Property Manager</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <label className="block text-sm font-medium text-charcoal mb-1">Name <span className="text-error">*</span></label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => handleFieldChange('name', e.target.value)}
+                  onBlur={(e) => handleFieldBlur('name', e.target.value)}
                   required
-                  className="w-full p-3 border border-gray-300 rounded-xl"
+                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                    errors.name ? 'border-error' : 'border-stone-300'
+                  }`}
                 />
+                {errors.name && touched.name && (
+                  <p className="mt-1 text-sm text-error">{errors.name}</p>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-charcoal mb-1">Email <span className="text-error">*</span></label>
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => handleFieldChange('email', e.target.value)}
+                  onBlur={(e) => handleFieldBlur('email', e.target.value)}
                   required
-                  className="w-full p-3 border border-gray-300 rounded-xl"
+                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                    errors.email ? 'border-error' : 'border-stone-300'
+                  }`}
                 />
+                {errors.email && touched.email && (
+                  <p className="mt-1 text-sm text-error">{errors.email}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Assign Properties</label>
@@ -184,9 +273,9 @@ function ManagePropertyManagers() {
                   <td className="px-6 py-4 whitespace-nowrap text-gray-600">{manager.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      manager.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                      manager.status === 'suspended' ? 'bg-red-100 text-red-700' :
-                      'bg-yellow-100 text-yellow-700'
+                      manager.status === 'active' ? 'bg-eucalyptus/20 text-eucalyptus' :
+                      manager.status === 'suspended' ? 'bg-error/20 text-error' :
+                      'bg-warning/20 text-warning'
                     }`}>
                       {manager.status}
                     </span>
@@ -204,14 +293,14 @@ function ManagePropertyManagers() {
                             handleAssignProperties(manager.id, propertyIds);
                           }
                         }}
-                        className="px-3 py-1 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-800"
+                        className="px-3 py-1 text-sm bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 transition-colors"
                       >
                         Assign Properties
                       </button>
                       {manager.status === 'active' && (
                         <button
                           onClick={() => handleSuspend(manager.id)}
-                          className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700"
+                          className="px-3 py-1 text-sm bg-error text-porcelain rounded-lg hover:opacity-90 transition-colors"
                         >
                           Suspend
                         </button>

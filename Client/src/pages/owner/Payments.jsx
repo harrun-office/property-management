@@ -45,7 +45,7 @@ function Payments() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
@@ -63,7 +63,7 @@ function Payments() {
             </div>
             <div className="bg-stone-100 rounded-xl shadow-md p-6">
               <p className="text-architectural text-sm mb-1">Overdue</p>
-              <p className="text-3xl font-bold text-red-600">{summary.overduePayments || 0}</p>
+              <p className="text-3xl font-bold text-error">{summary.overduePayments || 0}</p>
             </div>
             <div className="bg-stone-100 rounded-xl shadow-md p-6">
               <p className="text-architectural text-sm mb-1">Expected</p>
@@ -106,9 +106,9 @@ function Payments() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        payment.status === 'paid' ? 'bg-green-100 text-green-800' :
-                        payment.status === 'overdue' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
+                        payment.status === 'paid' ? 'bg-eucalyptus/20 text-eucalyptus' :
+                        payment.status === 'overdue' ? 'bg-error/20 text-error' :
+                        'bg-warning/20 text-warning'
                       }`}>
                         {payment.status}
                       </span>

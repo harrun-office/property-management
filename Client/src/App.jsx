@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import RoleBasedNavbar from './components/RoleBasedNavbar';
+import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Public pages
@@ -15,13 +16,19 @@ import ForOwners from './pages/ForOwners';
 import Features from './pages/Features';
 import HowItWorks from './pages/HowItWorks';
 import About from './pages/About';
+import SearchResults from './pages/SearchResults';
+import Notifications from './pages/Notifications';
+import HelpCenter from './pages/HelpCenter';
 
 // Super Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManagePropertyManagers from './pages/admin/ManagePropertyManagers';
-import AuditLogs from './pages/admin/AuditLogs';
 import SystemSettings from './pages/admin/SystemSettings';
 import SystemAnalytics from './pages/admin/SystemAnalytics';
+import UserManagement from './pages/admin/UserManagement';
+import PropertyManagement from './pages/admin/PropertyManagement';
+import FinancialDashboard from './pages/admin/FinancialDashboard';
+import ApplicationsManagement from './pages/admin/ApplicationsManagement';
 
 // Property Manager pages
 import PropertyManagerDashboard from './pages/property-manager/PropertyManagerDashboard';
@@ -35,6 +42,11 @@ import VendorDashboard from './pages/vendor/VendorDashboard';
 import MyTasks from './pages/vendor/MyTasks';
 import MyProfile from './pages/vendor/MyProfile';
 import PropertyAccess from './pages/vendor/PropertyAccess';
+
+// Tenant pages
+import TenantDashboard from './pages/tenant/TenantDashboard';
+import SavedProperties from './pages/tenant/SavedProperties';
+import TenantApplications from './pages/tenant/TenantApplications';
 
 // Property Owner pages
 import OwnerDashboard from './pages/owner/OwnerDashboard';
@@ -54,9 +66,10 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-porcelain">
+        <div className="min-h-screen bg-porcelain flex flex-col">
           <RoleBasedNavbar />
-          <Routes>
+          <main className="flex-grow">
+            <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/properties" element={<BrowseProperties />} />
@@ -69,6 +82,8 @@ function App() {
             <Route path="/features" element={<Features />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/about" element={<About />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/help" element={<HelpCenter />} />
 
             {/* Super Admin Routes */}
             <Route
@@ -88,14 +103,6 @@ function App() {
               }
             />
             <Route
-              path="/admin/audit-logs"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <AuditLogs />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/admin/analytics"
               element={
                 <ProtectedRoute requireSuperAdmin>
@@ -108,6 +115,38 @@ function App() {
               element={
                 <ProtectedRoute requireSuperAdmin>
                   <SystemSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/properties"
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <PropertyManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/financial"
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <FinancialDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/applications"
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <ApplicationsManagement />
                 </ProtectedRoute>
               }
             />
@@ -184,6 +223,42 @@ function App() {
               element={
                 <ProtectedRoute requireVendor>
                   <MyProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Tenant Routes */}
+            <Route
+              path="/tenant/dashboard"
+              element={
+                <ProtectedRoute>
+                  <TenantDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenant/saved"
+              element={
+                <ProtectedRoute>
+                  <SavedProperties />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenant/applications"
+              element={
+                <ProtectedRoute>
+                  <TenantApplications />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Notifications (All authenticated users) */}
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notifications />
                 </ProtectedRoute>
               }
             />
@@ -285,7 +360,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          </Routes>
+            </Routes>
+          </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>

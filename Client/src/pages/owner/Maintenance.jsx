@@ -49,7 +49,7 @@ function Maintenance() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
             {error}
           </div>
         )}
@@ -72,10 +72,10 @@ function Maintenance() {
                       <span>Tenant: {request.tenant?.name || 'N/A'}</span>
                       <span>Priority: 
                         <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
-                          request.priority === 'urgent' ? 'bg-red-100 text-red-800' :
-                          request.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                          request.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-blue-100 text-blue-800'
+                          request.priority === 'urgent' ? 'bg-error/20 text-error' :
+                          request.priority === 'high' ? 'bg-warning/20 text-warning' :
+                          request.priority === 'medium' ? 'bg-brass/20 text-brass' :
+                          'bg-obsidian/20 text-obsidian-500'
                         }`}>
                           {request.priority}
                         </span>

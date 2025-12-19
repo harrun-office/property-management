@@ -7,6 +7,8 @@ function Login() {
   const [role, setRole] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -27,16 +29,92 @@ function Login() {
     return entry ? entry[0].replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : roleValue;
   };
 
+  const validateField = (name, value) => {
+    let error = '';
+    
+    switch (name) {
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+      case 'password':
+        if (!value) {
+          error = 'Password is required';
+        } else if (value.length < 1) {
+          error = 'Password cannot be empty';
+        }
+        break;
+      case 'role':
+        if (!value) {
+          error = 'Please select your role';
+        }
+        break;
+      default:
+        break;
+    }
+    
+    return error;
+  };
+
+  const handleChange = (field, value) => {
+    if (field === 'role') {
+      setRole(value);
+    } else if (field === 'email') {
+      setEmail(value);
+    } else if (field === 'password') {
+      setPassword(value);
+    }
+    
+    // Validate on change if field has been touched
+    if (touched[field]) {
+      const error = validateField(field, value);
+      setErrors({
+        ...errors,
+        [field]: error
+      });
+    }
+  };
+
+  const handleBlur = (field, value) => {
+    setTouched({
+      ...touched,
+      [field]: true
+    });
+    
+    const error = validateField(field, value);
+    setErrors({
+      ...errors,
+      [field]: error
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
-
-    if (!role) {
-      setError('Please select a role');
+    
+    // Mark all fields as touched
+    setTouched({ role: true, email: true, password: true });
+    
+    // Validate all fields
+    const newErrors = {
+      role: validateField('role', role),
+      email: validateField('email', email),
+      password: validateField('password', password)
+    };
+    
+    setErrors(newErrors);
+    
+    // Check if there are any errors
+    if (Object.values(newErrors).some(err => err)) {
+      setError('Please fix the errors in the form');
       setLoading(false);
       return;
     }
+    
+    setLoading(true);
 
     try {
       const response = await authAPI.login(email, password);
@@ -75,7 +153,7 @@ function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-porcelain px-4">
       <div className="max-w-md w-full bg-stone-100 rounded-2xl shadow-lg p-8 border border-stone-200">
-        <h2 className="text-3xl font-bold text-center mb-6 text-obsidian-500">Login</h2>
+        <h2 className="text-3xl font-bold text-center mb-6 text-obsidian">Login</h2>
         
         {error && (
           <div className="mb-4 p-3 bg-error/10 border border-error text-error rounded-lg">
@@ -86,13 +164,16 @@ function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
-              Role
+              Role <span className="text-error">*</span>
             </label>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => handleChange('role', e.target.value)}
+              onBlur={(e) => handleBlur('role', e.target.value)}
               required
-              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain"
+              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                errors.role ? 'border-error' : 'border-stone-300'
+              }`}
             >
               <option value="">Select your role</option>
               <option value="admin">Admin</option>
@@ -101,40 +182,55 @@ function Login() {
               <option value="tenant">Tenant</option>
               <option value="vendor">Vendor</option>
             </select>
+            {errors.role && touched.role && (
+              <p className="mt-1 text-sm text-error">{errors.role}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
-              Email
+              Email <span className="text-error">*</span>
             </label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => handleChange('email', e.target.value)}
+              onBlur={(e) => handleBlur('email', e.target.value)}
               required
-              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain"
+              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                errors.email ? 'border-error' : 'border-stone-300'
+              }`}
               placeholder="Enter your email"
             />
+            {errors.email && touched.email && (
+              <p className="mt-1 text-sm text-error">{errors.email}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
-              Password
+              Password <span className="text-error">*</span>
             </label>
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => handleChange('password', e.target.value)}
+              onBlur={(e) => handleBlur('password', e.target.value)}
               required
-              className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain"
+              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
+                errors.password ? 'border-error' : 'border-stone-300'
+              }`}
               placeholder="Enter your password"
             />
+            {errors.password && touched.password && (
+              <p className="mt-1 text-sm text-error">{errors.password}</p>
+            )}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-obsidian-500 text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
@@ -142,7 +238,7 @@ function Login() {
 
         <p className="mt-6 text-center text-architectural text-sm">
           Don't have an account?{' '}
-          <Link to="/register" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">
+          <Link to="/register" className="text-obsidian font-semibold hover:text-brass transition-colors">
             Register here
           </Link>
         </p>

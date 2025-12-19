@@ -42,10 +42,10 @@ function About() {
 
   return (
     <div className="min-h-screen bg-porcelain">
-      <section className="bg-gradient-to-r from-obsidian-500 to-eucalyptus-500 text-porcelain py-20 px-4">
+      <section className="bg-obsidian text-porcelain py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">About PropManage</h1>
-          <p className="text-xl md:text-2xl text-stone-100 max-w-3xl mx-auto">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-porcelain">About PropManage</h1>
+          <p className="text-xl md:text-2xl text-stone-200 max-w-3xl mx-auto">
             Simplifying property management for everyone
           </p>
         </div>
@@ -105,7 +105,7 @@ function About() {
           <div className="grid md:grid-cols-2 gap-8">
             {values.map((value, index) => (
               <div key={index} className="bg-stone-100 rounded-2xl shadow-md p-8 border border-stone-200">
-                <div className="text-obsidian-500 mb-4">{value.icon}</div>
+                <div className="text-obsidian mb-4">{value.icon}</div>
                 <h3 className="text-2xl font-semibold mb-3 text-charcoal">{value.title}</h3>
                 <p className="text-architectural leading-relaxed">{value.description}</p>
               </div>
@@ -154,22 +154,22 @@ function About() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-obsidian-500 text-porcelain">
+      <section className="py-16 px-4 bg-obsidian text-porcelain">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">Join Us on This Journey</h2>
-          <p className="text-xl text-stone-100 mb-8">
+          <h2 className="text-4xl font-bold mb-4 text-porcelain">Join Us on This Journey</h2>
+          <p className="text-xl text-stone-200 mb-8">
             Whether you're a tenant or property owner, we'd love to have you as part of the PropManage community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/register"
-              className="px-8 py-4 bg-brass-500 text-white rounded-xl font-semibold text-lg hover:bg-brass-600 transition-colors shadow-lg"
+              className="px-8 py-4 bg-brass text-porcelain rounded-xl font-semibold text-lg hover:bg-brass-light transition-colors shadow-lg"
             >
               Get Started
             </Link>
             <Link
               to="/how-it-works"
-              className="px-8 py-4 bg-transparent border-2 border-porcelain text-porcelain rounded-xl font-semibold text-lg hover:bg-porcelain hover:text-obsidian-500 transition-colors"
+              className="px-8 py-4 bg-transparent border-2 border-porcelain text-porcelain rounded-xl font-semibold text-lg hover:bg-porcelain hover:text-obsidian transition-colors"
             >
               Learn How It Works
             </Link>
