@@ -7,6 +7,8 @@ function PropertyManagerDashboard() {
   const [vendors, setVendors] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [reports, setReports] = useState(null);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [revenue, setRevenue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -28,6 +30,23 @@ function PropertyManagerDashboard() {
       setVendors(vendorsData);
       setTasks(tasksData);
       setReports(reportsData);
+      
+      // Load subscriptions and revenue separately to avoid blocking dashboard
+      try {
+        const subscriptionsData = await propertyManagerAPI.getMySubscriptions();
+        setSubscriptions(subscriptionsData);
+      } catch (err) {
+        console.error('Failed to load subscriptions:', err);
+        setSubscriptions([]);
+      }
+      
+      try {
+        const revenueData = await propertyManagerAPI.getSubscriptionRevenue();
+        setRevenue(revenueData);
+      } catch (err) {
+        console.error('Failed to load revenue:', err);
+        setRevenue(null);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -59,7 +78,7 @@ function PropertyManagerDashboard() {
 
         {/* Stats Grid */}
         {reports && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
             <div className="bg-white rounded-2xl shadow-md p-6">
               <h3 className="text-sm font-medium text-gray-600 mb-2">Properties</h3>
               <p className="text-3xl font-bold text-slate-700">{reports.totalProperties}</p>
@@ -76,11 +95,47 @@ function PropertyManagerDashboard() {
               <h3 className="text-sm font-medium text-gray-600 mb-2">Pending</h3>
               <p className="text-3xl font-bold text-warning">{reports.pendingTasks}</p>
             </div>
+            <div className="bg-white rounded-2xl shadow-md p-6">
+              <h3 className="text-sm font-medium text-gray-600 mb-2">Active Subscriptions</h3>
+              <p className="text-3xl font-bold text-slate-700">
+                {subscriptions.filter(s => s.status === 'active').length}
+              </p>
+              <Link to="/property-manager/subscriptions" className="text-xs text-blue-600 mt-1 hover:underline block">
+                View →
+              </Link>
+            </div>
+            <div className="bg-white rounded-2xl shadow-md p-6">
+              <h3 className="text-sm font-medium text-gray-600 mb-2">Total Revenue</h3>
+              <p className="text-3xl font-bold text-eucalyptus">
+                ${revenue?.totalRevenue ? revenue.totalRevenue.toLocaleString() : '0'}
+              </p>
+              <Link to="/property-manager/revenue" className="text-xs text-blue-600 mt-1 hover:underline block">
+                Details →
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* New Subscriptions Alert */}
+        {subscriptions.filter(s => s.status === 'active').length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="font-semibold text-blue-900">You have {subscriptions.filter(s => s.status === 'active').length} active subscription(s)</p>
+                <p className="text-sm text-blue-700">Manage your subscriptions and contact owners</p>
+              </div>
+              <Link
+                to="/property-manager/subscriptions"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+              >
+                View Subscriptions
+              </Link>
+            </div>
           </div>
         )}
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
           <Link
             to="/property-manager/properties"
             className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition-shadow"
@@ -94,6 +149,13 @@ function PropertyManagerDashboard() {
           >
             <h3 className="text-xl font-semibold mb-2 text-slate-700">Manage Vendors</h3>
             <p className="text-gray-600">Create and manage vendors</p>
+          </Link>
+          <Link
+            to="/property-manager/subscriptions"
+            className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition-shadow"
+          >
+            <h3 className="text-xl font-semibold mb-2 text-slate-700">My Subscriptions</h3>
+            <p className="text-gray-600">View subscription assignments</p>
           </Link>
           <Link
             to="/property-manager/tasks"

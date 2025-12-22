@@ -4,11 +4,13 @@ import { ownerAPI } from '../../services/api';
 
 function OwnerDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
+  const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     loadDashboard();
+    loadSubscriptions();
   }, []);
 
   const loadDashboard = async () => {
@@ -21,6 +23,16 @@ function OwnerDashboard() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSubscriptions = async () => {
+    try {
+      const data = await ownerAPI.getMySubscriptions();
+      setSubscriptions(data);
+    } catch (err) {
+      // Silently fail for subscriptions
+      console.error('Failed to load subscriptions:', err);
     }
   };
 
@@ -156,12 +168,59 @@ function OwnerDashboard() {
               </div>
             </div>
           </div>
+
+          <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-architectural text-sm mb-1">Active Subscriptions</p>
+                <p className="text-3xl font-bold text-charcoal">
+                  {subscriptions.filter(s => s.status === 'active').length}
+                </p>
+                <Link to="/owner/subscriptions" className="text-xs text-obsidian-500 mt-1 hover:text-brass-500 transition-colors">
+                  Manage →
+                </Link>
+              </div>
+              <div className="w-12 h-12 bg-obsidian-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-obsidian-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Subscription Summary */}
+        {subscriptions.filter(s => s.status === 'active').length > 0 && (
+          <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200 mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-charcoal">Active Subscriptions</h2>
+              <Link to="/owner/subscriptions" className="text-obsidian hover:text-brass transition-colors text-sm font-medium">
+                View All →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {subscriptions.filter(s => s.status === 'active').slice(0, 3).map((subscription) => (
+                <div key={subscription.id} className="bg-porcelain p-4 rounded-lg border border-stone-200">
+                  <p className="font-semibold text-charcoal mb-1">{subscription.manager?.name || 'Manager'}</p>
+                  <p className="text-sm text-architectural mb-2">{subscription.property?.title || 'Property'}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-architectural">${subscription.monthlyFee}/mo</span>
+                    {subscription.nextPayment && (
+                      <span className="text-xs text-architectural">
+                        Due {new Date(subscription.nextPayment.dueDate).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="bg-stone-100 rounded-xl shadow-md p-6 mb-8 border border-stone-200">
           <h2 className="text-2xl font-bold text-charcoal mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             <Link
               to="/owner/properties/new"
               className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-stone-300 rounded-lg hover:border-obsidian-500 hover:bg-stone-200 transition-colors"
@@ -206,6 +265,15 @@ function OwnerDashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
               <span className="text-sm font-medium text-charcoal">Messages</span>
+            </Link>
+            <Link
+              to="/owner/managers"
+              className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-stone-300 rounded-lg hover:border-obsidian-500 hover:bg-stone-200 transition-colors"
+            >
+              <svg className="w-8 h-8 text-architectural mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span className="text-sm font-medium text-charcoal">Hire Manager</span>
             </Link>
           </div>
         </div>

@@ -42,10 +42,14 @@ function Register() {
       case 'mobileNumber':
         if (!value.trim()) {
           error = 'Mobile number is required';
-        } else if (!/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/.test(value.trim())) {
-          error = 'Please enter a valid mobile number (e.g., +1234567890 or 123-456-7890)';
-        } else if (value.replace(/\D/g, '').length < 10) {
-          error = 'Mobile number must contain at least 10 digits';
+        } else {
+          // Remove all non-digit characters for validation
+          const digitsOnly = value.replace(/\D/g, '');
+          if (digitsOnly.length < 10) {
+            error = 'Mobile number must contain at least 10 digits';
+          } else if (digitsOnly.length > 15) {
+            error = 'Mobile number is too long (max 15 digits)';
+          }
         }
         break;
       case 'password':
@@ -84,12 +88,26 @@ function Register() {
       [name]: value
     });
     
+    // Clear top error when user starts typing
+    if (error) {
+      setError('');
+    }
+    
     // Validate on change if field has been touched
     if (touched[name]) {
       const error = validateField(name, value);
       setErrors({
         ...errors,
         [name]: error
+      });
+    }
+    
+    // Special handling for confirmPassword - validate against current password
+    if (name === 'password' && touched.confirmPassword && formData.confirmPassword) {
+      const confirmError = validateField('confirmPassword', formData.confirmPassword);
+      setErrors({
+        ...errors,
+        confirmPassword: confirmError
       });
     }
   };
@@ -134,7 +152,16 @@ function Register() {
     
     // Check if there are any errors
     if (Object.keys(newErrors).length > 0) {
-      setError('Please fix the errors in the form');
+      // Only show generic error if there are validation errors
+      const errorFields = Object.keys(newErrors).join(', ');
+      setError(`Please fix the following fields: ${errorFields.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+      // Scroll to first error field
+      const firstErrorField = Object.keys(newErrors)[0];
+      const element = document.querySelector(`[name="${firstErrorField}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.focus();
+      }
       return;
     }
 
@@ -151,7 +178,11 @@ function Register() {
       login(response.user, response.token);
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      // Extract error message from API response
+      const errorMessage = err.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setLoading(false);
     }
@@ -166,8 +197,13 @@ function Register() {
         </p>
         
         {error && (
-          <div className="mb-4 p-3 bg-error/10 border border-error text-error rounded-lg">
-            {error}
+          <div className="mb-4 p-3 bg-error/10 border border-error text-error rounded-lg text-sm">
+            <div className="flex items-start">
+              <svg className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
+            </div>
           </div>
         )}
 

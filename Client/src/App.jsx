@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import RoleBasedNavbar from './components/RoleBasedNavbar';
 import Footer from './components/Footer';
@@ -22,13 +22,7 @@ import HelpCenter from './pages/HelpCenter';
 
 // Super Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
-import ManagePropertyManagers from './pages/admin/ManagePropertyManagers';
-import SystemSettings from './pages/admin/SystemSettings';
-import SystemAnalytics from './pages/admin/SystemAnalytics';
-import UserManagement from './pages/admin/UserManagement';
-import PropertyManagement from './pages/admin/PropertyManagement';
-import FinancialDashboard from './pages/admin/FinancialDashboard';
-import ApplicationsManagement from './pages/admin/ApplicationsManagement';
+import PropertyActivity from './pages/admin/PropertyActivity';
 
 // Property Manager pages
 import PropertyManagerDashboard from './pages/property-manager/PropertyManagerDashboard';
@@ -36,6 +30,9 @@ import ManageProperties from './pages/property-manager/ManageProperties';
 import ManageVendors from './pages/property-manager/ManageVendors';
 import TaskManagement from './pages/property-manager/TaskManagement';
 import Reports from './pages/property-manager/Reports';
+import ManagerSubscriptions from './pages/property-manager/MySubscriptions';
+import Onboarding from './pages/property-manager/Onboarding';
+import Revenue from './pages/property-manager/Revenue';
 
 // Vendor pages
 import VendorDashboard from './pages/vendor/VendorDashboard';
@@ -47,6 +44,12 @@ import PropertyAccess from './pages/vendor/PropertyAccess';
 import TenantDashboard from './pages/tenant/TenantDashboard';
 import SavedProperties from './pages/tenant/SavedProperties';
 import TenantApplications from './pages/tenant/TenantApplications';
+import TenantPayments from './pages/tenant/TenantPayments';
+import TenantMessages from './pages/tenant/TenantMessages';
+import TenantMaintenance from './pages/tenant/TenantMaintenance';
+import TenantLease from './pages/tenant/TenantLease';
+import TenantDocuments from './pages/tenant/TenantDocuments';
+import TenantProfile from './pages/tenant/TenantProfile';
 
 // Property Owner pages
 import OwnerDashboard from './pages/owner/OwnerDashboard';
@@ -54,6 +57,11 @@ import MyProperties from './pages/owner/MyProperties';
 import PostProperty from './pages/owner/PostProperty';
 import EditProperty from './pages/owner/EditProperty';
 import Applications from './pages/owner/Applications';
+import ManagerMarketplace from './pages/owner/ManagerMarketplace';
+import MySubscriptions from './pages/owner/MySubscriptions';
+import SubscriptionDetails from './pages/owner/SubscriptionDetails';
+import SubscriptionPayment from './pages/owner/SubscriptionPayment';
+import ServiceAgreement from './pages/owner/ServiceAgreement';
 import Tenants from './pages/owner/Tenants';
 import Messages from './pages/owner/Messages';
 import Payments from './pages/owner/Payments';
@@ -95,58 +103,10 @@ function App() {
               }
             />
             <Route
-              path="/admin/property-managers"
+              path="/admin/property-activity"
               element={
                 <ProtectedRoute requireSuperAdmin>
-                  <ManagePropertyManagers />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/analytics"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <SystemAnalytics />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/settings"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <SystemSettings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <UserManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/properties"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <PropertyManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/financial"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <FinancialDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/applications"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <ApplicationsManagement />
+                  <PropertyActivity />
                 </ProtectedRoute>
               }
             />
@@ -192,6 +152,38 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/property-manager/subscriptions"
+              element={
+                <ProtectedRoute requirePropertyManager>
+                  <ManagerSubscriptions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/property-manager/subscriptions/:id"
+              element={
+                <ProtectedRoute requirePropertyManager>
+                  <Onboarding />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/property-manager/onboarding/:id"
+              element={
+                <ProtectedRoute requirePropertyManager>
+                  <Onboarding />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/property-manager/revenue"
+              element={
+                <ProtectedRoute requirePropertyManager>
+                  <Revenue />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Vendor Routes */}
             <Route
@@ -233,6 +225,54 @@ function App() {
               element={
                 <ProtectedRoute>
                   <TenantDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenant/payments"
+              element={
+                <ProtectedRoute>
+                  <TenantPayments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenant/messages"
+              element={
+                <ProtectedRoute>
+                  <TenantMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenant/maintenance"
+              element={
+                <ProtectedRoute>
+                  <TenantMaintenance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenant/lease"
+              element={
+                <ProtectedRoute>
+                  <TenantLease />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenant/documents"
+              element={
+                <ProtectedRoute>
+                  <TenantDocuments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tenant/profile"
+              element={
+                <ProtectedRoute>
+                  <TenantProfile />
                 </ProtectedRoute>
               }
             />
@@ -325,6 +365,46 @@ function App() {
               element={
                 <ProtectedRoute requirePropertyOwner>
                   <Payments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/owner/managers"
+              element={
+                <ProtectedRoute requirePropertyOwner>
+                  <ManagerMarketplace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/owner/subscriptions"
+              element={
+                <ProtectedRoute requirePropertyOwner>
+                  <MySubscriptions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/owner/subscriptions/:id"
+              element={
+                <ProtectedRoute requirePropertyOwner>
+                  <SubscriptionDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/owner/subscriptions/:id/payment"
+              element={
+                <ProtectedRoute requirePropertyOwner>
+                  <SubscriptionPayment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/owner/subscriptions/:id/agreement"
+              element={
+                <ProtectedRoute requirePropertyOwner>
+                  <ServiceAgreement />
                 </ProtectedRoute>
               }
             />

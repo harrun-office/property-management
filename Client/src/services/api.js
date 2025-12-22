@@ -38,8 +38,15 @@ export const authAPI = {
     });
     
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Registration failed');
+      let errorMessage = 'Registration failed';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
     
     return response.json();
@@ -100,7 +107,8 @@ export const adminAPI = {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch property managers');
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(errorData.error || 'Failed to fetch property managers');
     }
     
     return response.json();
@@ -150,49 +158,47 @@ export const adminAPI = {
     return response.json();
   },
 
-  getAnalytics: async () => {
-    const response = await fetch(`${API_BASE_URL}/admin/analytics`, {
-      headers: getAuthHeaders()
+  createVendor: async (data) => {
+    const response = await fetch(`${API_BASE_URL}/admin/vendors`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch analytics');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create vendor');
     }
     
     return response.json();
   },
 
-  getAllUsers: async (filters = {}) => {
-    const queryParams = new URLSearchParams();
-    if (filters.role) queryParams.append('role', filters.role);
-    if (filters.status) queryParams.append('status', filters.status);
-    if (filters.search) queryParams.append('search', filters.search);
-    
-    const response = await fetch(`${API_BASE_URL}/admin/users?${queryParams}`, {
+  getVendors: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/vendors`, {
       headers: getAuthHeaders()
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch users');
+      throw new Error('Failed to fetch vendors');
     }
     
     return response.json();
   },
 
-  getUserById: async (userId) => {
-    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+  getVendorById: async (vendorId) => {
+    const response = await fetch(`${API_BASE_URL}/admin/vendors/${vendorId}`, {
       headers: getAuthHeaders()
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch user');
+      throw new Error('Failed to fetch vendor');
     }
     
     return response.json();
   },
 
-  updateUser: async (userId, data) => {
-    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+  updateVendor: async (id, data) => {
+    const response = await fetch(`${API_BASE_URL}/admin/vendors/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
@@ -200,154 +206,158 @@ export const adminAPI = {
     
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to update user');
+      throw new Error(error.error || 'Failed to update vendor');
     }
     
     return response.json();
   },
 
-  suspendUser: async (userId) => {
-    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/suspend`, {
-      method: 'POST',
-      headers: getAuthHeaders()
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to suspend user');
-    }
-    
-    return response.json();
-  },
-
-  activateUser: async (userId) => {
-    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/activate`, {
-      method: 'POST',
-      headers: getAuthHeaders()
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to activate user');
-    }
-    
-    return response.json();
-  },
-
-  getAllProperties: async (filters = {}) => {
-    const queryParams = new URLSearchParams();
-    if (filters.status) queryParams.append('status', filters.status);
-    if (filters.search) queryParams.append('search', filters.search);
-    if (filters.ownerId) queryParams.append('ownerId', filters.ownerId);
-    
-    const response = await fetch(`${API_BASE_URL}/admin/properties?${queryParams}`, {
-      headers: getAuthHeaders()
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch properties');
-    }
-    
-    return response.json();
-  },
-
-  getPropertyById: async (propertyId) => {
-    const response = await fetch(`${API_BASE_URL}/admin/properties/${propertyId}`, {
-      headers: getAuthHeaders()
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch property');
-    }
-    
-    return response.json();
-  },
-
-  updateProperty: async (propertyId, data) => {
-    const response = await fetch(`${API_BASE_URL}/admin/properties/${propertyId}`, {
-      method: 'PUT',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(data)
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to update property');
-    }
-    
-    return response.json();
-  },
-
-  deleteProperty: async (propertyId) => {
-    const response = await fetch(`${API_BASE_URL}/admin/properties/${propertyId}`, {
+  suspendVendor: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/admin/vendors/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
     
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to delete property');
+      throw new Error(error.error || 'Failed to suspend vendor');
     }
     
     return response.json();
   },
 
-  getAllApplications: async (filters = {}) => {
-    const queryParams = new URLSearchParams();
-    if (filters.status) queryParams.append('status', filters.status);
-    if (filters.propertyId) queryParams.append('propertyId', filters.propertyId);
-    if (filters.tenantId) queryParams.append('tenantId', filters.tenantId);
-    
-    const response = await fetch(`${API_BASE_URL}/admin/applications?${queryParams}`, {
+  activateVendor: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/admin/vendors/${id}/activate`, {
+      method: 'POST',
       headers: getAuthHeaders()
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch applications');
-    }
-    
-    return response.json();
-  },
-
-  getApplicationById: async (applicationId) => {
-    const response = await fetch(`${API_BASE_URL}/admin/applications/${applicationId}`, {
-      headers: getAuthHeaders()
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch application');
-    }
-    
-    return response.json();
-  },
-
-  updateApplication: async (applicationId, data) => {
-    const response = await fetch(`${API_BASE_URL}/admin/applications/${applicationId}`, {
-      method: 'PUT',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(data)
     });
     
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to update application');
+      throw new Error(error.error || 'Failed to activate vendor');
     }
     
     return response.json();
   },
 
-  getFinancialData: async (filters = {}) => {
-    const queryParams = new URLSearchParams();
-    if (filters.startDate) queryParams.append('startDate', filters.startDate);
-    if (filters.endDate) queryParams.append('endDate', filters.endDate);
-    if (filters.propertyId) queryParams.append('propertyId', filters.propertyId);
-    
-    const response = await fetch(`${API_BASE_URL}/admin/financial?${queryParams}`, {
+  activatePropertyManager: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/admin/property-managers/${id}/activate`, {
+      method: 'POST',
       headers: getAuthHeaders()
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch financial data');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to activate property manager');
+    }
+    
+    return response.json();
+  },
+
+  resetPassword: async (userId, newPassword) => {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/reset-password`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ newPassword })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to reset password');
+    }
+    
+    return response.json();
+  },
+
+  getManagersPerformance: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/performance/managers`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch managers performance');
+    }
+    
+    return response.json();
+  },
+
+  getVendorsPerformance: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/performance/vendors`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch vendors performance');
+    }
+    
+    return response.json();
+  },
+
+  getAuditLogs: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.offset) queryParams.append('offset', params.offset);
+    if (params.action) queryParams.append('action', params.action);
+    if (params.resourceType) queryParams.append('resourceType', params.resourceType);
+    if (params.userId) queryParams.append('userId', params.userId);
+    if (params.startDate) queryParams.append('startDate', params.startDate);
+    if (params.endDate) queryParams.append('endDate', params.endDate);
+
+    const response = await fetch(`${API_BASE_URL}/admin/audit-logs?${queryParams.toString()}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch audit logs');
+    }
+    
+    return response.json();
+  },
+
+  getSystemOverview: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/system-overview`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch system overview');
+    }
+    
+    return response.json();
+  },
+
+  getPropertyActivity: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.offset) queryParams.append('offset', params.offset);
+    if (params.action) queryParams.append('action', params.action);
+    if (params.propertyId) queryParams.append('propertyId', params.propertyId);
+    if (params.userId) queryParams.append('userId', params.userId);
+    if (params.startDate) queryParams.append('startDate', params.startDate);
+    if (params.endDate) queryParams.append('endDate', params.endDate);
+
+    const response = await fetch(`${API_BASE_URL}/admin/property-activity?${queryParams.toString()}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch property activity');
+    }
+    
+    return response.json();
+  },
+
+  getPropertyActivityStats: async () => {
+    const response = await fetch(`${API_BASE_URL}/admin/property-activity/stats`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch property activity stats');
     }
     
     return response.json();
@@ -474,6 +484,93 @@ export const propertyManagerAPI = {
     
     if (!response.ok) {
       throw new Error('Failed to fetch reports');
+    }
+    
+    return response.json();
+  },
+
+  // Manager Subscription Methods
+  getMySubscriptions: async () => {
+    const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch subscriptions');
+    }
+    
+    return response.json();
+  },
+
+  getSubscriptionDetails: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions/${id}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch subscription details');
+    }
+    
+    return response.json();
+  },
+
+  initiateContact: async (id, data) => {
+    const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions/${id}/contact`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to initiate contact');
+    }
+    
+    return response.json();
+  },
+
+  uploadPropertyDetails: async (id, data) => {
+    const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions/${id}/upload-property`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload property details');
+    }
+    
+    return response.json();
+  },
+
+  getSubscriptionRevenue: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+    if (params.startDate) queryParams.append('startDate', params.startDate);
+    if (params.endDate) queryParams.append('endDate', params.endDate);
+
+    const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions/revenue?${queryParams.toString()}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch revenue');
+    }
+    
+    return response.json();
+  },
+
+  getOwnerReviews: async () => {
+    const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions/reviews`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch reviews');
     }
     
     return response.json();
@@ -1005,6 +1102,392 @@ export const ownerAPI = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to add note');
+    }
+    
+    return response.json();
+  },
+
+  // Manager Subscription Methods
+  getAvailableManagers: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+    if (params.rating) queryParams.append('rating', params.rating);
+    if (params.priceRange) queryParams.append('priceRange', params.priceRange);
+    if (params.search) queryParams.append('search', params.search);
+
+    const response = await fetch(`${API_BASE_URL}/owner/managers/available?${queryParams.toString()}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch available managers');
+    }
+    
+    return response.json();
+  },
+
+  getManagerById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/${id}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch manager details');
+    }
+    
+    return response.json();
+  },
+
+  getMySubscriptions: async () => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/subscriptions`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch subscriptions');
+    }
+    
+    return response.json();
+  },
+
+  subscribeToManager: async (data) => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/subscribe`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create subscription');
+    }
+    
+    return response.json();
+  },
+
+  updateSubscription: async (id, data) => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/subscription/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update subscription');
+    }
+    
+    return response.json();
+  },
+
+  cancelSubscription: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/subscription/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to cancel subscription');
+    }
+    
+    return response.json();
+  },
+
+  getSubscriptionPayments: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/subscription/${id}/payments`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch subscription payments');
+    }
+    
+    return response.json();
+  },
+
+  paySubscription: async (id, paymentData) => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/subscription/${id}/pay`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(paymentData)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to process payment');
+    }
+    
+    return response.json();
+  },
+
+  getServiceAgreement: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/subscription/${id}/agreement`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch service agreement');
+    }
+    
+    return response.json();
+  },
+
+  submitManagerReview: async (id, reviewData) => {
+    const response = await fetch(`${API_BASE_URL}/owner/managers/subscription/${id}/review`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(reviewData)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to submit review');
+    }
+    
+    return response.json();
+  }
+};
+
+// Tenant API
+export const tenantAPI = {
+  getDashboard: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/dashboard`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch dashboard');
+    }
+    
+    return response.json();
+  },
+
+  getPayments: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+    if (params.status) queryParams.append('status', params.status);
+    if (params.startDate) queryParams.append('startDate', params.startDate);
+    if (params.endDate) queryParams.append('endDate', params.endDate);
+
+    const response = await fetch(`${API_BASE_URL}/tenant/payments?${queryParams.toString()}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch payments');
+    }
+    
+    return response.json();
+  },
+
+  getUpcomingPayments: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/payments/upcoming`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch upcoming payments');
+    }
+    
+    return response.json();
+  },
+
+  getPaymentById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/payments/${id}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch payment');
+    }
+    
+    return response.json();
+  },
+
+  getMessages: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/messages`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch messages');
+    }
+    
+    return response.json();
+  },
+
+  getMessageById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/messages/${id}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch message');
+    }
+    
+    return response.json();
+  },
+
+  sendMessage: async (data) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/messages`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to send message');
+    }
+    
+    return response.json();
+  },
+
+  markMessageRead: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/messages/${id}/read`, {
+      method: 'PUT',
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to mark message as read');
+    }
+    
+    return response.json();
+  },
+
+  getMaintenance: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+    if (params.status) queryParams.append('status', params.status);
+
+    const response = await fetch(`${API_BASE_URL}/tenant/maintenance?${queryParams.toString()}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch maintenance requests');
+    }
+    
+    return response.json();
+  },
+
+  createMaintenance: async (data) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/maintenance`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create maintenance request');
+    }
+    
+    return response.json();
+  },
+
+  getMaintenanceById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/maintenance/${id}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch maintenance request');
+    }
+    
+    return response.json();
+  },
+
+  updateMaintenance: async (id, data) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/maintenance/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update maintenance request');
+    }
+    
+    return response.json();
+  },
+
+  getCurrentProperty: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/current-property`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch current property');
+    }
+    
+    return response.json();
+  },
+
+  getLease: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/lease`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch lease');
+    }
+    
+    return response.json();
+  },
+
+  getDocuments: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/documents`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch documents');
+    }
+    
+    return response.json();
+  },
+
+  getProfile: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/profile`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch profile');
+    }
+    
+    return response.json();
+  },
+
+  updateProfile: async (data) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/profile`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update profile');
     }
     
     return response.json();

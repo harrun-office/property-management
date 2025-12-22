@@ -1,16 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { tenantAPI } from '../services/api';
 
 function RoleBasedNavbar() {
-  const { isAuthenticated, user, logout, isSuperAdmin, isPropertyManager, isVendor, isPropertyOwner } = useAuth();
+  const { isAuthenticated, user, logout, isSuperAdmin, isPropertyManager, isVendor, isPropertyOwner, isTenant } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationMenuOpen, setNotificationMenuOpen] = useState(false);
+  const [hasActiveProperty, setHasActiveProperty] = useState(false);
   const location = useLocation();
   const userMenuRef = useRef(null);
   const notificationRef = useRef(null);
+
+  // Check if tenant has active property
+  useEffect(() => {
+    if (isTenant && user) {
+      tenantAPI.getDashboard()
+        .then(data => {
+          setHasActiveProperty(!!data.currentProperty);
+        })
+        .catch(() => {
+          setHasActiveProperty(false);
+        });
+    }
+  }, [isTenant, user]);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -131,30 +146,38 @@ function RoleBasedNavbar() {
   );
 
   return (
-    <nav className="bg-obsidian shadow-lg sticky top-0 z-50">
+    <nav className="bg-obsidian/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-stone-500/20">
       <div className="max-w-7xl mx-auto">
         {/* Top Bar - Logo, Search, Actions */}
-        <div className="flex items-center justify-between px-4 md:px-10 py-3 border-b border-stone-500/30">
-          <Link to="/" className="text-2xl font-bold text-porcelain hover:text-brass transition-colors">
-            PropManage
+        <div className="flex items-center justify-between px-4 md:px-10 py-3.5">
+          <Link 
+            to="/" 
+            className="text-2xl font-bold text-porcelain hover:text-brass transition-all duration-200 hover:scale-105 flex items-center space-x-2"
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-brass-400 to-brass-600 rounded-lg flex items-center justify-center shadow-md">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </div>
+            <span>PropManage</span>
           </Link>
           
-          {/* Search Bar (Desktop) */}
+          {/* Search Bar (Desktop) - Modern Design */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-8">
-            <div className="relative w-full">
+            <div className="relative w-full group">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search properties, locations..."
-                className="w-full px-4 py-2 pl-10 rounded-lg bg-obsidian-light border border-stone-500/50 text-porcelain placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-brass focus:border-brass"
+                className="w-full px-4 py-2.5 pl-11 pr-11 rounded-xl bg-obsidian-600/50 backdrop-blur-sm border border-stone-500/30 text-porcelain placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brass-500/50 focus:border-brass-500/50 transition-all duration-200 group-hover:bg-obsidian-600/70"
               />
-              <div className="absolute left-3 top-2.5 text-stone-300">
+              <div className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-stone-400 group-focus-within:text-brass-500 transition-colors">
                 <SearchIcon />
               </div>
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-stone-300 hover:text-brass transition-colors"
+                className="absolute right-2.5 top-1/2 transform -translate-y-1/2 p-1.5 text-stone-400 hover:text-brass-500 hover:bg-obsidian-500/50 rounded-lg transition-all duration-200"
                 aria-label="Search"
               >
                 <SearchIcon />
@@ -203,11 +226,11 @@ function RoleBasedNavbar() {
               </div>
             )}
             
-            {/* Post Property Button (for owners) */}
+            {/* Post Property Button (for owners) - Enhanced */}
             {isPropertyOwner && (
               <Link
                 to="/owner/properties/new"
-                className="px-4 py-2 bg-brass text-porcelain rounded-lg hover:bg-brass-light transition-colors font-semibold text-sm flex items-center space-x-2"
+                className="px-4 py-2.5 bg-gradient-to-r from-brass-500 to-brass-600 text-white rounded-xl hover:from-brass-600 hover:to-brass-700 transition-all duration-200 font-semibold text-sm flex items-center space-x-2 shadow-md hover:shadow-lg hover:scale-105 active:scale-100"
               >
                 <PlusIcon />
                 <span>Post Property</span>
@@ -219,39 +242,72 @@ function RoleBasedNavbar() {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-obsidian-light transition-colors"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-xl hover:bg-obsidian-600/50 transition-all duration-200 group"
+                  aria-label="User menu"
+                  aria-expanded={userMenuOpen}
                 >
-                  <div className="w-8 h-8 rounded-full bg-brass/20 flex items-center justify-center text-brass font-semibold">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brass-400 to-brass-600 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-brass-500/30 group-hover:ring-brass-500/50 transition-all">
                     {user?.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
-                  <span className="text-stone-200 hidden lg:inline text-sm">{user?.name}</span>
-                  <svg className="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-stone-200 hidden lg:inline text-sm font-medium group-hover:text-porcelain transition-colors">{user?.name}</span>
+                  <svg className={`w-4 h-4 text-stone-400 group-hover:text-brass-500 transition-all duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-obsidian rounded-xl shadow-xl border border-stone-600/50 py-2 overflow-hidden">
-                    <div className="px-4 py-3 border-b border-stone-500/50">
-                      <p className="text-sm font-semibold text-porcelain">{user?.name}</p>
-                      <p className="text-xs text-stone-200 mt-1">{user?.email}</p>
+                  <div className="absolute right-0 mt-2 w-64 bg-obsidian-700/95 backdrop-blur-md rounded-2xl shadow-2xl border border-stone-600/30 overflow-hidden z-50 animate-fade-in">
+                    {/* User Info Header */}
+                    <div className="px-4 py-4 bg-obsidian-light/30 border-b border-stone-500/30">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brass/30 to-brass/10 flex items-center justify-center text-brass font-bold text-lg shadow-lg ring-2 ring-brass/20">
+                          {user?.name?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-porcelain truncate">{user?.name}</p>
+                          <p className="text-xs text-stone-300 mt-0.5 truncate">{user?.email}</p>
+                          {user?.role && (
+                            <span className="inline-block mt-1.5 px-2 py-0.5 text-xs font-medium bg-brass/20 text-brass rounded-full capitalize">
+                              {user.role.replace('_', ' ')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                    
+                    {/* Menu Items */}
+                    <div className="py-1.5">
                     <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm font-medium text-white hover:bg-obsidian-light hover:text-brass transition-colors"
+                        to={
+                          isSuperAdmin ? "/admin/dashboard" :
+                          isPropertyManager ? "/property-manager/dashboard" :
+                          isVendor ? "/vendor/profile" :
+                          isPropertyOwner ? "/owner/dashboard" :
+                          isTenant ? "/tenant/profile" :
+                          "/profile"
+                        }
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-stone-200 hover:bg-obsidian-light hover:text-brass transition-all duration-150 group"
                       onClick={() => setUserMenuOpen(false)}
                     >
-                      Profile Settings
+                        <svg className="w-4 h-4 text-stone-400 group-hover:text-brass transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span>Profile Settings</span>
                     </Link>
+                      <div className="my-1 h-px bg-stone-600/50"></div>
                     <button
                       onClick={() => {
                         logout();
                         setUserMenuOpen(false);
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error/10 transition-colors"
+                        className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-error/90 hover:bg-error/10 hover:text-error transition-all duration-150 group"
                     >
-                      Logout
+                        <svg className="w-4 h-4 text-error/70 group-hover:text-error transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Logout</span>
                     </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -290,23 +346,18 @@ function RoleBasedNavbar() {
           <div className="flex items-center space-x-1 text-porcelain font-medium text-sm">
             {isAuthenticated ? (
               <>
-                {!isSuperAdmin && <NavLink to="/" icon={<HomeIcon />}>Home</NavLink>}
                   {isSuperAdmin && (
                     <>
                       <NavLink to="/admin/dashboard" icon={<DashboardIcon />}>Dashboard</NavLink>
-                      <NavLink to="/admin/users">Users</NavLink>
-                      <NavLink to="/admin/properties" icon={<PropertiesIcon />}>Properties</NavLink>
-                      <NavLink to="/admin/property-managers" icon={<PropertiesIcon />}>Managers</NavLink>
-                      <NavLink to="/admin/applications">Applications</NavLink>
-                      <NavLink to="/admin/financial">Financial</NavLink>
-                      <NavLink to="/admin/analytics">Analytics</NavLink>
-                      <NavLink to="/admin/settings">Settings</NavLink>
+                      <NavLink to="/admin/property-activity" icon={<PropertiesIcon />}>Property Activity</NavLink>
                     </>
                   )}
                 {isPropertyManager && (
                   <>
                     <NavLink to="/property-manager/dashboard" icon={<DashboardIcon />}>Dashboard</NavLink>
                     <NavLink to="/property-manager/properties" icon={<PropertiesIcon />}>Properties</NavLink>
+                    <NavLink to="/property-manager/subscriptions">Subscriptions</NavLink>
+                    <NavLink to="/property-manager/revenue">Revenue</NavLink>
                     <NavLink to="/property-manager/vendors">Vendors</NavLink>
                     <NavLink to="/property-manager/tasks">Tasks</NavLink>
                     <NavLink to="/property-manager/reports">Reports</NavLink>
@@ -324,9 +375,26 @@ function RoleBasedNavbar() {
                   <>
                     <NavLink to="/owner/dashboard" icon={<DashboardIcon />}>Dashboard</NavLink>
                     <NavLink to="/owner/properties" icon={<PropertiesIcon />}>Properties</NavLink>
+                    <NavLink to="/owner/managers">Managers</NavLink>
+                    <NavLink to="/owner/subscriptions">Subscriptions</NavLink>
                     <NavLink to="/owner/applications">Applications</NavLink>
                     <NavLink to="/owner/payments">Payments</NavLink>
                     <NavLink to="/owner/messages">Messages</NavLink>
+                  </>
+                )}
+                {isTenant && (
+                  <>
+                    <NavLink to="/tenant/dashboard" icon={<DashboardIcon />}>Dashboard</NavLink>
+                    <NavLink to="/tenant/payments">Payments</NavLink>
+                    <NavLink to="/tenant/messages">Messages</NavLink>
+                    <NavLink to="/tenant/maintenance">Maintenance</NavLink>
+                    <NavLink to="/tenant/lease">Lease</NavLink>
+                    <NavLink to="/tenant/documents">Documents</NavLink>
+                    <NavLink to="/tenant/profile">Profile</NavLink>
+                    {!hasActiveProperty && (
+                      <NavLink to="/tenant/saved" icon={<PropertiesIcon />}>Saved</NavLink>
+                    )}
+                    <NavLink to="/tenant/applications">Applications</NavLink>
                   </>
                 )}
               </>
@@ -334,8 +402,8 @@ function RoleBasedNavbar() {
               <>
                 <NavLink to="/" icon={<HomeIcon />}>Home</NavLink>
                 <NavLink to="/properties" icon={<PropertiesIcon />}>Properties</NavLink>
-                <NavLink to="/for-tenants">For Tenants</NavLink>
-                <NavLink to="/for-owners">For Owners</NavLink>
+                {!isTenant && <NavLink to="/for-tenants">For Tenants</NavLink>}
+                {!isTenant && <NavLink to="/for-owners">For Owners</NavLink>}
                 <NavLink to="/features">Features</NavLink>
                 <NavLink to="/how-it-works">How It Works</NavLink>
                 <NavLink to="/about">About</NavLink>
@@ -396,23 +464,18 @@ function RoleBasedNavbar() {
           )}
           {isAuthenticated ? (
             <>
-              {!isSuperAdmin && <NavLink to="/" mobile icon={<HomeIcon />}>Home</NavLink>}
                  {isSuperAdmin && (
                    <>
                      <NavLink to="/admin/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
-                     <NavLink to="/admin/users" mobile>Users</NavLink>
-                     <NavLink to="/admin/properties" mobile icon={<PropertiesIcon />}>Properties</NavLink>
-                     <NavLink to="/admin/property-managers" mobile icon={<PropertiesIcon />}>Property Managers</NavLink>
-                     <NavLink to="/admin/applications" mobile>Applications</NavLink>
-                     <NavLink to="/admin/financial" mobile>Financial</NavLink>
-                     <NavLink to="/admin/analytics" mobile>Analytics</NavLink>
-                     <NavLink to="/admin/settings" mobile>Settings</NavLink>
+                  <NavLink to="/admin/property-activity" mobile icon={<PropertiesIcon />}>Property Activity</NavLink>
                    </>
                  )}
               {isPropertyManager && (
                 <>
                   <NavLink to="/property-manager/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
                   <NavLink to="/property-manager/properties" mobile icon={<PropertiesIcon />}>Properties</NavLink>
+                  <NavLink to="/property-manager/subscriptions" mobile>Subscriptions</NavLink>
+                  <NavLink to="/property-manager/revenue" mobile>Revenue</NavLink>
                   <NavLink to="/property-manager/vendors" mobile>Vendors</NavLink>
                   <NavLink to="/property-manager/tasks" mobile>Tasks</NavLink>
                   <NavLink to="/property-manager/reports" mobile>Reports</NavLink>
@@ -430,31 +493,76 @@ function RoleBasedNavbar() {
                 <>
                   <NavLink to="/owner/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
                   <NavLink to="/owner/properties" mobile icon={<PropertiesIcon />}>Properties</NavLink>
+                  <NavLink to="/owner/managers" mobile>Managers</NavLink>
+                  <NavLink to="/owner/subscriptions" mobile>Subscriptions</NavLink>
                   <NavLink to="/owner/applications" mobile>Applications</NavLink>
                   <NavLink to="/owner/payments" mobile>Payments</NavLink>
                   <NavLink to="/owner/messages" mobile>Messages</NavLink>
                 </>
               )}
-              <div className="pt-3 mt-3 border-t border-stone-600/50">
-                <div className="px-3 py-2 mb-2">
-                  <p className="text-sm font-semibold text-porcelain">{user?.name}</p>
-                  <p className="text-xs text-stone-300">{user?.email}</p>
+              {isTenant && (
+                <>
+                  <NavLink to="/tenant/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
+                  <NavLink to="/tenant/payments" mobile>Payments</NavLink>
+                  <NavLink to="/tenant/messages" mobile>Messages</NavLink>
+                  <NavLink to="/tenant/maintenance" mobile>Maintenance</NavLink>
+                  <NavLink to="/tenant/lease" mobile>Lease</NavLink>
+                  <NavLink to="/tenant/documents" mobile>Documents</NavLink>
+                  <NavLink to="/tenant/profile" mobile>Profile</NavLink>
+                  {!hasActiveProperty && (
+                    <NavLink to="/tenant/saved" mobile icon={<PropertiesIcon />}>Saved Properties</NavLink>
+                  )}
+                  <NavLink to="/tenant/applications" mobile>Applications</NavLink>
+                </>
+              )}
+              <div className="pt-4 mt-4 border-t border-stone-600/50">
+                {/* User Info */}
+                <div className="px-3 py-3 mb-3 bg-obsidian-light/30 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brass/30 to-brass/10 flex items-center justify-center text-brass font-bold shadow-md ring-2 ring-brass/20">
+                      {user?.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-porcelain truncate">{user?.name}</p>
+                      <p className="text-xs text-stone-300 truncate">{user?.email}</p>
+                      {user?.role && (
+                        <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-brass/20 text-brass rounded-full capitalize">
+                          {user.role.replace('_', ' ')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
+                
+                {/* Menu Items */}
                  <Link
-                   to="/profile"
-                   className="block py-2 px-3 rounded-lg text-white font-medium hover:bg-obsidian-light hover:text-brass transition-colors text-sm"
+                  to={
+                    isSuperAdmin ? "/admin/dashboard" :
+                    isPropertyManager ? "/property-manager/dashboard" :
+                    isVendor ? "/vendor/profile" :
+                    isPropertyOwner ? "/owner/dashboard" :
+                    isTenant ? "/tenant/profile" :
+                    "/profile"
+                  }
+                  className="flex items-center space-x-3 py-2.5 px-3 rounded-lg text-stone-200 hover:bg-obsidian-light hover:text-brass transition-all duration-150 text-sm font-medium"
                    onClick={() => setMobileMenuOpen(false)}
                  >
-                   Profile Settings
+                  <svg className="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span>Profile Settings</span>
                  </Link>
                 <button
                   onClick={() => {
                     logout();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left py-2 px-3 rounded-lg text-error hover:bg-error/10 transition-colors text-sm mt-1"
+                  className="w-full flex items-center space-x-3 py-2.5 px-3 rounded-lg text-error/90 hover:bg-error/10 hover:text-error transition-all duration-150 text-sm font-medium mt-1"
                 >
-                  Logout
+                  <svg className="w-5 h-5 text-error/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span>Logout</span>
                 </button>
               </div>
             </>
@@ -462,8 +570,8 @@ function RoleBasedNavbar() {
             <>
               <NavLink to="/" mobile icon={<HomeIcon />}>Home</NavLink>
               <NavLink to="/properties" mobile icon={<PropertiesIcon />}>Properties</NavLink>
-              <NavLink to="/for-tenants" mobile>For Tenants</NavLink>
-              <NavLink to="/for-owners" mobile>For Owners</NavLink>
+              {!isTenant && <NavLink to="/for-tenants" mobile>For Tenants</NavLink>}
+              {!isTenant && <NavLink to="/for-owners" mobile>For Owners</NavLink>}
               <NavLink to="/features" mobile>Features</NavLink>
               <NavLink to="/how-it-works" mobile>How It Works</NavLink>
               <NavLink to="/about" mobile>About</NavLink>

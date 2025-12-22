@@ -1,12 +1,30 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { propertiesAPI } from '../../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { propertiesAPI, tenantAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import PropertyCard from '../../components/PropertyCard';
 
 function SavedProperties() {
+  const navigate = useNavigate();
+  const { isTenant } = useAuth();
   const [savedProperties, setSavedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Check if tenant has active property and redirect
+  useEffect(() => {
+    if (isTenant) {
+      tenantAPI.getDashboard()
+        .then(data => {
+          if (data.currentProperty) {
+            navigate('/tenant/dashboard', { replace: true });
+          }
+        })
+        .catch(() => {
+          // If error, allow access (might be network issue)
+        });
+    }
+  }, [isTenant, navigate]);
 
   useEffect(() => {
     loadSavedProperties();

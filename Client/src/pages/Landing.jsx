@@ -6,15 +6,23 @@ import FeatureCard from '../components/FeatureCard';
 import CTASection from '../components/CTASection';
 
 function Landing() {
-  const { user } = useAuth();
+  const { user, isSuperAdmin, isPropertyManager, isVendor, isPropertyOwner } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect admins to their dashboard if they try to access the home page
-    if (user && user.role === 'super_admin') {
-      navigate('/admin/dashboard', { replace: true });
+    // Redirect all authenticated users to their role-specific dashboard
+    if (user) {
+      if (isSuperAdmin) {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (isPropertyManager) {
+        navigate('/property-manager/dashboard', { replace: true });
+      } else if (isVendor) {
+        navigate('/vendor/dashboard', { replace: true });
+      } else if (isPropertyOwner) {
+        navigate('/owner/dashboard', { replace: true });
+      }
     }
-  }, [user, navigate]);
+  }, [user, isSuperAdmin, isPropertyManager, isVendor, isPropertyOwner, navigate]);
   const features = [
     {
       icon: (

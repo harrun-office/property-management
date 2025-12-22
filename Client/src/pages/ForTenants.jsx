@@ -206,7 +206,7 @@ function ForTenants() {
       <BenefitSection
         title="Why Tenants Love PropManage"
         benefits={benefits}
-        imageUrl="https://images.unsplash.com/photo-1560185008-b033106af5d6"
+        imageUrl="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
       />
 
       <section className="py-16 px-4 bg-porcelain">
