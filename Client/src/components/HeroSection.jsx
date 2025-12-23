@@ -18,7 +18,7 @@ function HeroSection({ title, subtitle, primaryCTA, secondaryCTA, primaryLink, s
               <Button
                 variant="primary"
                 size="lg"
-                className="shadow-xl hover:shadow-2xl font-semibold bg-obsidian-500 text-white border border-obsidian-500 hover:bg-obsidian-600"
+                className="shadow-xl hover:shadow-2xl font-semibold bg-obsidian-700 text-white border border-obsidian-700 hover:bg-obsidian-800"
               >
                 {primaryCTA}
               </Button>
@@ -29,7 +29,7 @@ function HeroSection({ title, subtitle, primaryCTA, secondaryCTA, primaryLink, s
               <Button
                 variant="outline"
                 size="lg"
-                className="bg-[var(--color-surface)] border-2 border-brass-500 text-brass-700 hover:bg-brass-50"
+                className="font-semibold border-2 border-obsidian-500 text-obsidian-600 hover:bg-obsidian-50"
               >
                 {secondaryCTA}
               </Button>
