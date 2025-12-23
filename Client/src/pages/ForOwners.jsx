@@ -213,7 +213,7 @@ function ForOwners() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b-2 border-gray-200">
+                  <tr className="border-b-2 border-stone-300">
                     <th className="p-4 text-left text-charcoal font-semibold">Feature</th>
                     <th className="p-4 text-center text-eucalyptus-500 font-semibold">PropManage</th>
                     <th className="p-4 text-center text-architectural font-semibold">Traditional Platforms</th>

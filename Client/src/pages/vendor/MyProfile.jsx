@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import { vendorAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
 
 function MyProfile() {
   const [profile, setProfile] = useState(null);
@@ -25,66 +29,69 @@ function MyProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading profile...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="30%" className="mb-2" />
+            <Skeleton variant="text" width="50%" />
+          </div>
+          <Skeleton.Card />
+        </div>
       </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'Profile not found'}</p>
-          <button
-            onClick={loadProfile}
-            className="px-4 py-2 bg-slate-700 text-white rounded-xl"
-          >
-            Retry
-          </button>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <ErrorDisplay
+            message={error || 'Profile not found'}
+            onRetry={loadProfile}
+          />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Profile</h1>
-          <p className="text-gray-600">View and manage your vendor profile</p>
+          <h1 className="text-4xl font-bold text-charcoal mb-2">My Profile</h1>
+          <p className="text-architectural">View and manage your vendor profile</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-md p-8 space-y-6">
+        <Card variant="elevated" padding="lg" className="space-y-6">
           {/* Company Info */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Company Information</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <Card.Title className="text-2xl mb-4">Company Information</Card.Title>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-                <p className="text-gray-900 font-semibold">{profile.companyName}</p>
+                <label className="block text-sm font-medium text-architectural mb-1">Company Name</label>
+                <p className="text-charcoal font-semibold">{profile.companyName}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
-                <p className="text-gray-900 font-semibold">{profile.contactName}</p>
+                <label className="block text-sm font-medium text-architectural mb-1">Contact Name</label>
+                <p className="text-charcoal font-semibold">{profile.contactName}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <p className="text-gray-600">{profile.email}</p>
+                <label className="block text-sm font-medium text-architectural mb-1">Email</label>
+                <p className="text-architectural">{profile.email}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <p className="text-gray-600">{profile.phone || 'Not provided'}</p>
+                <label className="block text-sm font-medium text-architectural mb-1">Phone</label>
+                <p className="text-architectural">{profile.phone || 'Not provided'}</p>
               </div>
             </div>
           </div>
 
           {/* Service Types */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Service Types</h2>
+            <Card.Title className="text-2xl mb-4">Service Types</Card.Title>
             <div className="flex flex-wrap gap-2">
               {profile.serviceTypes.map((type, idx) => (
-                <span key={idx} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg capitalize">
+                <span key={idx} className="px-4 py-2 bg-obsidian-100 text-obsidian-700 rounded-lg capitalize font-medium">
                   {type}
                 </span>
               ))}
@@ -93,13 +100,13 @@ function MyProfile() {
 
           {/* Performance Rating */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Performance Rating</h2>
-            <div className="flex items-center space-x-4">
-              <div className="text-5xl font-bold text-slate-700">{profile.performanceRating || 0}</div>
+            <Card.Title className="text-2xl mb-4">Performance Rating</Card.Title>
+            <div className="flex items-center gap-4">
+              <div className="text-5xl font-bold text-charcoal">{profile.performanceRating || 0}</div>
               <div className="flex-1">
-                <div className="w-full bg-gray-200 rounded-full h-6">
+                <div className="w-full bg-stone-200 rounded-full h-6">
                   <div
-                    className="bg-emerald-600 h-6 rounded-full flex items-center justify-end pr-2"
+                    className="bg-eucalyptus-500 h-6 rounded-full flex items-center justify-end pr-2 transition-all duration-300"
                     style={{ width: `${((profile.performanceRating || 0) / 5) * 100}%` }}
                   >
                     <span className="text-white text-xs font-semibold">
@@ -107,37 +114,37 @@ function MyProfile() {
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">Based on completed tasks and feedback</p>
+                <p className="text-sm text-architectural mt-2">Based on completed tasks and feedback</p>
               </div>
             </div>
           </div>
 
           {/* Assigned Properties */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Assigned Properties</h2>
-            <p className="text-gray-600">{profile.assignedProperties?.length || 0} properties assigned</p>
+            <Card.Title className="text-2xl mb-4">Assigned Properties</Card.Title>
+            <p className="text-architectural">{profile.assignedProperties?.length || 0} properties assigned</p>
           </div>
 
           {/* Permission Scope */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Permission Scope</h2>
-            <span className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg capitalize">
+            <Card.Title className="text-2xl mb-4">Permission Scope</Card.Title>
+            <span className="px-4 py-2 bg-obsidian-100 text-obsidian-700 rounded-lg capitalize font-medium">
               {profile.permissionScope}
             </span>
           </div>
 
           {/* Status */}
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Status</h2>
-            <span className={`px-4 py-2 rounded-lg font-medium ${
-              profile.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-              profile.status === 'suspended' ? 'bg-red-100 text-red-700' :
-              'bg-yellow-100 text-yellow-700'
+            <Card.Title className="text-2xl mb-4">Status</Card.Title>
+            <span className={`px-4 py-2 rounded-lg font-semibold ${
+              profile.status === 'active' ? 'bg-eucalyptus-100 text-eucalyptus-700' :
+              profile.status === 'suspended' ? 'bg-error-100 text-error-700' :
+              'bg-warning-100 text-warning-700'
             }`}>
               {profile.status}
             </span>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

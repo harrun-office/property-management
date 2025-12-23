@@ -28,15 +28,19 @@ const Modal = ({
     };
 
     document.addEventListener('keydown', handleEscape);
-    document.body.style.overflow = 'hidden';
+    if (document.body) {
+      document.body.style.overflow = 'hidden';
+    }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
+      if (document.body) {
+        document.body.style.overflow = '';
+      }
     };
   }, [isOpen, onClose, closeOnEscape]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const sizes = {
     sm: 'max-w-md',
@@ -70,7 +74,7 @@ const Modal = ({
       {/* Modal */}
       <div
         className={`
-          relative bg-white rounded-2xl shadow-2xl w-full ${sizes[size]}
+          relative bg-[var(--color-surface)] text-charcoal rounded-2xl shadow-2xl w-full ${sizes[size]}
           transform transition-all duration-300 scale-100
           animate-scale-in
           ${className}
@@ -89,7 +93,7 @@ const Modal = ({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="ml-auto p-2 text-architectural hover:text-charcoal hover:bg-stone-100 rounded-lg transition-colors"
+                className="ml-auto p-2 text-architectural hover:text-charcoal hover:bg-[var(--color-bg-secondary)] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)]"
                 aria-label="Close modal"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +111,7 @@ const Modal = ({
 
         {/* Footer */}
         {footer && (
-          <div className="p-6 border-t border-stone-200 bg-stone-50 rounded-b-2xl">
+          <div className="p-6 border-t border-stone-200 bg-[var(--color-bg-secondary)] rounded-b-2xl">
             {footer}
           </div>
         )}
@@ -115,6 +119,7 @@ const Modal = ({
     </div>
   );
 
+  if (typeof document === 'undefined' || !document.body) return null;
   return createPortal(modalContent, document.body);
 };
 

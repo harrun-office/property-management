@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { tenantAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function TenantMessages() {
   const [messages, setMessages] = useState([]);
@@ -143,145 +149,148 @@ function TenantMessages() {
           <p className="text-architectural">Communicate with property owners and managers</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadMessages} className="mb-6" />}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Messages List */}
           <div className="lg:col-span-1">
-            <div className="bg-stone-100 rounded-xl shadow-md border border-stone-200">
-              <div className="p-4 border-b border-stone-200 flex justify-between items-center">
-                <h2 className="text-lg font-bold text-charcoal">Conversations</h2>
-                <button
+            <Card variant="elevated" padding="none" className="overflow-hidden">
+              <Card.Header className="p-4 border-b border-stone-200 flex justify-between items-center">
+                <Card.Title className="text-lg">Conversations</Card.Title>
+                <Button
+                  variant="primary"
+                  size="sm"
                   onClick={() => {
                     setSelectedThread(null);
                     setNewMessage({ propertyId: '', recipientId: '', subject: '', message: '' });
                   }}
-                  className="px-3 py-1 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light text-sm"
                 >
                   New Message
-                </button>
-              </div>
-              {loading && !selectedThread ? (
-                <div className="p-8 text-center text-architectural">Loading messages...</div>
-              ) : threads.length === 0 ? (
-                <div className="p-8 text-center text-architectural">No messages</div>
-              ) : (
-                <div className="divide-y divide-stone-200 max-h-[600px] overflow-y-auto">
-                  {threads.map((thread) => (
-                    <div
-                      key={thread.id}
-                      onClick={() => setSelectedThread(thread)}
-                      className={`p-4 hover:bg-stone-50 cursor-pointer transition-colors ${
-                        selectedThread?.id === thread.id ? 'bg-stone-200' : ''
-                      }`}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <p className="font-semibold text-charcoal">{thread.property?.title || 'Property'}</p>
-                          <p className="text-sm text-architectural truncate">{thread.message}</p>
+                </Button>
+              </Card.Header>
+              <Card.Body className="p-0">
+                {loading && !selectedThread ? (
+                  <div className="p-8 text-center">
+                    <Skeleton variant="text" width="60%" className="mx-auto" />
+                  </div>
+                ) : threads.length === 0 ? (
+                  <EmptyState
+                    title="No messages"
+                    description="Start a conversation by sending a new message."
+                    icon={
+                      <svg className="w-12 h-12 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    }
+                  />
+                ) : (
+                  <div className="divide-y divide-stone-200 max-h-[600px] overflow-y-auto">
+                    {threads.map((thread) => (
+                      <Card
+                        key={thread.id}
+                        variant={selectedThread?.id === thread.id ? "filled" : "ghost"}
+                        padding="md"
+                        hover
+                        onClick={() => setSelectedThread(thread)}
+                        className={`cursor-pointer ${selectedThread?.id === thread.id ? 'bg-obsidian-50' : ''}`}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1">
+                            <p className="font-semibold text-charcoal">{thread.property?.title || 'Property'}</p>
+                            <p className="text-sm text-architectural truncate">{thread.message}</p>
+                          </div>
+                          {thread.unreadCount > 0 && (
+                            <span className="ml-2 px-2 py-1 bg-obsidian text-porcelain rounded-full text-xs font-semibold">
+                              {thread.unreadCount}
+                            </span>
+                          )}
                         </div>
-                        {thread.unreadCount > 0 && (
-                          <span className="ml-2 px-2 py-1 bg-obsidian text-porcelain rounded-full text-xs font-semibold">
-                            {thread.unreadCount}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-architectural">
-                        {new Date(thread.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                        <p className="text-xs text-architectural">
+                          {new Date(thread.createdAt).toLocaleDateString()}
+                        </p>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
           </div>
 
           {/* Message Thread or New Message Form */}
           <div className="lg:col-span-2">
             {!selectedThread && (
-              <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
-                <h2 className="text-2xl font-bold text-charcoal mb-4">New Message</h2>
+              <Card variant="elevated" padding="lg">
+                <Card.Title className="mb-4">New Message</Card.Title>
                 <form onSubmit={handleSendMessage} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">Property ID</label>
-                    <input
-                      type="number"
-                      value={newMessage.propertyId}
-                      onChange={(e) => setNewMessage({ ...newMessage, propertyId: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">Recipient ID</label>
-                    <input
-                      type="number"
-                      value={newMessage.recipientId}
-                      onChange={(e) => setNewMessage({ ...newMessage, recipientId: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">Subject</label>
-                    <input
-                      type="text"
-                      value={newMessage.subject}
-                      onChange={(e) => setNewMessage({ ...newMessage, subject: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                    />
-                  </div>
+                  <Input
+                    label="Property ID"
+                    type="number"
+                    value={newMessage.propertyId}
+                    onChange={(e) => setNewMessage({ ...newMessage, propertyId: e.target.value })}
+                    required
+                  />
+                  <Input
+                    label="Recipient ID"
+                    type="number"
+                    value={newMessage.recipientId}
+                    onChange={(e) => setNewMessage({ ...newMessage, recipientId: e.target.value })}
+                    required
+                  />
+                  <Input
+                    label="Subject"
+                    type="text"
+                    value={newMessage.subject}
+                    onChange={(e) => setNewMessage({ ...newMessage, subject: e.target.value })}
+                  />
                   <div>
                     <label className="block text-sm font-medium text-charcoal mb-1">Message</label>
                     <textarea
                       value={newMessage.message}
                       onChange={(e) => setNewMessage({ ...newMessage, message: e.target.value })}
                       rows={6}
-                      className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+                      className="w-full px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
                       required
                     />
                   </div>
-                  <button
+                  <Button
                     type="submit"
-                    disabled={sending}
-                    className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors disabled:opacity-50"
+                    variant="primary"
+                    fullWidth
+                    loading={sending}
                   >
-                    {sending ? 'Sending...' : 'Send Message'}
-                  </button>
+                    Send Message
+                  </Button>
                 </form>
-              </div>
+              </Card>
             )}
 
             {selectedThread && (
-              <div className="bg-stone-100 rounded-xl shadow-md border border-stone-200 flex flex-col h-[600px]">
-                <div className="p-4 border-b border-stone-200 flex justify-between items-center">
+              <Card variant="elevated" padding="none" className="flex flex-col h-[600px]">
+                <Card.Header className="p-4 border-b border-stone-200 flex justify-between items-center">
                   <div>
-                    <h2 className="text-lg font-bold text-charcoal">{selectedThread.property?.title || 'Property'}</h2>
+                    <Card.Title className="text-lg">{selectedThread.property?.title || 'Property'}</Card.Title>
                     <p className="text-sm text-architectural">{selectedThread.subject}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs text-architectural">
+                    <label className="text-xs text-architectural flex items-center gap-1 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={autoRefresh}
                         onChange={(e) => setAutoRefresh(e.target.checked)}
-                        className="mr-1"
+                        className="w-4 h-4 text-obsidian border-stone-300 rounded focus:ring-obsidian-500"
                       />
                       Auto-refresh
                     </label>
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => loadThreadMessages(selectedThread.id)}
-                      className="px-3 py-1 bg-stone-200 rounded-lg hover:bg-stone-300 text-sm"
                     >
                       Refresh
-                    </button>
+                    </Button>
                   </div>
-                </div>
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                </Card.Header>
+                <Card.Body className="flex-1 overflow-y-auto p-4 space-y-4">
                   {threadMessages.map((msg) => {
                     const isOwn = msg.senderId === JSON.parse(localStorage.getItem('user'))?.id;
                     return (
@@ -289,39 +298,43 @@ function TenantMessages() {
                         key={msg.id}
                         className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                       >
-                        <div className={`max-w-[70%] p-3 rounded-lg ${
-                          isOwn ? 'bg-obsidian text-porcelain' : 'bg-porcelain border border-stone-200'
-                        }`}>
-                          <p className="text-xs mb-1 opacity-75">{msg.sender?.name || 'Unknown'}</p>
+                        <Card
+                          variant={isOwn ? "primary" : "filled"}
+                          padding="sm"
+                          className={`max-w-[70%] ${isOwn ? 'bg-obsidian text-porcelain' : ''}`}
+                        >
+                          <p className={`text-xs mb-1 ${isOwn ? 'text-porcelain/75' : 'text-architectural'}`}>
+                            {msg.sender?.name || 'Unknown'}
+                          </p>
                           <p className={isOwn ? 'text-porcelain' : 'text-charcoal'}>{msg.message}</p>
                           <p className={`text-xs mt-1 ${isOwn ? 'text-porcelain/75' : 'text-architectural'}`}>
                             {new Date(msg.createdAt).toLocaleString()}
                           </p>
-                        </div>
+                        </Card>
                       </div>
                     );
                   })}
                   <div ref={messagesEndRef} />
-                </div>
-                <form onSubmit={handleSendThreadMessage} className="p-4 border-t border-stone-200">
-                  <div className="flex gap-2">
+                </Card.Body>
+                <Card.Footer className="p-4 border-t border-stone-200">
+                  <form onSubmit={handleSendThreadMessage} className="flex gap-2">
                     <textarea
                       value={newMessage.message}
                       onChange={(e) => setNewMessage({ ...newMessage, message: e.target.value })}
                       placeholder="Type your message..."
                       rows={2}
-                      className="flex-1 px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+                      className="flex-1 px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
                     />
-                    <button
+                    <Button
                       type="submit"
+                      variant="primary"
                       disabled={sending || !newMessage.message.trim()}
-                      className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors disabled:opacity-50"
                     >
                       Send
-                    </button>
-                  </div>
-                </form>
-              </div>
+                    </Button>
+                  </form>
+                </Card.Footer>
+              </Card>
             )}
           </div>
         </div>

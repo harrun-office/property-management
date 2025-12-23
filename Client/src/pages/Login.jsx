@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
+import Card from '../components/ui/Card';
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
 
 function Login() {
   const [role, setRole] = useState('');
@@ -151,97 +154,92 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-porcelain px-4">
-      <div className="max-w-md w-full bg-stone-100 rounded-2xl shadow-lg p-8 border border-stone-200">
-        <h2 className="text-3xl font-bold text-center mb-6 text-obsidian">Login</h2>
-        
-        {error && (
-          <div className="mb-4 p-3 bg-error/10 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+    <div className="min-h-screen flex items-center justify-center bg-porcelain px-4 py-12">
+      <div className="max-w-md w-full">
+        <Card variant="elevated" padding="lg">
+          <Card.Header>
+            <h2 className="text-3xl font-bold text-center text-charcoal mb-2">Login</h2>
+            <Card.Description className="text-center">
+              Sign in to your account to continue
+            </Card.Description>
+          </Card.Header>
+          
+          {error && (
+            <Card variant="outlined" padding="md" className="mb-4 border-error bg-error/5">
+              <p className="text-error font-medium">{error}</p>
+            </Card>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Role <span className="text-error">*</span>
-            </label>
-            <select
-              value={role}
-              onChange={(e) => handleChange('role', e.target.value)}
-              onBlur={(e) => handleBlur('role', e.target.value)}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.role ? 'border-error' : 'border-stone-300'
-              }`}
-            >
-              <option value="">Select your role</option>
-              <option value="admin">Admin</option>
-              <option value="property_manager">Property Manager</option>
-              <option value="property_owner">Property Owner</option>
-              <option value="tenant">Tenant</option>
-              <option value="vendor">Vendor</option>
-            </select>
-            {errors.role && touched.role && (
-              <p className="mt-1 text-sm text-error">{errors.role}</p>
-            )}
-          </div>
+          <Card.Body>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1.5">
+                  Role <span className="text-error-500">*</span>
+                </label>
+                <select
+                  value={role}
+                  onChange={(e) => handleChange('role', e.target.value)}
+                  onBlur={(e) => handleBlur('role', e.target.value)}
+                  required
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-[var(--color-surface)] text-charcoal transition-all ${
+                    errors.role ? 'border-error-500' : 'border-stone-300'
+                  }`}
+                >
+                  <option value="">Select your role</option>
+                  <option value="admin">Admin</option>
+                  <option value="property_manager">Property Manager</option>
+                  <option value="property_owner">Property Owner</option>
+                  <option value="tenant">Tenant</option>
+                  <option value="vendor">Vendor</option>
+                </select>
+                {errors.role && touched.role && (
+                  <p className="mt-1.5 text-sm text-error-500">{errors.role}</p>
+                )}
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Email <span className="text-error">*</span>
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              onBlur={(e) => handleBlur('email', e.target.value)}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.email ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="Enter your email"
-            />
-            {errors.email && touched.email && (
-              <p className="mt-1 text-sm text-error">{errors.email}</p>
-            )}
-          </div>
+              <Input
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => handleChange('email', e.target.value)}
+                onBlur={(e) => handleBlur('email', e.target.value)}
+                error={errors.email && touched.email ? errors.email : ''}
+                placeholder="Enter your email"
+                required
+              />
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Password <span className="text-error">*</span>
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => handleChange('password', e.target.value)}
-              onBlur={(e) => handleBlur('password', e.target.value)}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.password ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="Enter your password"
-            />
-            {errors.password && touched.password && (
-              <p className="mt-1 text-sm text-error">{errors.password}</p>
-            )}
-          </div>
+              <Input
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => handleChange('password', e.target.value)}
+                onBlur={(e) => handleBlur('password', e.target.value)}
+                error={errors.password && touched.password ? errors.password : ''}
+                placeholder="Enter your password"
+                required
+              />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+              <Button
+                type="submit"
+                variant="primary"
+                fullWidth
+                loading={loading}
+                disabled={loading}
+              >
+                {loading ? 'Logging in...' : 'Login'}
+              </Button>
+            </form>
+          </Card.Body>
 
-        <p className="mt-6 text-center text-architectural text-sm">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-obsidian font-semibold hover:text-brass transition-colors">
-            Register here
-          </Link>
-        </p>
+          <Card.Footer>
+            <p className="text-center text-architectural text-sm">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">
+                Register here
+              </Link>
+            </p>
+          </Card.Footer>
+        </Card>
       </div>
     </div>
   );

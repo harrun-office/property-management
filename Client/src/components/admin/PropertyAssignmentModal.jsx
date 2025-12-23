@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import Modal from '../ui/Modal';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import Card from '../ui/Card';
 
 function PropertyAssignmentModal({ title, properties = [], selectedIds = [], onSave, onClose }) {
   const [search, setSearch] = useState('');
@@ -29,57 +33,61 @@ function PropertyAssignmentModal({ title, properties = [], selectedIds = [], onS
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl border border-stone-200">
-        <div className="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
-          <h3 className="text-xl font-semibold text-charcoal">{title}</h3>
-          <button onClick={onClose} className="text-architectural hover:text-error">✕</button>
-        </div>
-
-        <div className="px-6 py-4 space-y-3">
-          <input
-            type="text"
-            placeholder="Search properties..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-          />
-
-          <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
-            {filtered.length === 0 ? (
-              <p className="text-sm text-architectural">No properties found.</p>
-            ) : (
-              filtered.map((p) => (
-                <label key={p.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-stone-100">
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(p.id)}
-                    onChange={() => toggleSelect(p.id)}
-                    className="mt-1"
-                  />
-                  <div>
-                    <p className="font-semibold text-charcoal">{p.title || 'Untitled Property'}</p>
-                    <p className="text-sm text-architectural">{p.address || p.city || ''}</p>
-                  </div>
-                </label>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="px-6 py-4 border-t border-stone-200 flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg border border-stone-300 text-charcoal hover:bg-stone-100">
+    <Modal
+      isOpen={!!title}
+      onClose={onClose}
+      title={title}
+      size="lg"
+      footer={
+        <div className="flex justify-end gap-3">
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            onClick={() => onSave(selected)}
-            className="px-4 py-2 rounded-lg bg-obsidian text-porcelain hover:bg-obsidian-light font-semibold"
-          >
-            Save
-          </button>
+          </Button>
+          <Button variant="primary" onClick={() => onSave(selected)}>
+            Save ({selected.length} selected)
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-4">
+        <Input
+          type="text"
+          placeholder="Search properties..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          icon={
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          }
+        />
+
+        <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
+          {filtered.length === 0 ? (
+            <p className="text-sm text-architectural text-center py-4">No properties found.</p>
+          ) : (
+            filtered.map((p) => (
+              <label key={p.id} className="block cursor-pointer">
+                <Card variant="filled" padding="sm" hover className={selected.includes(p.id) ? 'border-2 border-obsidian-500 bg-obsidian-50' : ''}>
+                  <div className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(p.id)}
+                      onChange={() => toggleSelect(p.id)}
+                      className="mt-1 w-4 h-4 text-obsidian-500 focus:ring-obsidian-500 rounded"
+                    />
+                    <div className="flex-1">
+                      <p className="font-semibold text-charcoal">{p.title || 'Untitled Property'}</p>
+                      <p className="text-sm text-architectural">{p.address || p.city || ''}</p>
+                    </div>
+                  </div>
+                </Card>
+              </label>
+            ))
+          )}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

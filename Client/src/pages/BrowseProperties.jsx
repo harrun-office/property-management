@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { propertiesAPI, tenantAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import PropertyCard from '../components/PropertyCard';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Skeleton from '../components/ui/Skeleton';
+import ErrorDisplay from '../components/ui/ErrorDisplay';
+import EmptyState from '../components/ui/EmptyState';
 
 function BrowseProperties() {
   const navigate = useNavigate();
@@ -157,58 +163,53 @@ function BrowseProperties() {
         </div>
 
         {/* Location Filter Section */}
-        <div className="bg-stone-100 rounded-2xl shadow-md p-6 mb-6 border border-stone-200">
+        <Card variant="elevated" padding="lg" className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-charcoal">Location</h2>
-            <button
+            <Card.Title>Location</Card.Title>
+            <Button
+              variant={showAdvancedFilters ? "secondary" : "primary"}
+              size="sm"
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="px-6 py-2 bg-obsidian text-porcelain rounded-xl hover:bg-obsidian-light transition-colors font-semibold text-sm"
             >
               {showAdvancedFilters ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
-            </button>
+            </Button>
           </div>
           
           {/* Location Search */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Search Location
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                name="searchLocation"
-                value={filters.searchLocation}
-                onChange={handleFilterChange}
-                placeholder="Search by address, neighborhood, or landmark..."
-                className="flex-1 p-3 border border-stone-300 rounded-xl bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-              />
-              {filters.searchLocation && (
-                <button
-                  onClick={() => setFilters({ ...filters, searchLocation: '' })}
-                  className="px-4 py-3 text-architectural hover:text-charcoal transition-colors"
-                  title="Clear search"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
+            <Input
+              label="Search Location"
+              type="text"
+              name="searchLocation"
+              value={filters.searchLocation}
+              onChange={handleFilterChange}
+              placeholder="Search by address, neighborhood, or landmark..."
+              icon={
+                filters.searchLocation && (
+                  <button
+                    onClick={() => setFilters({ ...filters, searchLocation: '' })}
+                    className="text-architectural hover:text-charcoal transition-colors"
+                    title="Clear search"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )
+              }
+            />
           </div>
 
           {/* Structured Location Filters */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
-                City
-              </label>
-              <input
-                type="text"
-                name="city"
-                value={filters.city}
-                onChange={handleFilterChange}
-                placeholder="Enter city name"
-                className="w-full p-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-              />
-            </div>
+            <Input
+              label="City"
+              type="text"
+              name="city"
+              value={filters.city}
+              onChange={handleFilterChange}
+              placeholder="Enter city name"
+            />
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1">
                 State
@@ -217,7 +218,7 @@ function BrowseProperties() {
                 name="state"
                 value={filters.state}
                 onChange={handleFilterChange}
-                className="w-full p-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
               >
                 <option value="">All States</option>
                 <option value="AL">Alabama</option>
@@ -273,30 +274,25 @@ function BrowseProperties() {
                 <option value="DC">District of Columbia</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
-                Zip Code
-              </label>
-              <input
-                type="text"
-                name="zipCode"
-                value={filters.zipCode}
-                onChange={handleFilterChange}
-                placeholder="Enter zip code"
-                pattern="[0-9]{5}"
-                maxLength="5"
-                className="w-full p-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-              />
-            </div>
+            <Input
+              label="Zip Code"
+              type="text"
+              name="zipCode"
+              value={filters.zipCode}
+              onChange={handleFilterChange}
+              placeholder="Enter zip code"
+              pattern="[0-9]{5}"
+              maxLength="5"
+            />
           </div>
-        </div>
+        </Card>
 
         {/* Basic Filters */}
-        <div className="bg-stone-100 rounded-2xl shadow-md p-6 mb-8 border border-stone-200">
+        <Card variant="elevated" padding="lg" className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-charcoal">Quick Filters</h2>
+            <Card.Title>Quick Filters</Card.Title>
             {hasActiveFilters() && (
-              <span className="px-3 py-1 bg-eucalyptus/20 text-eucalyptus rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-eucalyptus-100 text-eucalyptus-700 rounded-full text-sm font-semibold">
                 {getActiveFilterCount()} {getActiveFilterCount() === 1 ? 'filter' : 'filters'} active
               </span>
             )}
@@ -425,18 +421,19 @@ function BrowseProperties() {
               </select>
             </div>
           </div>
-          <button
+          <Button
+            variant="ghost"
             onClick={clearFilters}
-            className="mt-4 px-4 py-2 text-obsidian hover:text-brass font-medium transition-colors"
+            className="mt-4"
           >
             Clear Filters
-          </button>
-        </div>
+          </Button>
+        </Card>
 
         {/* Advanced Filters */}
         {showAdvancedFilters && (
-          <div className="bg-stone-100 rounded-2xl shadow-md p-6 mb-8 border border-stone-200">
-            <h2 className="text-xl font-semibold mb-4 text-charcoal">Advanced Filters</h2>
+          <Card variant="elevated" padding="lg" className="mb-8">
+            <Card.Title className="mb-4">Advanced Filters</Card.Title>
             
             {/* Rental Details */}
             <div className="mb-6">
@@ -628,45 +625,44 @@ function BrowseProperties() {
                   </span>
                 )}
               </div>
-              <button
+              <Button
+                variant="primary"
                 onClick={clearFilters}
-                className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors font-semibold"
               >
                 Clear All Filters
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Properties Grid */}
         {loading && (
-          <div className="text-center py-12">
-            <p className="text-architectural">Loading properties...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
           </div>
         )}
 
-        {error && (
-          <div className="bg-error/10 border border-error text-error px-4 py-3 rounded-lg mb-4">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadProperties} className="mb-4" />}
 
         {!loading && !error && properties.length === 0 && (
-          <div className="bg-stone-100 p-12 rounded-xl text-center border border-stone-200">
-            <svg className="w-16 h-16 mx-auto text-architectural mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <h3 className="text-xl font-semibold text-charcoal mb-2">No properties found</h3>
-            <p className="text-architectural mb-6">Try adjusting your filters or search terms.</p>
-            {hasActiveFilters() && (
-              <button
-                onClick={clearFilters}
-                className="inline-block px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors"
-              >
-                Clear Filters
-              </button>
-            )}
-          </div>
+          <EmptyState
+            title="No properties found"
+            description="Try adjusting your filters or search terms."
+            action={
+              hasActiveFilters() && (
+                <Button variant="primary" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+              )
+            }
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            }
+          />
         )}
 
         {!loading && !error && properties.length > 0 && (

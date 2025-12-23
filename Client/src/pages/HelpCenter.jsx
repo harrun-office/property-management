@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 function HelpCenter() {
   const [openCategory, setOpenCategory] = useState(null);
@@ -87,27 +90,27 @@ function HelpCenter() {
 
         {/* Search */}
         <div className="mb-8">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search for help..."
-              className="w-full px-4 py-3 pl-12 rounded-lg bg-stone-100 border border-stone-200 text-charcoal placeholder-architectural focus:outline-none focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-            />
-            <svg className="absolute left-4 top-3.5 w-5 h-5 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
+          <Input
+            type="text"
+            placeholder="Search for help..."
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            }
+            className="bg-stone-100"
+          />
         </div>
 
         {/* FAQ Categories */}
         <div className="space-y-4">
           {faqs.map((category, index) => (
-            <div key={index} className="bg-stone-100 rounded-xl border border-stone-200 overflow-hidden">
+            <Card key={index} variant="elevated" padding="none" className="overflow-hidden">
               <button
                 onClick={() => toggleCategory(index)}
                 className="w-full px-6 py-4 flex items-center justify-between hover:bg-stone-200 transition-colors"
               >
-                <h2 className="text-xl font-semibold text-charcoal">{category.category}</h2>
+                <Card.Title className="text-xl">{category.category}</Card.Title>
                 <svg
                   className={`w-5 h-5 text-architectural transform transition-transform ${openCategory === index ? 'rotate-180' : ''}`}
                   fill="none"
@@ -118,38 +121,34 @@ function HelpCenter() {
                 </svg>
               </button>
               {openCategory === index && (
-                <div className="px-6 py-4 border-t border-stone-200 space-y-4">
+                <Card.Body className="px-6 py-4 border-t border-stone-200 space-y-4">
                   {category.questions.map((faq, qIndex) => (
                     <div key={qIndex} className="pb-4 last:pb-0 border-b border-stone-200 last:border-b-0">
                       <h3 className="font-semibold text-charcoal mb-2">{faq.q}</h3>
                       <p className="text-architectural text-sm">{faq.a}</p>
                     </div>
                   ))}
-                </div>
+                </Card.Body>
               )}
-            </div>
+            </Card>
           ))}
         </div>
 
         {/* Contact Support */}
-        <div className="mt-8 bg-obsidian text-porcelain p-8 rounded-xl">
-          <h2 className="text-2xl font-bold mb-4">Still need help?</h2>
-          <p className="text-stone-200 mb-6">Our support team is here to help you 24/7</p>
+        <Card variant="elevated" padding="lg" className="mt-8 bg-obsidian text-porcelain border-0">
+          <Card.Title className="text-2xl mb-4 text-porcelain">Still need help?</Card.Title>
+          <Card.Description className="text-stone-200 mb-6">Our support team is here to help you 24/7</Card.Description>
           <div className="flex flex-col sm:flex-row gap-4">
-            <a
-              href="mailto:support@propmanage.com"
-              className="px-6 py-3 bg-brass text-porcelain rounded-lg hover:bg-brass-light transition-colors text-center font-semibold"
-            >
-              Email Support
+            <a href="mailto:support@propmanage.com">
+              <Button variant="accent">Email Support</Button>
             </a>
-            <Link
-              to="/about"
-              className="px-6 py-3 bg-transparent border-2 border-porcelain text-porcelain rounded-lg hover:bg-porcelain hover:text-obsidian transition-colors text-center font-semibold"
-            >
-              Contact Us
+            <Link to="/about">
+              <Button variant="secondary" className="bg-transparent border-2 border-porcelain text-porcelain hover:bg-porcelain hover:text-obsidian">
+                Contact Us
+              </Button>
             </Link>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

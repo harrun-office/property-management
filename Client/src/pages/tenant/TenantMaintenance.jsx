@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
 import { tenantAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Modal from '../../components/ui/Modal';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function TenantMaintenance() {
   const [requests, setRequests] = useState([]);
@@ -77,21 +84,39 @@ function TenantMaintenance() {
   const getStatusBadge = (status) => {
     const styles = {
       open: 'bg-architectural/20 text-architectural',
-      in_progress: 'bg-warning/20 text-warning',
-      completed: 'bg-eucalyptus/20 text-eucalyptus',
-      cancelled: 'bg-error/20 text-error'
+      in_progress: 'bg-warning-100 text-warning-700',
+      completed: 'bg-eucalyptus-100 text-eucalyptus-700',
+      cancelled: 'bg-error-100 text-error-700'
     };
     return styles[status] || 'bg-stone-200 text-charcoal';
   };
 
   const getPriorityBadge = (priority) => {
     const styles = {
-      low: 'bg-eucalyptus/20 text-eucalyptus',
-      medium: 'bg-warning/20 text-warning',
-      high: 'bg-error/20 text-error'
+      low: 'bg-eucalyptus-100 text-eucalyptus-700',
+      medium: 'bg-warning-100 text-warning-700',
+      high: 'bg-error-100 text-error-700'
     };
     return styles[priority] || 'bg-stone-200 text-charcoal';
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="40%" className="mb-2" />
+            <Skeleton variant="text" width="60%" />
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-porcelain py-8 px-4">
@@ -101,59 +126,56 @@ function TenantMaintenance() {
             <h1 className="text-4xl font-bold text-charcoal mb-2">Maintenance Requests</h1>
             <p className="text-architectural">Submit and track maintenance requests for your property</p>
           </div>
-          <button
+          <Button
+            variant={showCreateForm ? "secondary" : "primary"}
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors font-semibold"
+            icon={
+              showCreateForm ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              )
+            }
           >
-            {showCreateForm ? 'Cancel' : '+ New Request'}
-          </button>
+            {showCreateForm ? 'Cancel' : 'New Request'}
+          </Button>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadRequests} className="mb-6" />}
 
         {/* Create Form */}
         {showCreateForm && (
-          <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200 mb-6">
-            <h2 className="text-2xl font-bold text-charcoal mb-4">Create Maintenance Request</h2>
+          <Card variant="elevated" padding="lg" className="mb-6">
+            <Card.Title className="mb-4">Create Maintenance Request</Card.Title>
             <form onSubmit={handleCreateRequest} className="space-y-4">
+              <Input
+                label="Property ID"
+                type="number"
+                value={formData.propertyId}
+                onChange={(e) => setFormData({ ...formData, propertyId: e.target.value })}
+                required
+              />
+              <Input
+                label="Title"
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g., Leaky faucet in kitchen"
+                required
+              />
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-1">
-                  Property ID <span className="text-error">*</span>
-                </label>
-                <input
-                  type="number"
-                  value={formData.propertyId}
-                  onChange={(e) => setFormData({ ...formData, propertyId: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">
-                  Title <span className="text-error">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                  placeholder="e.g., Leaky faucet in kitchen"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">
-                  Description <span className="text-error">*</span>
+                  Description <span className="text-error-500">*</span>
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={4}
-                  className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
                   placeholder="Describe the issue in detail..."
                   required
                 />
@@ -163,30 +185,32 @@ function TenantMaintenance() {
                 <select
                   value={formData.priority}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
                 </select>
               </div>
-              <button
+              <Button
                 type="submit"
-                disabled={submitting}
-                className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors disabled:opacity-50"
+                variant="primary"
+                fullWidth
+                loading={submitting}
               >
-                {submitting ? 'Submitting...' : 'Submit Request'}
-              </button>
+                Submit Request
+              </Button>
             </form>
-          </div>
+          </Card>
         )}
 
         {/* Filters */}
         <div className="mb-6">
+          <label className="block text-sm font-medium text-charcoal mb-1">Filter by Status</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+            className="px-4 py-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
           >
             <option value="all">All Statuses</option>
             <option value="open">Open</option>
@@ -197,22 +221,34 @@ function TenantMaintenance() {
         </div>
 
         {/* Requests List */}
-        <div className="bg-stone-100 rounded-xl shadow-md overflow-hidden border border-stone-200">
-          {loading ? (
-            <div className="p-8 text-center text-architectural">Loading requests...</div>
-          ) : requests.length === 0 ? (
-            <div className="p-8 text-center text-architectural">No maintenance requests found</div>
+        <Card variant="elevated" padding="none" className="overflow-hidden">
+          {requests.length === 0 ? (
+            <Card.Body className="p-8">
+              <EmptyState
+                title="No maintenance requests found"
+                description="You haven't submitted any maintenance requests yet."
+                icon={
+                  <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                }
+              />
+            </Card.Body>
           ) : (
             <div className="divide-y divide-stone-200">
               {requests.map((request) => (
-                <div
+                <Card
                   key={request.id}
-                  className="p-6 hover:bg-stone-50 transition-colors cursor-pointer"
+                  variant="filled"
+                  padding="md"
+                  hover
                   onClick={() => setSelectedRequest(request)}
+                  className="cursor-pointer"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h3 className="text-lg font-semibold text-charcoal">{request.title}</h3>
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(request.status)}`}>
                           {request.status.replace('_', ' ')}
@@ -231,91 +267,83 @@ function TenantMaintenance() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Request Details Modal */}
-        {selectedRequest && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedRequest(null)}>
-            <div className="bg-porcelain rounded-xl shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-charcoal">{selectedRequest.title}</h2>
-                <button
-                  onClick={() => setSelectedRequest(null)}
-                  className="text-architectural hover:text-charcoal"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+        <Modal
+          isOpen={!!selectedRequest}
+          onClose={() => setSelectedRequest(null)}
+          title={selectedRequest?.title}
+          size="lg"
+        >
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-architectural text-sm mb-1">Status</p>
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(selectedRequest.status)}`}>
+                  {selectedRequest.status.replace('_', ' ')}
+                </span>
               </div>
-              <div className="space-y-4">
+              <div>
+                <p className="text-architectural text-sm mb-1">Priority</p>
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getPriorityBadge(selectedRequest.priority)}`}>
+                  {selectedRequest.priority}
+                </span>
+              </div>
+              <div>
+                <p className="text-architectural text-sm mb-1">Description</p>
+                <p className="text-charcoal">{selectedRequest.description}</p>
+              </div>
+              <div>
+                <p className="text-architectural text-sm mb-1">Property</p>
+                <p className="text-charcoal font-semibold">{selectedRequest.property?.title || 'N/A'}</p>
+                <p className="text-sm text-architectural">{selectedRequest.property?.address}</p>
+              </div>
+              <div>
+                <p className="text-architectural text-sm mb-1">Created</p>
+                <p className="text-charcoal">{new Date(selectedRequest.createdAt).toLocaleString()}</p>
+              </div>
+              {selectedRequest.notes && selectedRequest.notes.length > 0 && (
                 <div>
-                  <p className="text-architectural text-sm">Status</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(selectedRequest.status)}`}>
-                    {selectedRequest.status.replace('_', ' ')}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-architectural text-sm">Priority</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getPriorityBadge(selectedRequest.priority)}`}>
-                    {selectedRequest.priority}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-architectural text-sm">Description</p>
-                  <p className="text-charcoal">{selectedRequest.description}</p>
-                </div>
-                <div>
-                  <p className="text-architectural text-sm">Property</p>
-                  <p className="text-charcoal font-semibold">{selectedRequest.property?.title || 'N/A'}</p>
-                  <p className="text-sm text-architectural">{selectedRequest.property?.address}</p>
-                </div>
-                <div>
-                  <p className="text-architectural text-sm">Created</p>
-                  <p className="text-charcoal">{new Date(selectedRequest.createdAt).toLocaleString()}</p>
-                </div>
-                {selectedRequest.notes && selectedRequest.notes.length > 0 && (
-                  <div>
-                    <p className="text-architectural text-sm mb-2">Notes</p>
-                    <div className="space-y-2">
-                      {selectedRequest.notes.map((note, idx) => (
-                        <div key={idx} className="bg-stone-100 p-3 rounded-lg">
-                          <p className="text-sm text-charcoal">{note.note}</p>
-                          <p className="text-xs text-architectural mt-1">
-                            {new Date(note.addedAt).toLocaleString()}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                  <p className="text-architectural text-sm mb-2">Notes</p>
+                  <div className="space-y-2">
+                    {selectedRequest.notes.map((note, idx) => (
+                      <Card key={idx} variant="filled" padding="sm">
+                        <p className="text-sm text-charcoal">{note.note}</p>
+                        <p className="text-xs text-architectural mt-1">
+                          {new Date(note.addedAt).toLocaleString()}
+                        </p>
+                      </Card>
+                    ))}
                   </div>
-                )}
-                <div className="border-t border-stone-200 pt-4">
-                  <p className="text-architectural text-sm mb-2">Add Note</p>
-                  <div className="flex gap-2">
-                    <textarea
-                      value={noteText}
-                      onChange={(e) => setNoteText(e.target.value)}
-                      placeholder="Add a note or update..."
-                      rows={3}
-                      className="flex-1 px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                    />
-                    <button
-                      onClick={handleAddNote}
-                      disabled={!noteText.trim()}
-                      className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors disabled:opacity-50"
-                    >
-                      Add
-                    </button>
-                  </div>
+                </div>
+              )}
+              <div className="border-t border-stone-200 pt-4">
+                <label className="block text-sm font-medium text-charcoal mb-1">Add Note</label>
+                <div className="flex gap-2">
+                  <textarea
+                    value={noteText}
+                    onChange={(e) => setNoteText(e.target.value)}
+                    placeholder="Add a note or update..."
+                    rows={3}
+                    className="flex-1 px-3 py-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
+                  />
+                  <Button
+                    variant="primary"
+                    onClick={handleAddNote}
+                    disabled={!noteText.trim()}
+                  >
+                    Add
+                  </Button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </Modal>
       </div>
     </div>
   );

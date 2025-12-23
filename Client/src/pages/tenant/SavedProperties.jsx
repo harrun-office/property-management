@@ -3,6 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { propertiesAPI, tenantAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import PropertyCard from '../../components/PropertyCard';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function SavedProperties() {
   const navigate = useNavigate();
@@ -54,8 +59,18 @@ function SavedProperties() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-charcoal text-lg">Loading saved properties...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="30%" className="mb-2" />
+            <Skeleton variant="text" width="50%" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -68,42 +83,47 @@ function SavedProperties() {
             <h1 className="text-4xl font-bold text-charcoal mb-2">Saved Properties</h1>
             <p className="text-architectural">Your favorite properties</p>
           </div>
-          <Link to="/properties" className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors">
-            Browse More
+          <Link to="/properties">
+            <Button variant="primary">Browse More</Button>
           </Link>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadSavedProperties} className="mb-6" />}
 
         {savedProperties.length === 0 ? (
-          <div className="bg-stone-100 p-12 rounded-xl text-center border border-stone-200">
-            <svg className="w-16 h-16 mx-auto text-architectural mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            <h3 className="text-xl font-semibold text-charcoal mb-2">No saved properties yet</h3>
-            <p className="text-architectural mb-6">Start browsing and save properties you're interested in!</p>
-            <Link to="/properties" className="inline-block px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors">
-              Browse Properties
-            </Link>
-          </div>
+          <EmptyState
+            title="No saved properties yet"
+            description="Start browsing and save properties you're interested in!"
+            action={
+              <Link to="/properties">
+                <Button variant="primary">Browse Properties</Button>
+              </Link>
+            }
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {savedProperties.map((property) => (
               <div key={property.id} className="relative">
                 <PropertyCard property={property} />
-                <button
+                <Button
+                  variant="danger"
+                  size="sm"
+                  className="absolute top-4 right-4"
                   onClick={() => handleRemove(property.id)}
-                  className="absolute top-4 right-4 p-2 bg-obsidian/80 text-porcelain rounded-full hover:bg-error transition-colors"
                   aria-label="Remove from saved"
+                  icon={
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  }
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                  </svg>
-                </button>
+                  Remove
+                </Button>
               </div>
             ))}
           </div>

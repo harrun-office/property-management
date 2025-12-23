@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ownerAPI } from '../../services/api';
 import PropertyCard from '../../components/PropertyCard';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
+import Modal from '../../components/ui/Modal';
 
 function MyProperties() {
   const navigate = useNavigate();
@@ -47,13 +54,17 @@ function MyProperties() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
-      return;
-    }
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+  const handleDelete = async (id) => {
+    setDeleteConfirm(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
     try {
-      await ownerAPI.deleteProperty(id);
+      await ownerAPI.deleteProperty(deleteConfirm);
+      setDeleteConfirm(null);
       loadProperties();
     } catch (err) {
       alert(err.message);
@@ -62,8 +73,18 @@ function MyProperties() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-architectural text-lg">Loading properties...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="30%" className="mb-2" />
+            <Skeleton variant="text" width="50%" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -76,17 +97,20 @@ function MyProperties() {
             <h1 className="text-4xl font-bold text-charcoal mb-2">My Properties</h1>
             <p className="text-architectural">Manage all your property listings</p>
           </div>
-          <Link
-            to="/owner/properties/new"
-            className="px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
-          >
-            + Post New Property
+          <Link to="/owner/properties/new">
+            <Button variant="primary" icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            }>
+              Post New Property
+            </Button>
           </Link>
         </div>
 
         {/* Filters */}
-        <div className="bg-stone-100 rounded-xl shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Filters</h2>
+        <Card variant="elevated" padding="lg" className="mb-8">
+          <Card.Title className="mb-4">Filters</Card.Title>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1">Status</label>
@@ -94,7 +118,7 @@ function MyProperties() {
                 name="status"
                 value={filters.status}
                 onChange={handleFilterChange}
-                className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500"
+                className="w-full p-3 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
               >
                 <option value="">All Status</option>
                 <option value="active">Active</option>
@@ -109,7 +133,7 @@ function MyProperties() {
                 name="propertyType"
                 value={filters.propertyType}
                 onChange={handleFilterChange}
-                className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500"
+                className="w-full p-3 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
               >
                 <option value="">All Types</option>
                 <option value="apartment">Apartment</option>
@@ -118,44 +142,41 @@ function MyProperties() {
                 <option value="townhouse">Townhouse</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">Search</label>
-              <input
-                type="text"
-                name="search"
-                value={filters.search}
-                onChange={handleFilterChange}
-                placeholder="Search by title or address..."
-                className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian-500"
-              />
-            </div>
+            <Input
+              label="Search"
+              name="search"
+              value={filters.search}
+              onChange={handleFilterChange}
+              placeholder="Search by title or address..."
+            />
           </div>
-        </div>
+        </Card>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadProperties} className="mb-6" />}
 
         {properties.length === 0 && !loading && (
-          <div className="text-center py-12 bg-stone-100 rounded-2xl shadow-md">
-            <p className="text-architectural text-lg mb-4">You haven't posted any properties yet.</p>
-            <Link
-              to="/owner/properties/new"
-              className="inline-block px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-600 transition-colors"
-            >
-              Post Your First Property
-            </Link>
-          </div>
+          <EmptyState
+            title="No properties yet"
+            description="You haven't posted any properties yet. Get started by posting your first property."
+            action={
+              <Link to="/owner/properties/new">
+                <Button variant="primary">Post Your First Property</Button>
+              </Link>
+            }
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            }
+          />
         )}
 
         {properties.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.map((property) => (
-              <div key={property.id} className="bg-stone-100 rounded-2xl shadow-md overflow-hidden">
+              <Card key={property.id} variant="elevated" padding="none" className="overflow-hidden">
                 <PropertyCard property={property} noLink={true} />
-                <div className="p-4 border-t space-y-3">
+                <Card.Body className="p-4 border-t border-stone-200 space-y-3">
                   {/* Quick Stats */}
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-4">
@@ -176,7 +197,7 @@ function MyProperties() {
                     <select
                       value={property.status}
                       onChange={(e) => handleStatusChange(property.id, e.target.value)}
-                      className="px-3 py-1 text-sm border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500"
+                      className="px-3 py-1.5 text-sm border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
                     >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
@@ -186,25 +207,44 @@ function MyProperties() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex space-x-2">
-                    <Link
-                      to={`/owner/properties/${property.id}/edit`}
-                      className="flex-1 px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 text-center text-sm font-medium transition-colors"
-                    >
-                      Edit
+                  <div className="flex gap-2">
+                    <Link to={`/owner/properties/${property.id}/edit`} className="flex-1">
+                      <Button variant="primary" size="sm" fullWidth>Edit</Button>
                     </Link>
-                    <button
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      fullWidth
                       onClick={() => handleDelete(property.id)}
-                      className="flex-1 px-4 py-2 bg-error text-porcelain rounded-lg hover:opacity-90 text-sm font-medium transition-colors"
                     >
                       Delete
-                    </button>
+                    </Button>
                   </div>
-                </div>
-              </div>
+                </Card.Body>
+              </Card>
             ))}
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          isOpen={!!deleteConfirm}
+          onClose={() => setDeleteConfirm(null)}
+          title="Delete Property"
+          size="md"
+        >
+          <p className="text-charcoal mb-6">
+            Are you sure you want to delete this property? This action cannot be undone.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </div>
+        </Modal>
       </div>
     </div>
   );

@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { tenantAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function TenantLease() {
   const [lease, setLease] = useState(null);
@@ -30,23 +35,30 @@ function TenantLease() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-charcoal text-lg">Loading lease information...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="40%" className="mb-2" />
+            <Skeleton variant="text" width="60%" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[1, 2].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error && !lease && !currentProperty) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-error text-lg mb-4">{error}</p>
-          <button
-            onClick={loadLeaseData}
-            className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors"
-          >
-            Retry
-          </button>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <ErrorDisplay
+            message={error}
+            onRetry={loadLeaseData}
+          />
         </div>
       </div>
     );
@@ -56,16 +68,20 @@ function TenantLease() {
     return (
       <div className="min-h-screen bg-porcelain py-8 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-stone-100 p-12 rounded-xl text-center border border-stone-200">
-            <svg className="w-16 h-16 mx-auto text-architectural mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h3 className="text-xl font-semibold text-charcoal mb-2">No Active Lease</h3>
-            <p className="text-architectural mb-6">You don't have an active lease at the moment.</p>
-            <a href="/properties" className="inline-block px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors">
-              Browse Properties
-            </a>
-          </div>
+          <EmptyState
+            title="No Active Lease"
+            description="You don't have an active lease at the moment."
+            action={
+              <a href="/properties">
+                <Button variant="primary">Browse Properties</Button>
+              </a>
+            }
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            }
+          />
         </div>
       </div>
     );
@@ -82,9 +98,10 @@ function TenantLease() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Current Property Card */}
           {currentProperty && (
-            <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
-              <h2 className="text-2xl font-bold text-charcoal mb-4">Current Property</h2>
-              <div className="space-y-4">
+            <Card variant="elevated" padding="lg">
+              <Card.Title className="text-2xl mb-4">Current Property</Card.Title>
+              <Card.Body className="space-y-4">
+                <div className="space-y-4">
                 <div>
                   <p className="text-architectural text-sm">Property Name</p>
                   <p className="text-lg font-semibold text-charcoal">{currentProperty.title}</p>
@@ -123,15 +140,17 @@ function TenantLease() {
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
+                </div>
+              </Card.Body>
+            </Card>
           )}
 
           {/* Lease Details */}
           {lease && (
-            <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
-              <h2 className="text-2xl font-bold text-charcoal mb-4">Lease Agreement</h2>
-              <div className="space-y-4">
+            <Card variant="elevated" padding="lg">
+              <Card.Title className="text-2xl mb-4">Lease Agreement</Card.Title>
+              <Card.Body className="space-y-4">
+                <div className="space-y-4">
                 <div>
                   <p className="text-architectural text-sm">Monthly Rent</p>
                   <p className="text-2xl font-bold text-charcoal">${lease.monthlyRent.toLocaleString()}/month</p>
@@ -167,38 +186,40 @@ function TenantLease() {
                   <p className="text-architectural text-sm mb-2">Terms</p>
                   <p className="text-charcoal text-sm">{lease.terms}</p>
                 </div>
-                <button
+                <Button
+                  variant="primary"
+                  fullWidth
                   onClick={() => alert('Lease document download feature coming soon')}
-                  className="w-full px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors"
                 >
                   Download Lease Document
-                </button>
-              </div>
-            </div>
+                </Button>
+                </div>
+              </Card.Body>
+            </Card>
           )}
         </div>
 
         {/* Important Dates */}
         {lease && (
-          <div className="mt-6 bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
-            <h2 className="text-2xl font-bold text-charcoal mb-4">Important Dates</h2>
+          <Card variant="elevated" padding="lg" className="mt-6">
+            <Card.Title className="text-2xl mb-4">Important Dates</Card.Title>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-porcelain p-4 rounded-lg border border-stone-200">
+              <Card variant="filled" padding="md">
                 <p className="text-architectural text-sm mb-1">Move-in Date</p>
                 <p className="text-lg font-semibold text-charcoal">{new Date(lease.startDate).toLocaleDateString()}</p>
-              </div>
-              <div className="bg-porcelain p-4 rounded-lg border border-stone-200">
+              </Card>
+              <Card variant="filled" padding="md">
                 <p className="text-architectural text-sm mb-1">Lease End Date</p>
                 <p className="text-lg font-semibold text-charcoal">{new Date(lease.endDate).toLocaleDateString()}</p>
-              </div>
-              <div className="bg-porcelain p-4 rounded-lg border border-stone-200">
+              </Card>
+              <Card variant="filled" padding="md">
                 <p className="text-architectural text-sm mb-1">Days Remaining</p>
                 <p className="text-lg font-semibold text-charcoal">
                   {Math.ceil((new Date(lease.endDate) - new Date()) / (1000 * 60 * 60 * 24))} days
                 </p>
-              </div>
+              </Card>
             </div>
-          </div>
+          </Card>
         )}
       </div>
     </div>

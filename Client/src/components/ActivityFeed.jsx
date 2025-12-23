@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Card from './ui/Card';
+import Skeleton from './ui/Skeleton';
 
 function ActivityFeed({ limit = 10 }) {
   const [activities, setActivities] = useState([]);
@@ -123,52 +125,56 @@ function ActivityFeed({ limit = 10 }) {
 
   if (loading) {
     return (
-      <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-        <h3 className="text-xl font-bold text-charcoal mb-4">Recent Activity</h3>
+      <Card variant="elevated" padding="lg">
+        <Card.Title className="mb-4">Recent Activity</Card.Title>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-16 bg-stone-200 rounded-lg"></div>
-            </div>
+            <Skeleton.ListItem key={i} />
           ))}
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
+    <Card variant="elevated" padding="lg">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-bold text-charcoal">Recent Activity</h3>
+        <Card.Title>Recent Activity</Card.Title>
         <Link
           to="/admin/activity"
-          className="text-sm text-obsidian hover:text-obsidian-light font-medium"
+          className="text-sm text-obsidian-500 hover:text-obsidian-600 font-medium transition-colors"
         >
-          View All
+          View All →
         </Link>
       </div>
-      <div className="space-y-4">
-        {activities.length === 0 ? (
-          <p className="text-architectural text-center py-8">No recent activity</p>
-        ) : (
-          activities.map((activity) => (
-            <Link
-              key={activity.id}
-              to={activity.link}
-              className="flex items-start space-x-3 p-3 bg-porcelain rounded-lg hover:shadow-md transition-all border border-stone-200"
-            >
-              <div className={`p-2 rounded-lg ${getActivityColor(activity.type)} flex-shrink-0`}>
-                {getActivityIcon(activity.type)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-charcoal font-medium">{activity.message}</p>
-                <p className="text-xs text-architectural mt-1">{formatTimeAgo(activity.timestamp)}</p>
-              </div>
-            </Link>
-          ))
-        )}
-      </div>
-    </div>
+      <Card.Body>
+        <div className="space-y-3">
+          {activities.length === 0 ? (
+            <p className="text-architectural text-center py-8">No recent activity</p>
+          ) : (
+            activities.map((activity) => (
+              <Link
+                key={activity.id}
+                to={activity.link}
+                className="block"
+              >
+                <Card variant="filled" padding="sm" hover>
+                  <div className="flex items-start space-x-3">
+                    <div className={`p-2 rounded-lg ${getActivityColor(activity.type)} flex-shrink-0`}>
+                      {getActivityIcon(activity.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-charcoal font-medium">{activity.message}</p>
+                      <p className="text-xs text-architectural mt-1">{formatTimeAgo(activity.timestamp)}</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))
+          )}
+        </div>
+      </Card.Body>
+    </Card>
   );
 }
 

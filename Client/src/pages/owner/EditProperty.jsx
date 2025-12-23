@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ownerAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
 
 function EditProperty() {
   const navigate = useNavigate();
@@ -309,8 +314,14 @@ function EditProperty() {
 
   if (loadingProperty) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-architectural text-lg">Loading property...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="30%" className="mb-2" />
+            <Skeleton variant="text" width="50%" />
+          </div>
+          <Skeleton.Card />
+        </div>
       </div>
     );
   }
@@ -318,39 +329,34 @@ function EditProperty() {
   return (
     <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-charcoal mb-8">Edit Property</h1>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-charcoal mb-2">Edit Property</h1>
+          <p className="text-architectural">Update your property listing</p>
+        </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} className="mb-6" />}
 
-        <form onSubmit={handleSubmit} className="bg-stone-100 rounded-2xl shadow-lg p-8 space-y-6">
+        <Card variant="elevated" padding="lg">
+          <form onSubmit={handleSubmit} className="space-y-6">
           {/* Same form structure as PostProperty */}
-          <div className="border-b pb-6">
-            <h2 className="text-xl font-semibold text-charcoal mb-4">Basic Information</h2>
+          <div className="border-b border-stone-200 pb-6">
+            <Card.Title className="text-xl mb-4">Basic Information</Card.Title>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Title <span className="text-error">*</span></label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  required
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.title ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.title && touched.title && (
-                  <p className="mt-1 text-sm text-error">{errors.title}</p>
-                )}
-              </div>
+              <Input
+                label="Title"
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                error={errors.title && touched.title ? errors.title : undefined}
+              />
 
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Description <span className="text-error">*</span></label>
+                <label className="block text-sm font-medium text-charcoal mb-1">
+                  Description <span className="text-error-500">*</span>
+                </label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -358,46 +364,41 @@ function EditProperty() {
                   onBlur={handleBlur}
                   required
                   rows={4}
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.description ? 'border-error' : 'border-stone-300'
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors ${
+                    errors.description && touched.description ? 'border-error-500' : 'border-stone-300'
                   }`}
                 />
                 {errors.description && touched.description && (
-                  <p className="mt-1 text-sm text-error">{errors.description}</p>
+                  <p className="mt-1 text-sm text-error-500">{errors.description}</p>
                 )}
                 {!errors.description && formData.description && (
                   <p className="mt-1 text-xs text-architectural">{formData.description.length}/2000 characters</p>
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Price ($)"
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  required
+                  min="0"
+                  step="0.01"
+                  error={errors.price && touched.price ? errors.price : undefined}
+                />
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">Price ($) <span className="text-error">*</span></label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    required
-                    min="0"
-                    step="0.01"
-                    className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                      errors.price ? 'border-error' : 'border-stone-300'
-                    }`}
-                  />
-                  {errors.price && touched.price && (
-                    <p className="mt-1 text-sm text-error">{errors.price}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">Property Type <span className="text-error">*</span></label>
+                  <label className="block text-sm font-medium text-charcoal mb-1">
+                    Property Type <span className="text-error-500">*</span>
+                  </label>
                   <select
                     name="propertyType"
                     value={formData.propertyType}
                     onChange={handleChange}
                     required
-                    className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain"
+                    className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
                   >
                     <option value="apartment">Apartment</option>
                     <option value="house">House</option>
@@ -407,134 +408,92 @@ function EditProperty() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Address <span className="text-error">*</span></label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  required
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.address ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.address && touched.address && (
-                  <p className="mt-1 text-sm text-error">{errors.address}</p>
-                )}
-              </div>
+              <Input
+                label="Address"
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                error={errors.address && touched.address ? errors.address : undefined}
+              />
             </div>
           </div>
 
-          <div className="border-b pb-6">
-            <h2 className="text-xl font-semibold text-charcoal mb-4">Property Details</h2>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Bedrooms <span className="text-error">*</span></label>
-                <input
-                  type="number"
-                  name="bedrooms"
-                  value={formData.bedrooms}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  required
-                  min="1"
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.bedrooms ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.bedrooms && touched.bedrooms && (
-                  <p className="mt-1 text-sm text-error">{errors.bedrooms}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Bathrooms <span className="text-error">*</span></label>
-                <input
-                  type="number"
-                  name="bathrooms"
-                  value={formData.bathrooms}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  required
-                  min="0.5"
-                  step="0.5"
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.bathrooms ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.bathrooms && touched.bathrooms && (
-                  <p className="mt-1 text-sm text-error">{errors.bathrooms}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Area (sq ft) <span className="text-error">*</span></label>
-                <input
-                  type="number"
-                  name="area"
-                  value={formData.area}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  required
-                  min="0"
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.area ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.area && touched.area && (
-                  <p className="mt-1 text-sm text-error">{errors.area}</p>
-                )}
-              </div>
+          <div className="border-b border-stone-200 pb-6">
+            <Card.Title className="text-xl mb-4">Property Details</Card.Title>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Input
+                label="Bedrooms"
+                type="number"
+                name="bedrooms"
+                value={formData.bedrooms}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                min="1"
+                error={errors.bedrooms && touched.bedrooms ? errors.bedrooms : undefined}
+              />
+              <Input
+                label="Bathrooms"
+                type="number"
+                name="bathrooms"
+                value={formData.bathrooms}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                min="0.5"
+                step="0.5"
+                error={errors.bathrooms && touched.bathrooms ? errors.bathrooms : undefined}
+              />
+              <Input
+                label="Area (sq ft)"
+                type="number"
+                name="area"
+                value={formData.area}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                min="0"
+                error={errors.area && touched.area ? errors.area : undefined}
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Year Built</label>
-                <input
-                  type="number"
-                  name="yearBuilt"
-                  value={formData.yearBuilt}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  min="1800"
-                  max={new Date().getFullYear()}
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.yearBuilt ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.yearBuilt && touched.yearBuilt && (
-                  <p className="mt-1 text-sm text-error">{errors.yearBuilt}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Parking Spaces</label>
-                <input
-                  type="number"
-                  name="parking"
-                  value={formData.parking}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  min="0"
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.parking ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.parking && touched.parking && (
-                  <p className="mt-1 text-sm text-error">{errors.parking}</p>
-                )}
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <Input
+                label="Year Built"
+                type="number"
+                name="yearBuilt"
+                value={formData.yearBuilt}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                min="1800"
+                max={new Date().getFullYear()}
+                error={errors.yearBuilt && touched.yearBuilt ? errors.yearBuilt : undefined}
+              />
+              <Input
+                label="Parking Spaces"
+                type="number"
+                name="parking"
+                value={formData.parking}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                min="0"
+                error={errors.parking && touched.parking ? errors.parking : undefined}
+              />
             </div>
           </div>
 
-          <div className="border-b pb-6">
-            <h2 className="text-xl font-semibold text-charcoal mb-4">Amenities</h2>
+          <div className="border-b border-stone-200 pb-6">
+            <Card.Title className="text-xl mb-4">Amenities</Card.Title>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {availableAmenities.map((amenity) => (
-                <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
+                <label key={amenity} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.amenities.includes(amenity)}
                     onChange={() => handleAmenityToggle(amenity)}
-                    className="w-4 h-4 text-obsidian border-stone-300 rounded focus:ring-obsidian"
+                    className="w-4 h-4 text-obsidian-500 border-stone-300 rounded focus:ring-obsidian-500"
                   />
                   <span className="text-sm text-charcoal">{amenity}</span>
                 </label>
@@ -542,16 +501,16 @@ function EditProperty() {
             </div>
           </div>
 
-          <div className="border-b pb-6">
-            <h2 className="text-xl font-semibold text-charcoal mb-4">Utilities Included</h2>
+          <div className="border-b border-stone-200 pb-6">
+            <Card.Title className="text-xl mb-4">Utilities Included</Card.Title>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {availableUtilities.map((utility) => (
-                <label key={utility} className="flex items-center space-x-2 cursor-pointer">
+                <label key={utility} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.utilities.includes(utility)}
                     onChange={() => handleUtilityToggle(utility)}
-                    className="w-4 h-4 text-obsidian border-stone-300 rounded focus:ring-obsidian"
+                    className="w-4 h-4 text-obsidian-500 border-stone-300 rounded focus:ring-obsidian-500"
                   />
                   <span className="text-sm text-charcoal">{utility}</span>
                 </label>
@@ -559,54 +518,40 @@ function EditProperty() {
             </div>
           </div>
 
-          <div className="border-b pb-6">
-            <h2 className="text-xl font-semibold text-charcoal mb-4">Rental Information</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Monthly Rent ($)</label>
-                <input
-                  type="number"
-                  name="monthlyRent"
-                  value={formData.monthlyRent}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  min="0"
-                  step="0.01"
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.monthlyRent ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.monthlyRent && touched.monthlyRent && (
-                  <p className="mt-1 text-sm text-error">{errors.monthlyRent}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Security Deposit ($)</label>
-                <input
-                  type="number"
-                  name="securityDeposit"
-                  value={formData.securityDeposit}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  min="0"
-                  step="0.01"
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.securityDeposit ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.securityDeposit && touched.securityDeposit && (
-                  <p className="mt-1 text-sm text-error">{errors.securityDeposit}</p>
-                )}
-              </div>
+          <div className="border-b border-stone-200 pb-6">
+            <Card.Title className="text-xl mb-4">Rental Information</Card.Title>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Monthly Rent ($)"
+                type="number"
+                name="monthlyRent"
+                value={formData.monthlyRent}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                min="0"
+                step="0.01"
+                error={errors.monthlyRent && touched.monthlyRent ? errors.monthlyRent : undefined}
+              />
+              <Input
+                label="Security Deposit ($)"
+                type="number"
+                name="securityDeposit"
+                value={formData.securityDeposit}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                min="0"
+                step="0.01"
+                error={errors.securityDeposit && touched.securityDeposit ? errors.securityDeposit : undefined}
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-1">Lease Terms</label>
                 <select
                   name="leaseTerms"
                   value={formData.leaseTerms}
                   onChange={handleChange}
-                  className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain"
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
                 >
                   <option value="6 months">6 months</option>
                   <option value="12 months">12 months</option>
@@ -615,22 +560,15 @@ function EditProperty() {
                   <option value="Month-to-month">Month-to-month</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Available Date</label>
-                <input
-                  type="date"
-                  name="availableDate"
-                  value={formData.availableDate}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                    errors.availableDate ? 'border-error' : 'border-stone-300'
-                  }`}
-                />
-                {errors.availableDate && touched.availableDate && (
-                  <p className="mt-1 text-sm text-error">{errors.availableDate}</p>
-                )}
-              </div>
+              <Input
+                label="Available Date"
+                type="date"
+                name="availableDate"
+                value={formData.availableDate}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.availableDate && touched.availableDate ? errors.availableDate : undefined}
+              />
             </div>
             <div className="mt-4">
               <label className="block text-sm font-medium text-charcoal mb-1">Pet Policy</label>
@@ -638,7 +576,7 @@ function EditProperty() {
                 name="petPolicy"
                 value={formData.petPolicy}
                 onChange={handleChange}
-                className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
               >
                 <option value="not_allowed">Not Allowed</option>
                 <option value="cats_only">Cats Only</option>
@@ -648,59 +586,64 @@ function EditProperty() {
             </div>
           </div>
 
-          <div className="border-b pb-6">
-            <h2 className="text-xl font-semibold text-charcoal mb-4">Property Images</h2>
+          <div className="border-b border-stone-200 pb-6">
+            <Card.Title className="text-xl mb-4">Property Images</Card.Title>
             <div className="flex gap-2 mb-2">
               <input
                 type="url"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://example.com/image.jpg"
-                    className="flex-1 p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain"
+                className="flex-1 px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
               />
-              <button
+              <Button
                 type="button"
+                variant="primary"
                 onClick={handleAddImage}
-                className="px-4 py-3 bg-obsidian text-porcelain rounded-xl hover:bg-obsidian-light transition-colors"
               >
                 Add
-              </button>
+              </Button>
             </div>
             {formData.images.length > 0 && (
               <div className="space-y-2">
                 {formData.images.map((url, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-porcelain rounded-lg">
-                    <span className="text-sm text-charcoal truncate flex-1">{url}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(index)}
-                      className="ml-2 text-error hover:opacity-80 transition-colors"
-                    >
-                      Remove
-                    </button>
-                  </div>
+                  <Card key={index} variant="filled" padding="sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-charcoal truncate flex-1">{url}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveImage(index)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </Card>
                 ))}
               </div>
             )}
           </div>
 
-          <div className="flex space-x-4 pt-4">
-            <button
+          <div className="flex gap-4 pt-4">
+            <Button
               type="submit"
-              disabled={loading}
-              className="flex-1 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="primary"
+              fullWidth
+              loading={loading}
             >
-              {loading ? 'Updating...' : 'Update Property'}
-            </button>
-            <button
+              Update Property
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => navigate('/owner/properties')}
-              className="px-6 py-3 border border-stone-300 rounded-xl hover:bg-porcelain"
             >
               Cancel
-            </button>
+            </Button>
           </div>
-        </form>
+          </form>
+        </Card>
       </div>
     </div>
   );

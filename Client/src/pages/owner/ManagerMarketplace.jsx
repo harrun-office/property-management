@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ownerAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Modal from '../../components/ui/Modal';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function ManagerMarketplace() {
   const [managers, setManagers] = useState([]);
@@ -68,55 +75,66 @@ function ManagerMarketplace() {
           <p className="text-architectural">Browse and hire professional property managers</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} className="mb-6" />}
 
         {/* Filters */}
-        <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200 mb-6">
+        <Card variant="elevated" padding="lg" className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input
+            <Input
               type="text"
               placeholder="Search managers..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
             />
-            <select
-              value={filters.rating}
-              onChange={(e) => setFilters({ ...filters, rating: e.target.value })}
-              className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-            >
-              <option value="">All Ratings</option>
-              <option value="4.5">4.5+ Stars</option>
-              <option value="4.0">4.0+ Stars</option>
-              <option value="3.5">3.5+ Stars</option>
-            </select>
-            <select
-              value={filters.priceRange}
-              onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
-              className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-            >
-              <option value="">All Prices</option>
-              <option value="0-50">$0 - $50/month</option>
-              <option value="50-100">$50 - $100/month</option>
-              <option value="100-150">$100 - $150/month</option>
-              <option value="150-999">$150+/month</option>
-            </select>
+            <div>
+              <select
+                value={filters.rating}
+                onChange={(e) => setFilters({ ...filters, rating: e.target.value })}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
+              >
+                <option value="">All Ratings</option>
+                <option value="4.5">4.5+ Stars</option>
+                <option value="4.0">4.0+ Stars</option>
+                <option value="3.5">3.5+ Stars</option>
+              </select>
+            </div>
+            <div>
+              <select
+                value={filters.priceRange}
+                onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
+              >
+                <option value="">All Prices</option>
+                <option value="0-50">$0 - $50/month</option>
+                <option value="50-100">$50 - $100/month</option>
+                <option value="100-150">$100 - $150/month</option>
+                <option value="150-999">$150+/month</option>
+              </select>
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* Managers Grid */}
         {loading ? (
-          <div className="text-center py-12 text-architectural">Loading managers...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
         ) : managers.length === 0 ? (
-          <div className="text-center py-12 text-architectural">No managers found</div>
+          <EmptyState
+            title="No managers found"
+            description="Try adjusting your filters to find more managers."
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {managers.map((manager) => (
-              <div key={manager.id} className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200 hover:shadow-lg transition-shadow">
+              <Card key={manager.id} variant="elevated" padding="lg" className="hover:shadow-lg transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brass/30 to-brass/10 flex items-center justify-center text-brass font-bold text-lg">
@@ -160,41 +178,41 @@ function ManagerMarketplace() {
                   <p className="text-2xl font-bold text-charcoal mb-4">
                     ${manager.availablePlans[0]?.price || 0}/month
                   </p>
-                  <div className="flex space-x-2">
-                    <button
+                  <div className="flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      fullWidth
                       onClick={() => setSelectedManager(manager)}
-                      className="flex-1 px-4 py-2 bg-stone-300 text-charcoal rounded-lg hover:bg-stone-400 transition-colors text-sm font-medium"
                     >
                       View Details
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      fullWidth
                       onClick={() => {
                         setSelectedManager(manager);
                         setShowSubscribeModal(true);
                       }}
-                      className="flex-1 px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors text-sm font-medium"
                     >
                       Subscribe
-                    </button>
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}
 
         {/* Manager Details Modal */}
         {selectedManager && !showSubscribeModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedManager(null)}>
-            <div className="bg-porcelain rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold text-charcoal">{selectedManager.name}</h2>
-                <button onClick={() => setSelectedManager(null)} className="text-architectural hover:text-charcoal">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
+          <Modal
+            isOpen={!!selectedManager}
+            onClose={() => setSelectedManager(null)}
+            title={selectedManager.name}
+            size="lg"
+          >
               <div className="space-y-4">
                 <div>
                   <div className="flex items-center space-x-2 mb-2">
@@ -242,77 +260,77 @@ function ManagerMarketplace() {
                     </div>
                   </div>
                 )}
-                <button
+                <Button
+                  variant="primary"
+                  fullWidth
                   onClick={() => setShowSubscribeModal(true)}
-                  className="w-full px-6 py-3 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors font-semibold"
                 >
                   Subscribe Now
-                </button>
+                </Button>
               </div>
-            </div>
-          </div>
+          </Modal>
         )}
 
         {/* Subscribe Modal */}
         {showSubscribeModal && selectedManager && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowSubscribeModal(false)}>
-            <div className="bg-porcelain rounded-xl shadow-lg max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-              <h2 className="text-2xl font-bold text-charcoal mb-4">Subscribe to {selectedManager.name}</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">Property ID</label>
-                  <input
-                    type="number"
-                    value={subscribeData.propertyId}
-                    onChange={(e) => setSubscribeData({ ...subscribeData, propertyId: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                    placeholder="Enter property ID"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">Select Plan</label>
-                  <select
-                    value={subscribeData.planId}
-                    onChange={(e) => setSubscribeData({ ...subscribeData, planId: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                  >
-                    <option value="">Select a plan</option>
-                    {selectedManager.availablePlans.map((plan) => (
-                      <option key={plan.id} value={plan.id}>
-                        {plan.name} - ${plan.price}/month
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">Payment Method</label>
-                  <select
-                    value={subscribeData.paymentMethod}
-                    onChange={(e) => setSubscribeData({ ...subscribeData, paymentMethod: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                  >
-                    <option value="credit_card">Credit Card</option>
-                    <option value="debit_card">Debit Card</option>
-                    <option value="bank_transfer">Bank Transfer</option>
-                  </select>
-                </div>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={() => setShowSubscribeModal(false)}
-                    className="flex-1 px-4 py-2 bg-stone-300 text-charcoal rounded-lg hover:bg-stone-400 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSubscribe}
-                    className="flex-1 px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors"
-                  >
-                    Subscribe
-                  </button>
-                </div>
+          <Modal
+            isOpen={showSubscribeModal}
+            onClose={() => setShowSubscribeModal(false)}
+            title={`Subscribe to ${selectedManager.name}`}
+          >
+            <div className="space-y-4">
+              <Input
+                label="Property ID"
+                type="number"
+                value={subscribeData.propertyId}
+                onChange={(e) => setSubscribeData({ ...subscribeData, propertyId: e.target.value })}
+                placeholder="Enter property ID"
+              />
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">Select Plan</label>
+                <select
+                  value={subscribeData.planId}
+                  onChange={(e) => setSubscribeData({ ...subscribeData, planId: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
+                >
+                  <option value="">Select a plan</option>
+                  {selectedManager.availablePlans.map((plan) => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.name} - ${plan.price}/month
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">Payment Method</label>
+                <select
+                  value={subscribeData.paymentMethod}
+                  onChange={(e) => setSubscribeData({ ...subscribeData, paymentMethod: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
+                >
+                  <option value="credit_card">Credit Card</option>
+                  <option value="debit_card">Debit Card</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                </select>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  onClick={() => setShowSubscribeModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  fullWidth
+                  onClick={handleSubscribe}
+                >
+                  Subscribe
+                </Button>
               </div>
             </div>
-          </div>
+          </Modal>
         )}
       </div>
     </div>

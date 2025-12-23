@@ -3,6 +3,12 @@ import { adminAPI, propertiesAPI } from '../../services/api';
 import EditManagerModal from '../../components/admin/EditManagerModal';
 import EditVendorModal from '../../components/admin/EditVendorModal';
 import PropertyAssignmentModal from '../../components/admin/PropertyAssignmentModal';
+import MetricCard from '../../components/ui/MetricCard';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
 
 const serviceTypesList = ['Plumbing', 'Electrical', 'HVAC', 'Cleaning', 'Landscaping', 'Painting', 'Carpentry', 'Other'];
 
@@ -289,12 +295,9 @@ function AdminDashboard() {
             <option value="suspended">Suspended</option>
           </select>
         </div>
-        <button
-          onClick={() => setShowManagerForm(true)}
-          className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light font-semibold"
-        >
+        <Button variant="primary" onClick={() => setShowManagerForm(true)}>
           + Create Manager
-        </button>
+        </Button>
       </div>
 
       <div className="bg-stone-100 rounded-2xl shadow-md overflow-hidden border border-stone-200">
@@ -332,28 +335,27 @@ function AdminDashboard() {
                   <td className="px-4 py-3 text-charcoal">{m.assignedProperties?.length || 0}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => setEditingManager(m)}
-                        className="px-3 py-1 text-sm bg-stone-200 rounded-lg hover:bg-stone-300"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="primary"
+                        size="sm"
                         onClick={() => setAssigningManager(m)}
-                        className="px-3 py-1 text-sm bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light"
                       >
                         Assign Properties
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant={(m.status || 'active') === 'active' ? 'danger' : 'success'}
+                        size="sm"
                         onClick={() => handleToggleManagerStatus(m)}
-                        className={`px-3 py-1 text-sm rounded-lg ${
-                          (m.status || 'active') === 'active'
-                            ? 'bg-error text-porcelain hover:opacity-90'
-                            : 'bg-eucalyptus text-porcelain hover:opacity-90'
-                        }`}
                       >
                         {(m.status || 'active') === 'active' ? 'Suspend' : 'Activate'}
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -396,12 +398,9 @@ function AdminDashboard() {
             ))}
           </select>
         </div>
-        <button
-          onClick={() => setShowVendorForm(true)}
-          className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light font-semibold"
-        >
+        <Button variant="primary" onClick={() => setShowVendorForm(true)}>
           + Create Vendor
-        </button>
+        </Button>
       </div>
 
       <div className="bg-stone-100 rounded-2xl shadow-md overflow-hidden border border-stone-200">
@@ -441,22 +440,20 @@ function AdminDashboard() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => setEditingVendor(v)}
-                        className="px-3 py-1 text-sm bg-stone-200 rounded-lg hover:bg-stone-300"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant={(v.status || 'active') === 'active' ? 'danger' : 'success'}
+                        size="sm"
                         onClick={() => handleToggleVendorStatus(v)}
-                        className={`px-3 py-1 text-sm rounded-lg ${
-                          (v.status || 'active') === 'active'
-                            ? 'bg-error text-porcelain hover:opacity-90'
-                            : 'bg-eucalyptus text-porcelain hover:opacity-90'
-                        }`}
                       >
                         {(v.status || 'active') === 'active' ? 'Suspend' : 'Activate'}
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -490,7 +487,11 @@ function AdminDashboard() {
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-architectural">Loading...</div>
+        <div className="py-8 space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton.Card key={i} />
+          ))}
+        </div>
       ) : (
         <>
           {manageSection === 'managers' ? renderManageManagers() : renderManageVendors()}
@@ -508,15 +509,15 @@ function AdminDashboard() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
+          <Card variant="outlined" padding="md" className="mb-6 border-error bg-error/5">
+            <p className="text-error font-medium">{error}</p>
+          </Card>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-eucalyptus/20 border border-eucalyptus text-eucalyptus rounded-lg">
-            {success}
-          </div>
+          <Card variant="outlined" padding="md" className="mb-6 border-eucalyptus-500 bg-eucalyptus/5">
+            <p className="text-eucalyptus-600 font-medium">{success}</p>
+          </Card>
         )}
 
         {/* Tabs */}
@@ -567,76 +568,64 @@ function AdminDashboard() {
         {activeTab === 'activity' && (
           <div className="space-y-6">
             {/* System Statistics Cards */}
-            {systemOverview && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Users Card */}
-                <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-architectural">Total Users</h3>
-                    <svg className="w-5 h-5 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {loading && !systemOverview ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Skeleton.MetricCard />
+                <Skeleton.MetricCard />
+                <Skeleton.MetricCard />
+                <Skeleton.MetricCard />
+              </div>
+            ) : systemOverview ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <MetricCard
+                  title="Total Users"
+                  value={systemOverview.users.total}
+                  subtitle={`${systemOverview.users.active} active, ${systemOverview.users.suspended} suspended`}
+                  variant="primary"
+                  icon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
-                  </div>
-                  <p className="text-3xl font-bold text-charcoal">{systemOverview.users.total}</p>
-                  <div className="mt-2 flex items-center gap-2 text-xs">
-                    <span className="text-eucalyptus">{systemOverview.users.active} active</span>
-                    <span className="text-architectural">•</span>
-                    <span className="text-error">{systemOverview.users.suspended} suspended</span>
-                  </div>
-                </div>
-
-                {/* Properties Card */}
-                <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-architectural">Properties</h3>
-                    <svg className="w-5 h-5 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  }
+                />
+                <MetricCard
+                  title="Properties"
+                  value={systemOverview.properties.total}
+                  subtitle={`${systemOverview.properties.available} available, ${systemOverview.properties.rented} rented`}
+                  variant="accent"
+                  icon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                  </div>
-                  <p className="text-3xl font-bold text-charcoal">{systemOverview.properties.total}</p>
-                  <div className="mt-2 flex items-center gap-2 text-xs">
-                    <span className="text-eucalyptus">{systemOverview.properties.available} available</span>
-                    <span className="text-architectural">•</span>
-                    <span className="text-obsidian">{systemOverview.properties.rented} rented</span>
-                  </div>
-                </div>
-
-                {/* Tasks Card */}
-                <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-architectural">Tasks</h3>
-                    <svg className="w-5 h-5 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  }
+                />
+                <MetricCard
+                  title="Tasks"
+                  value={systemOverview.tasks.total}
+                  subtitle={`${systemOverview.tasks.pending} pending, ${systemOverview.tasks.completed} completed`}
+                  variant="success"
+                  icon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
-                  </div>
-                  <p className="text-3xl font-bold text-charcoal">{systemOverview.tasks.total}</p>
-                  <div className="mt-2 flex items-center gap-2 text-xs">
-                    <span className="text-warning">{systemOverview.tasks.pending} pending</span>
-                    <span className="text-architectural">•</span>
-                    <span className="text-eucalyptus">{systemOverview.tasks.completed} completed</span>
-                  </div>
-                </div>
-
-                {/* Applications Card */}
-                <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-architectural">Applications</h3>
-                    <svg className="w-5 h-5 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  }
+                />
+                <MetricCard
+                  title="Applications"
+                  value={systemOverview.applications.total}
+                  subtitle={`${systemOverview.applications.pending} pending, ${systemOverview.applications.approved} approved`}
+                  variant="default"
+                  icon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                  </div>
-                  <p className="text-3xl font-bold text-charcoal">{systemOverview.applications.total}</p>
-                  <div className="mt-2 flex items-center gap-2 text-xs">
-                    <span className="text-warning">{systemOverview.applications.pending} pending</span>
-                    <span className="text-architectural">•</span>
-                    <span className="text-eucalyptus">{systemOverview.applications.approved} approved</span>
-                  </div>
-                </div>
+                  }
+                />
               </div>
-            )}
+            ) : null}
 
             {/* Activity Feed */}
-            <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
+            <Card variant="elevated" padding="lg">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                 <h2 className="text-2xl font-bold text-charcoal">Activity Feed</h2>
                 <div className="flex flex-wrap gap-2">
@@ -666,23 +655,23 @@ function AdminDashboard() {
                     <option value="task">Task</option>
                     <option value="application">Application</option>
                   </select>
-                  <button
-                    onClick={loadActivityData}
-                    className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light font-semibold text-sm"
-                  >
+                  <Button variant="primary" size="sm" onClick={loadActivityData}>
                     Refresh
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {loading ? (
-                <div className="py-8 text-center text-architectural">Loading activity...</div>
+                <div className="py-8 text-center">
+                  <Skeleton variant="text" width="60%" className="mx-auto mb-2" />
+                  <Skeleton variant="text" width="40%" className="mx-auto" />
+                </div>
               ) : auditLogs.length === 0 ? (
                 <div className="py-8 text-center text-architectural">No activity found</div>
               ) : (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {auditLogs.map((log) => (
-                    <div key={log.id} className="bg-porcelain rounded-lg p-4 border border-stone-200 hover:bg-stone-50 transition-colors">
+                    <Card key={log.id} variant="filled" padding="md" hover className="transition-all">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -711,7 +700,7 @@ function AdminDashboard() {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               )}
@@ -720,46 +709,50 @@ function AdminDashboard() {
                   Showing {auditLogs.length} of {auditLogsTotal} activities
                 </div>
               )}
-            </div>
+            </Card>
 
             {/* Additional Statistics */}
             {systemOverview && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-                  <h3 className="text-lg font-bold text-charcoal mb-4">Users by Role</h3>
-                  <div className="space-y-2">
-                    {Object.entries(systemOverview.users.byRole).map(([role, count]) => (
-                      <div key={role} className="flex items-center justify-between">
-                        <span className="text-sm text-architectural capitalize">{role.replace(/_/g, ' ')}</span>
-                        <span className="text-sm font-semibold text-charcoal">{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-                  <h3 className="text-lg font-bold text-charcoal mb-4">Recent Activity Summary</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-architectural">Last 24 Hours</span>
-                      <span className="text-sm font-semibold text-charcoal">{systemOverview.activity.last24Hours}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card variant="elevated" padding="lg">
+                  <Card.Title>Users by Role</Card.Title>
+                  <Card.Body>
+                    <div className="space-y-2">
+                      {Object.entries(systemOverview.users.byRole).map(([role, count]) => (
+                        <div key={role} className="flex items-center justify-between">
+                          <span className="text-sm text-architectural capitalize">{role.replace(/_/g, ' ')}</span>
+                          <span className="text-sm font-semibold text-charcoal">{count}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-architectural">Last 7 Days</span>
-                      <span className="text-sm font-semibold text-charcoal">{systemOverview.activity.last7Days}</span>
-                    </div>
-                    {Object.keys(systemOverview.activity.byType).length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-stone-300">
-                        <h4 className="text-sm font-semibold text-charcoal mb-2">Activity by Type</h4>
-                        {Object.entries(systemOverview.activity.byType).slice(0, 5).map(([action, count]) => (
-                          <div key={action} className="flex items-center justify-between text-xs">
-                            <span className="text-architectural">{action.replace(/_/g, ' ')}</span>
-                            <span className="font-semibold text-charcoal">{count}</span>
-                          </div>
-                        ))}
+                  </Card.Body>
+                </Card>
+                <Card variant="elevated" padding="lg">
+                  <Card.Title>Recent Activity Summary</Card.Title>
+                  <Card.Body>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-architectural">Last 24 Hours</span>
+                        <span className="text-sm font-semibold text-charcoal">{systemOverview.activity.last24Hours}</span>
                       </div>
-                    )}
-                  </div>
-                </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-architectural">Last 7 Days</span>
+                        <span className="text-sm font-semibold text-charcoal">{systemOverview.activity.last7Days}</span>
+                      </div>
+                      {Object.keys(systemOverview.activity.byType).length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-stone-300">
+                          <h4 className="text-sm font-semibold text-charcoal mb-2">Activity by Type</h4>
+                          {Object.entries(systemOverview.activity.byType).slice(0, 5).map(([action, count]) => (
+                            <div key={action} className="flex items-center justify-between text-xs">
+                              <span className="text-architectural">{action.replace(/_/g, ' ')}</span>
+                              <span className="font-semibold text-charcoal">{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </Card.Body>
+                </Card>
               </div>
             )}
           </div>
@@ -769,210 +762,134 @@ function AdminDashboard() {
         {activeTab === 'create' && (
           <div className="space-y-6">
             {/* Create Manager Section */}
-            <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
+            <Card variant="elevated" padding="lg">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-charcoal">Create Manager Credentials</h2>
-                <button
+                <Card.Title>Create Manager Credentials</Card.Title>
+                <Button
+                  variant={showManagerForm ? 'secondary' : 'primary'}
                   onClick={() => {
                     setShowManagerForm(!showManagerForm);
                     setShowVendorForm(false);
                   }}
-                  className="px-4 py-2 bg-obsidian text-porcelain rounded-xl hover:bg-obsidian-light transition-colors font-semibold"
                 >
                   {showManagerForm ? 'Cancel' : '+ Create Manager'}
-                </button>
-            </div>
+                </Button>
+              </div>
 
               {showManagerForm && (
                 <form onSubmit={handleCreateManager} className="mt-4 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">
-                      Name <span className="text-error">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={managerFormData.name}
-                      onChange={(e) => setManagerFormData({ ...managerFormData, name: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        managerErrors.name ? 'border-error' : 'border-stone-300'
-                      }`}
-                    />
-                    {managerErrors.name && (
-                      <p className="mt-1 text-sm text-error">{managerErrors.name}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">
-                      Email <span className="text-error">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      value={managerFormData.email}
-                      onChange={(e) => setManagerFormData({ ...managerFormData, email: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        managerErrors.email ? 'border-error' : 'border-stone-300'
-                      }`}
-                    />
-                    {managerErrors.email && (
-                      <p className="mt-1 text-sm text-error">{managerErrors.email}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">
-                      Password <span className="text-error">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      value={managerFormData.password}
-                      onChange={(e) => setManagerFormData({ ...managerFormData, password: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        managerErrors.password ? 'border-error' : 'border-stone-300'
-                      }`}
-                      placeholder="Minimum 6 characters"
-                    />
-                    {managerErrors.password && (
-                      <p className="mt-1 text-sm text-error">{managerErrors.password}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">Mobile Number</label>
-                    <input
-                      type="tel"
-                      value={managerFormData.mobileNumber}
-                      onChange={(e) => setManagerFormData({ ...managerFormData, mobileNumber: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        managerErrors.mobileNumber ? 'border-error' : 'border-stone-300'
-                      }`}
-                      placeholder="Optional"
-                    />
-                    {managerErrors.mobileNumber && (
-                      <p className="mt-1 text-sm text-error">{managerErrors.mobileNumber}</p>
-                    )}
-                  </div>
-                  <button
-                    type="submit"
-                    className="px-6 py-3 bg-obsidian text-porcelain rounded-xl hover:bg-obsidian-light transition-colors font-semibold"
-                  >
+                  <Input
+                    label="Name"
+                    type="text"
+                    value={managerFormData.name}
+                    onChange={(e) => setManagerFormData({ ...managerFormData, name: e.target.value })}
+                    error={managerErrors.name}
+                    required
+                  />
+                  <Input
+                    label="Email"
+                    type="email"
+                    value={managerFormData.email}
+                    onChange={(e) => setManagerFormData({ ...managerFormData, email: e.target.value })}
+                    error={managerErrors.email}
+                    required
+                  />
+                  <Input
+                    label="Password"
+                    type="password"
+                    value={managerFormData.password}
+                    onChange={(e) => setManagerFormData({ ...managerFormData, password: e.target.value })}
+                    error={managerErrors.password}
+                    placeholder="Minimum 6 characters"
+                    required
+                  />
+                  <Input
+                    label="Mobile Number"
+                    type="tel"
+                    value={managerFormData.mobileNumber}
+                    onChange={(e) => setManagerFormData({ ...managerFormData, mobileNumber: e.target.value })}
+                    error={managerErrors.mobileNumber}
+                    placeholder="Optional"
+                  />
+                  <Button type="submit" variant="primary">
                     Create Manager
-                  </button>
+                  </Button>
                 </form>
               )}
-            </div>
+            </Card>
 
             {/* Create Vendor Section */}
-            <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
+            <Card variant="elevated" padding="lg">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-charcoal">Create Vendor Credentials</h2>
-                <button
+                <Card.Title>Create Vendor Credentials</Card.Title>
+                <Button
+                  variant={showVendorForm ? 'secondary' : 'primary'}
                   onClick={() => {
                     setShowVendorForm(!showVendorForm);
                     setShowManagerForm(false);
                   }}
-                  className="px-4 py-2 bg-obsidian text-porcelain rounded-xl hover:bg-obsidian-light transition-colors font-semibold"
                 >
                   {showVendorForm ? 'Cancel' : '+ Create Vendor'}
-                </button>
-            </div>
+                </Button>
+              </div>
 
               {showVendorForm && (
                 <form onSubmit={handleCreateVendor} className="mt-4 space-y-4">
+                  <Input
+                    label="Name"
+                    type="text"
+                    value={vendorFormData.name}
+                    onChange={(e) => setVendorFormData({ ...vendorFormData, name: e.target.value })}
+                    error={vendorErrors.name}
+                    required
+                  />
+                  <Input
+                    label="Email"
+                    type="email"
+                    value={vendorFormData.email}
+                    onChange={(e) => setVendorFormData({ ...vendorFormData, email: e.target.value })}
+                    error={vendorErrors.email}
+                    required
+                  />
+                  <Input
+                    label="Password"
+                    type="password"
+                    value={vendorFormData.password}
+                    onChange={(e) => setVendorFormData({ ...vendorFormData, password: e.target.value })}
+                    error={vendorErrors.password}
+                    placeholder="Minimum 6 characters"
+                    required
+                  />
+                  <Input
+                    label="Company Name"
+                    type="text"
+                    value={vendorFormData.companyName}
+                    onChange={(e) => setVendorFormData({ ...vendorFormData, companyName: e.target.value })}
+                    error={vendorErrors.companyName}
+                    required
+                  />
+                  <Input
+                    label="Mobile Number"
+                    type="tel"
+                    value={vendorFormData.mobileNumber}
+                    onChange={(e) => setVendorFormData({ ...vendorFormData, mobileNumber: e.target.value })}
+                    error={vendorErrors.mobileNumber}
+                    placeholder="Optional"
+                  />
+                  <Input
+                    label="Phone (Company)"
+                    type="tel"
+                    value={vendorFormData.phone}
+                    onChange={(e) => setVendorFormData({ ...vendorFormData, phone: e.target.value })}
+                    placeholder="Optional"
+                  />
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">
-                      Name <span className="text-error">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={vendorFormData.name}
-                      onChange={(e) => setVendorFormData({ ...vendorFormData, name: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        vendorErrors.name ? 'border-error' : 'border-stone-300'
-                      }`}
-                    />
-                    {vendorErrors.name && (
-                      <p className="mt-1 text-sm text-error">{vendorErrors.name}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">
-                      Email <span className="text-error">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      value={vendorFormData.email}
-                      onChange={(e) => setVendorFormData({ ...vendorFormData, email: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        vendorErrors.email ? 'border-error' : 'border-stone-300'
-                      }`}
-                    />
-                    {vendorErrors.email && (
-                      <p className="mt-1 text-sm text-error">{vendorErrors.email}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">
-                      Password <span className="text-error">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      value={vendorFormData.password}
-                      onChange={(e) => setVendorFormData({ ...vendorFormData, password: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        vendorErrors.password ? 'border-error' : 'border-stone-300'
-                      }`}
-                      placeholder="Minimum 6 characters"
-                    />
-                    {vendorErrors.password && (
-                      <p className="mt-1 text-sm text-error">{vendorErrors.password}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">
-                      Company Name <span className="text-error">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={vendorFormData.companyName}
-                      onChange={(e) => setVendorFormData({ ...vendorFormData, companyName: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        vendorErrors.companyName ? 'border-error' : 'border-stone-300'
-                      }`}
-                    />
-                    {vendorErrors.companyName && (
-                      <p className="mt-1 text-sm text-error">{vendorErrors.companyName}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">Mobile Number</label>
-                    <input
-                      type="tel"
-                      value={vendorFormData.mobileNumber}
-                      onChange={(e) => setVendorFormData({ ...vendorFormData, mobileNumber: e.target.value })}
-                      className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                        vendorErrors.mobileNumber ? 'border-error' : 'border-stone-300'
-                      }`}
-                      placeholder="Optional"
-                    />
-                    {vendorErrors.mobileNumber && (
-                      <p className="mt-1 text-sm text-error">{vendorErrors.mobileNumber}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">Phone (Company)</label>
-                    <input
-                      type="tel"
-                      value={vendorFormData.phone}
-                      onChange={(e) => setVendorFormData({ ...vendorFormData, phone: e.target.value })}
-                      className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain"
-                      placeholder="Optional"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">
+                    <label className="block text-sm font-medium text-charcoal mb-2">
                       Service Types <span className="text-error">*</span>
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {serviceTypesList.map((type) => (
-                        <label key={type} className="flex items-center space-x-2">
+                        <label key={type} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-stone-100 transition-colors">
                           <input
                             type="checkbox"
                             checked={vendorFormData.serviceTypes.includes(type)}
@@ -989,7 +906,7 @@ function AdminDashboard() {
                                 });
                               }
                             }}
-                            className="rounded"
+                            className="rounded w-4 h-4 text-obsidian-500 focus:ring-obsidian-500"
                           />
                           <span className="text-sm text-charcoal">{type}</span>
                         </label>
@@ -999,15 +916,12 @@ function AdminDashboard() {
                       <p className="mt-1 text-sm text-error">{vendorErrors.serviceTypes}</p>
                     )}
                   </div>
-                  <button
-                    type="submit"
-                    className="px-6 py-3 bg-obsidian text-porcelain rounded-xl hover:bg-obsidian-light transition-colors font-semibold"
-                  >
+                  <Button type="submit" variant="primary">
                     Create Vendor
-                  </button>
+                  </Button>
                 </form>
               )}
-            </div>
+            </Card>
           </div>
         )}
 
@@ -1041,9 +955,11 @@ function AdminDashboard() {
             </div>
 
             {loading ? (
-              <div className="text-center py-12">
-                <p className="text-architectural">Loading performance data...</p>
-          </div>
+              <div className="py-12">
+                <Skeleton.Card />
+                <Skeleton.Card />
+                <Skeleton.Card />
+              </div>
             ) : (
               <div className="bg-stone-100 rounded-2xl shadow-md overflow-hidden border border-stone-200">
                 <table className="w-full">

@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
 
 function About() {
   const values = [
@@ -83,18 +85,18 @@ function About() {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl font-bold mb-6 text-charcoal">Who We Serve</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-stone-100 p-6 rounded-xl shadow-md border border-stone-200">
-              <h3 className="text-xl font-semibold mb-3 text-charcoal">Tenants</h3>
-              <p className="text-architectural">People looking for rental properties. Free to browse, free to register, and free to use all tenant features.</p>
-            </div>
-            <div className="bg-stone-100 p-6 rounded-xl shadow-md border border-stone-200">
-              <h3 className="text-xl font-semibold mb-3 text-charcoal">Property Owners</h3>
-              <p className="text-architectural">Individuals and businesses managing rental properties. List unlimited properties with zero commission fees.</p>
-            </div>
-            <div className="bg-stone-100 p-6 rounded-xl shadow-md border border-stone-200">
-              <h3 className="text-xl font-semibold mb-3 text-charcoal">Property Managers</h3>
-              <p className="text-architectural">Professional property management companies managing multiple properties, vendors, and maintenance tasks.</p>
-            </div>
+            <Card variant="elevated" padding="lg">
+              <Card.Title className="text-xl mb-3">Tenants</Card.Title>
+              <Card.Description>People looking for rental properties. Free to browse, free to register, and free to use all tenant features.</Card.Description>
+            </Card>
+            <Card variant="elevated" padding="lg">
+              <Card.Title className="text-xl mb-3">Property Owners</Card.Title>
+              <Card.Description>Individuals and businesses managing rental properties. List unlimited properties with zero commission fees.</Card.Description>
+            </Card>
+            <Card variant="elevated" padding="lg">
+              <Card.Title className="text-xl mb-3">Property Managers</Card.Title>
+              <Card.Description>Professional property management companies managing multiple properties, vendors, and maintenance tasks.</Card.Description>
+            </Card>
           </div>
         </div>
       </section>
@@ -104,11 +106,11 @@ function About() {
           <h2 className="text-4xl font-bold text-center mb-12 text-charcoal">Our Values</h2>
           <div className="grid md:grid-cols-2 gap-8">
             {values.map((value, index) => (
-              <div key={index} className="bg-stone-100 rounded-2xl shadow-md p-8 border border-stone-200">
-                <div className="text-obsidian mb-4">{value.icon}</div>
-                <h3 className="text-2xl font-semibold mb-3 text-charcoal">{value.title}</h3>
-                <p className="text-architectural leading-relaxed">{value.description}</p>
-              </div>
+              <Card key={index} variant="elevated" padding="lg">
+                <div className="text-obsidian-500 mb-4">{value.icon}</div>
+                <Card.Title className="text-2xl mb-3">{value.title}</Card.Title>
+                <Card.Description className="leading-relaxed">{value.description}</Card.Description>
+              </Card>
             ))}
           </div>
         </div>
@@ -138,19 +140,19 @@ function About() {
       <section className="py-16 px-4 bg-stone-100">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl font-bold mb-6 text-charcoal">Contact Information</h2>
-          <div className="bg-porcelain p-8 rounded-xl border border-stone-200">
+          <Card variant="elevated" padding="lg">
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-charcoal mb-2">Support</h3>
-                <p className="text-architectural">Email: support@propmanage.com</p>
-                <p className="text-architectural">Available 24/7</p>
+                <Card.Title className="mb-2">Support</Card.Title>
+                <Card.Description>Email: support@propmanage.com</Card.Description>
+                <Card.Description>Available 24/7</Card.Description>
               </div>
               <div>
-                <h3 className="font-semibold text-charcoal mb-2">General Inquiries</h3>
-                <p className="text-architectural">Email: info@propmanage.com</p>
+                <Card.Title className="mb-2">General Inquiries</Card.Title>
+                <Card.Description>Email: info@propmanage.com</Card.Description>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </section>
 
@@ -161,17 +163,13 @@ function About() {
             Whether you're a tenant or property owner, we'd love to have you as part of the PropManage community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/register"
-              className="px-8 py-4 bg-brass text-porcelain rounded-xl font-semibold text-lg hover:bg-brass-light transition-colors shadow-lg"
-            >
-              Get Started
+            <Link to="/register">
+              <Button variant="accent" size="lg">Get Started</Button>
             </Link>
-            <Link
-              to="/how-it-works"
-              className="px-8 py-4 bg-transparent border-2 border-porcelain text-porcelain rounded-xl font-semibold text-lg hover:bg-porcelain hover:text-obsidian transition-colors"
-            >
-              Learn How It Works
+            <Link to="/how-it-works">
+              <Button variant="secondary" size="lg" className="bg-transparent border-2 border-porcelain text-porcelain hover:bg-porcelain hover:text-obsidian">
+                Learn How It Works
+              </Button>
             </Link>
           </div>
         </div>

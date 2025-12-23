@@ -19,9 +19,9 @@ const Input = forwardRef(({
   const baseStyles = 'w-full rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0';
   
   const variants = {
-    default: 'border-stone-300 bg-white text-charcoal placeholder-architectural focus:border-obsidian-500 focus:ring-obsidian-500',
-    error: 'border-error-500 bg-white text-charcoal placeholder-architectural focus:border-error-500 focus:ring-error-500',
-    success: 'border-eucalyptus-500 bg-white text-charcoal placeholder-architectural focus:border-eucalyptus-500 focus:ring-eucalyptus-500',
+    default: 'border-stone-300 bg-[var(--color-surface)] text-charcoal placeholder-architectural focus:border-obsidian-500 focus:ring-obsidian-500',
+    error: 'border-error-500 bg-[var(--color-surface)] text-charcoal placeholder-architectural focus:border-error-500 focus:ring-error-500',
+    success: 'border-eucalyptus-500 bg-[var(--color-surface)] text-charcoal placeholder-architectural focus:border-eucalyptus-500 focus:ring-eucalyptus-500',
   };
   
   const sizes = {

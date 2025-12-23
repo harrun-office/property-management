@@ -13,14 +13,14 @@ const Card = ({
   onClick,
   ...props
 }) => {
-  const baseStyles = 'rounded-xl transition-all duration-200';
+  const baseStyles = 'rounded-xl transition-all duration-200 text-charcoal';
   
   const variants = {
-    default: 'bg-white border border-stone-200 shadow-sm',
-    elevated: 'bg-white border border-stone-200 shadow-md',
+    default: 'bg-[var(--color-surface)] border border-stone-200 shadow-sm',
+    elevated: 'bg-[var(--color-surface)] border border-stone-200 shadow-md',
     outlined: 'bg-transparent border-2 border-stone-300',
-    filled: 'bg-stone-50 border border-stone-200',
-    glass: 'bg-white/70 backdrop-blur-md border border-white/20 shadow-lg',
+    filled: 'bg-[var(--color-surface-alt)] border border-stone-200',
+    glass: 'glass-effect shadow-lg',
   };
   
   const paddings = {

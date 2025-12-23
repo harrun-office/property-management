@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
+import Card from '../components/ui/Card';
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -190,86 +193,63 @@ function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-porcelain px-4 py-8">
-      <div className="max-w-md w-full bg-stone-100 rounded-2xl shadow-lg p-8 border border-stone-200">
-        <h2 className="text-3xl font-bold text-center mb-2 text-obsidian">Create Your Free Account</h2>
-        <p className="text-center text-architectural mb-6 text-sm">
-          Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian font-semibold hover:text-brass transition-colors">See how it works</Link>
-        </p>
-        
-        {error && (
-          <div className="mb-4 p-3 bg-error/10 border border-error text-error rounded-lg text-sm">
-            <div className="flex items-start">
-              <svg className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          </div>
-        )}
+      <div className="max-w-md w-full">
+        <Card variant="elevated" padding="lg">
+          <Card.Header>
+            <h2 className="text-3xl font-bold text-center text-charcoal mb-2">Create Your Free Account</h2>
+            <Card.Description className="text-center">
+              Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">See how it works</Link>
+            </Card.Description>
+          </Card.Header>
+          
+          {error && (
+            <Card variant="outlined" padding="md" className="mb-4 border-error bg-error/5">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span className="text-error font-medium">{error}</span>
+              </div>
+            </Card>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Full Name <span className="text-error">*</span>
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.name ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="Enter your full name"
-            />
-            {errors.name && touched.name && (
-              <p className="mt-1 text-sm text-error">{errors.name}</p>
-            )}
-          </div>
+          <Card.Body>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <Input
+                label="Full Name"
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.name && touched.name ? errors.name : ''}
+                placeholder="Enter your full name"
+                required
+              />
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Email <span className="text-error">*</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.email ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="Enter your email"
-            />
-            {errors.email && touched.email && (
-              <p className="mt-1 text-sm text-error">{errors.email}</p>
-            )}
-          </div>
+              <Input
+                label="Email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.email && touched.email ? errors.email : ''}
+                placeholder="Enter your email"
+                required
+              />
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Mobile Number <span className="text-error">*</span>
-            </label>
-            <input
-              type="tel"
-              name="mobileNumber"
-              value={formData.mobileNumber}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.mobileNumber ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="e.g., +1234567890 or 123-456-7890"
-            />
-            {errors.mobileNumber && touched.mobileNumber && (
-              <p className="mt-1 text-sm text-error">{errors.mobileNumber}</p>
-            )}
-          </div>
+              <Input
+                label="Mobile Number"
+                type="tel"
+                name="mobileNumber"
+                value={formData.mobileNumber}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.mobileNumber && touched.mobileNumber ? errors.mobileNumber : ''}
+                placeholder="e.g., +1234567890 or 123-456-7890"
+                required
+              />
 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1">
@@ -291,66 +271,72 @@ function Register() {
             </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Password <span className="text-error">*</span>
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.password ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="Enter your password"
-            />
-            {errors.password && touched.password && (
-              <p className="mt-1 text-sm text-error">{errors.password}</p>
-            )}
-            {!errors.password && formData.password && (
-              <p className="mt-1 text-xs text-architectural">Must contain uppercase, lowercase, and number</p>
-            )}
-          </div>
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.password && touched.password ? errors.password : ''}
+                helperText={!errors.password && formData.password ? 'Must contain uppercase, lowercase, and number' : ''}
+                placeholder="Enter your password"
+                required
+              />
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Confirm Password <span className="text-error">*</span>
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.confirmPassword ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="Confirm your password"
-            />
-            {errors.confirmPassword && touched.confirmPassword && (
-              <p className="mt-1 text-sm text-error">{errors.confirmPassword}</p>
-            )}
-          </div>
+              <Input
+                label="Confirm Password"
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.confirmPassword && touched.confirmPassword ? errors.confirmPassword : ''}
+                placeholder="Confirm your password"
+                required
+              />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Registering...' : 'Register'}
-          </button>
-        </form>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1.5">
+                  Role <span className="text-error-500">*</span> <span className="text-architectural text-xs">(Choose based on what you want to do)</span>
+                </label>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-[var(--color-surface)] text-charcoal transition-all"
+                >
+                  <option value="tenant">Tenant - Looking for a property to rent</option>
+                  <option value="property_owner">Property Owner - Want to list and manage properties</option>
+                </select>
+                <p className="mt-2 text-xs text-eucalyptus-600">
+                  {formData.role === 'tenant' && '✓ Search properties, contact owners, save favorites'}
+                  {formData.role === 'property_owner' && '✓ List properties, manage tenants, track income (no commission fees!)'}
+                </p>
+              </div>
 
-        <p className="mt-6 text-center text-architectural">
-          Already have an account?{' '}
-          <Link to="/login" className="text-obsidian font-semibold hover:text-brass transition-colors">
-            Login here
-          </Link>
-        </p>
+              <Button
+                type="submit"
+                variant="primary"
+                fullWidth
+                loading={loading}
+                disabled={loading}
+              >
+                {loading ? 'Registering...' : 'Register'}
+              </Button>
+            </form>
+          </Card.Body>
+
+          <Card.Footer>
+            <p className="text-center text-architectural">
+              Already have an account?{' '}
+              <Link to="/login" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">
+                Login here
+              </Link>
+            </p>
+          </Card.Footer>
+        </Card>
       </div>
     </div>
   );

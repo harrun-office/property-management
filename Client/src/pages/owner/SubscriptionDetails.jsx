@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ownerAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function SubscriptionDetails() {
   const { id } = useParams();
@@ -52,20 +57,35 @@ function SubscriptionDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-charcoal text-lg">Loading subscription details...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="text" width="30%" className="mb-4" />
+            <Skeleton variant="title" width="40%" className="mb-2" />
+            <Skeleton variant="text" width="60%" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[1, 2].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error && !subscription) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-error text-lg mb-4">{error}</p>
-          <Link to="/owner/subscriptions" className="text-obsidian hover:text-brass transition-colors">
-            Back to Subscriptions
-          </Link>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <ErrorDisplay
+            message={error}
+            action={
+              <Link to="/owner/subscriptions">
+                <Button variant="primary">Back to Subscriptions</Button>
+              </Link>
+            }
+          />
         </div>
       </div>
     );
@@ -73,12 +93,22 @@ function SubscriptionDetails() {
 
   if (!subscription) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-charcoal text-lg mb-4">Subscription not found</p>
-          <Link to="/owner/subscriptions" className="text-obsidian hover:text-brass transition-colors">
-            Back to Subscriptions
-          </Link>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <EmptyState
+            title="Subscription not found"
+            description="The subscription you're looking for doesn't exist."
+            action={
+              <Link to="/owner/subscriptions">
+                <Button variant="primary">Back to Subscriptions</Button>
+              </Link>
+            }
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            }
+          />
         </div>
       </div>
     );
@@ -88,22 +118,24 @@ function SubscriptionDetails() {
     <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <Link to="/owner/subscriptions" className="text-obsidian hover:text-brass transition-colors mb-4 inline-block">
-            ← Back to Subscriptions
+          <Link to="/owner/subscriptions" className="mb-4 inline-block">
+            <Button variant="ghost" icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            }>
+              Back to Subscriptions
+            </Button>
           </Link>
           <h1 className="text-4xl font-bold text-charcoal mb-2">Subscription Details</h1>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} className="mb-6" />}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Subscription Info */}
-          <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
-            <h2 className="text-2xl font-bold text-charcoal mb-4">Subscription Information</h2>
+          <Card variant="elevated" padding="lg">
+            <Card.Title className="text-2xl mb-4">Subscription Information</Card.Title>
             <div className="space-y-4">
               <div>
                 <p className="text-architectural text-sm">Manager</p>
@@ -149,17 +181,17 @@ function SubscriptionDetails() {
                 </div>
               )}
             </div>
-          </div>
+          </Card>
 
           {/* Payment History */}
-          <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
-            <h2 className="text-2xl font-bold text-charcoal mb-4">Payment History</h2>
+          <Card variant="elevated" padding="lg">
+            <Card.Title className="text-2xl mb-4">Payment History</Card.Title>
             {payments.length === 0 ? (
               <p className="text-architectural">No payments yet</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 mb-4">
                 {payments.map((payment) => (
-                  <div key={payment.id} className="bg-porcelain p-3 rounded-lg border border-stone-200">
+                  <Card key={payment.id} variant="filled" padding="sm">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-semibold text-charcoal">${payment.amount}</p>
@@ -168,53 +200,44 @@ function SubscriptionDetails() {
                         </p>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        payment.status === 'paid' ? 'bg-eucalyptus/20 text-eucalyptus' :
-                        payment.status === 'pending' ? 'bg-warning/20 text-warning' :
-                        'bg-error/20 text-error'
+                        payment.status === 'paid' ? 'bg-eucalyptus-100 text-eucalyptus-700' :
+                        payment.status === 'pending' ? 'bg-warning-100 text-warning-700' :
+                        'bg-error-100 text-error-700'
                       }`}>
                         {payment.status}
                       </span>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             )}
-            <Link
-              to={`/owner/subscriptions/${id}/payment`}
-              className="mt-4 block w-full px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors text-center"
-            >
-              Manage Payments
+            <Link to={`/owner/subscriptions/${id}/payment`}>
+              <Button variant="primary" fullWidth>Manage Payments</Button>
             </Link>
-          </div>
+          </Card>
         </div>
 
         {/* Service Agreement */}
         {agreement && (
-          <div className="mt-6 bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
+          <Card variant="elevated" padding="lg" className="mt-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-charcoal">Service Agreement</h2>
-              <Link
-                to={`/owner/subscriptions/${id}/agreement`}
-                className="px-4 py-2 bg-stone-300 text-charcoal rounded-lg hover:bg-stone-400 transition-colors text-sm"
-              >
-                View Full Agreement
+              <Card.Title className="text-2xl">Service Agreement</Card.Title>
+              <Link to={`/owner/subscriptions/${id}/agreement`}>
+                <Button variant="secondary" size="sm">View Full Agreement</Button>
               </Link>
             </div>
-            <div className="bg-porcelain p-4 rounded-lg border border-stone-200">
+            <Card variant="filled" padding="md">
               <p className="text-charcoal text-sm whitespace-pre-line">{agreement.terms}</p>
-            </div>
-          </div>
+            </Card>
+          </Card>
         )}
 
         {/* Actions */}
         {subscription.status === 'active' && (
-          <div className="mt-6 flex space-x-4">
-            <button
-              onClick={handleCancel}
-              className="px-6 py-2 bg-error/20 text-error rounded-lg hover:bg-error/30 transition-colors font-semibold"
-            >
+          <div className="mt-6">
+            <Button variant="danger" onClick={handleCancel}>
               Cancel Subscription
-            </button>
+            </Button>
           </div>
         )}
       </div>

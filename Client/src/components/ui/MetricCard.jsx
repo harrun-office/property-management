@@ -75,9 +75,9 @@ const MetricCard = ({
             {value}
           </p>
           {subtitle && (
-            <p className={`text-xs ${subtitleColor} ${isGradient ? 'opacity-75' : ''}`}>
-              {subtitle}
-            </p>
+            <div className={`text-xs ${subtitleColor} ${isGradient ? 'opacity-75' : ''}`}>
+              {typeof subtitle === 'string' ? <p>{subtitle}</p> : subtitle}
+            </div>
           )}
           {trend && trendValue && (
             <div className={`flex items-center mt-3 text-xs font-medium ${

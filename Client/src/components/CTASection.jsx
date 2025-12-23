@@ -1,26 +1,33 @@
 import { Link } from 'react-router-dom';
+import Button from './ui/Button';
 
 function CTASection({ title, description, primaryText, primaryLink, secondaryText, secondaryLink }) {
   return (
-    <section className="bg-obsidian text-porcelain py-16 px-4">
-      <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl font-bold mb-4 text-porcelain">{title}</h2>
-        <p className="text-xl text-stone-200 mb-8">{description}</p>
+    <section className="bg-gradient-to-br from-obsidian-600 via-obsidian-500 to-obsidian-700 text-porcelain py-20 px-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }} />
+      </div>
+      
+      <div className="max-w-4xl mx-auto text-center relative z-10">
+        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-porcelain">{title}</h2>
+        <p className="text-xl text-stone-100 mb-10 leading-relaxed">{description}</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           {primaryText && primaryLink && (
-            <Link
-              to={primaryLink}
-              className="px-8 py-4 bg-brass text-porcelain rounded-xl font-semibold text-lg hover:bg-brass-light transition-colors shadow-lg"
-            >
-              {primaryText}
+            <Link to={primaryLink}>
+              <Button variant="accent" size="lg" className="shadow-xl hover:shadow-2xl">
+                {primaryText}
+              </Button>
             </Link>
           )}
           {secondaryText && secondaryLink && (
-            <Link
-              to={secondaryLink}
-              className="px-8 py-4 bg-transparent border-2 border-porcelain text-porcelain rounded-xl font-semibold text-lg hover:bg-porcelain hover:text-obsidian transition-colors"
-            >
-              {secondaryText}
+            <Link to={secondaryLink}>
+              <Button variant="outline" size="lg" className="border-2 border-porcelain text-porcelain hover:bg-porcelain hover:text-obsidian-600">
+                {secondaryText}
+              </Button>
             </Link>
           )}
         </div>

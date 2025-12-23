@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ownerAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function Applications() {
   const [applications, setApplications] = useState([]);
@@ -69,8 +75,21 @@ function Applications() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-architectural text-lg">Loading applications...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="30%" className="mb-2" />
+            <Skeleton variant="text" width="50%" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton.Card key={i} />
+              ))}
+            </div>
+            <Skeleton.Card />
+          </div>
+        </div>
       </div>
     );
   }
@@ -83,22 +102,18 @@ function Applications() {
           <p className="text-architectural">Review and manage property applications</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadApplications} className="mb-6" />}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Applications List */}
           <div className="lg:col-span-2">
-            <div className="bg-stone-100 rounded-xl shadow-md p-6 mb-6">
+            <Card variant="elevated" padding="lg" className="mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-charcoal">All Applications</h2>
+                <Card.Title>All Applications</Card.Title>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500"
+                  className="px-3 py-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
                 >
                   <option value="">All Status</option>
                   <option value="pending">Pending</option>
@@ -108,18 +123,29 @@ function Applications() {
               </div>
 
               {filteredApplications.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No applications found</p>
+                <EmptyState
+                  title="No applications found"
+                  description="There are no applications matching your filters."
+                  icon={
+                    <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  }
+                />
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {filteredApplications.map((application) => (
-                    <div
+                    <Card
                       key={application.id}
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        selectedApplication?.id === application.id
-                          ? 'border-slate-700 bg-slate-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                      variant={selectedApplication?.id === application.id ? "outlined" : "filled"}
+                      padding="md"
+                      hover
                       onClick={() => handleViewDetails(application.id)}
+                      className={`cursor-pointer ${
+                        selectedApplication?.id === application.id
+                          ? 'border-obsidian-500 bg-obsidian-50'
+                          : ''
+                      }`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -127,10 +153,10 @@ function Applications() {
                             <h3 className="font-semibold text-charcoal">
                               {application.applicant?.name || 'Unknown Applicant'}
                             </h3>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              application.status === 'pending' ? 'bg-warning/20 text-yellow-800' :
-                              application.status === 'approved' ? 'bg-eucalyptus-100 text-green-800' :
-                              'bg-error/20 text-red-800'
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              application.status === 'pending' ? 'bg-warning-100 text-warning-700' :
+                              application.status === 'approved' ? 'bg-eucalyptus-100 text-eucalyptus-700' :
+                              'bg-error-100 text-error-700'
                             }`}>
                               {application.status}
                             </span>
@@ -138,48 +164,50 @@ function Applications() {
                           <p className="text-sm text-architectural mb-1">
                             Property: {application.property?.title || `Property #${application.propertyId}`}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-architectural">
                             Applied: {new Date(application.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               )}
-            </div>
+            </Card>
           </div>
 
           {/* Application Details */}
           <div className="lg:col-span-1">
             {selectedApplication ? (
-              <div className="bg-stone-100 rounded-xl shadow-md p-6 sticky top-4">
-                <h2 className="text-xl font-semibold text-charcoal mb-4">Application Details</h2>
+              <Card variant="elevated" padding="lg" className="sticky top-4">
+                <Card.Title className="mb-4">Application Details</Card.Title>
                 
                 <div className="space-y-4">
                   <div>
                     <h3 className="font-semibold text-charcoal mb-2">Applicant Information</h3>
-                    <div className="bg-porcelain p-3 rounded-lg space-y-1">
-                      <p className="text-sm"><span className="font-medium">Name:</span> {selectedApplication.applicant?.name || 'N/A'}</p>
-                      <p className="text-sm"><span className="font-medium">Email:</span> {selectedApplication.applicant?.email || 'N/A'}</p>
-                      <p className="text-sm"><span className="font-medium">Phone:</span> {selectedApplication.applicant?.phone || 'N/A'}</p>
-                    </div>
+                    <Card variant="filled" padding="sm">
+                      <div className="space-y-1">
+                        <p className="text-sm"><span className="font-medium">Name:</span> {selectedApplication.applicant?.name || 'N/A'}</p>
+                        <p className="text-sm"><span className="font-medium">Email:</span> {selectedApplication.applicant?.email || 'N/A'}</p>
+                        <p className="text-sm"><span className="font-medium">Phone:</span> {selectedApplication.applicant?.phone || 'N/A'}</p>
+                      </div>
+                    </Card>
                   </div>
 
                   <div>
                     <h3 className="font-semibold text-charcoal mb-2">Property</h3>
-                    <div className="bg-porcelain p-3 rounded-lg">
+                    <Card variant="filled" padding="sm">
                       <p className="text-sm font-medium">{selectedApplication.property?.title}</p>
                       <p className="text-xs text-architectural">{selectedApplication.property?.address}</p>
-                    </div>
+                    </Card>
                   </div>
 
                   <div>
-                    <h3 className="font-semibold text-charcoal mb-2">Status</h3>
+                    <label className="block text-sm font-medium text-charcoal mb-1">Status</label>
                     <select
                       value={selectedApplication.status}
                       onChange={(e) => handleStatusChange(selectedApplication.id, e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500"
+                      className="w-full p-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
                     >
                       <option value="pending">Pending</option>
                       <option value="approved">Approved</option>
@@ -199,54 +227,57 @@ function Applications() {
                       <h3 className="font-semibold text-charcoal mb-2">Notes</h3>
                       <div className="space-y-2">
                         {selectedApplication.notes.map((note, index) => (
-                          <div key={index} className="bg-porcelain p-3 rounded-lg">
-                            <p className="text-sm text-gray-700">{note.note}</p>
-                            <p className="text-xs text-gray-500 mt-1">
+                          <Card key={index} variant="filled" padding="sm">
+                            <p className="text-sm text-charcoal">{note.note}</p>
+                            <p className="text-xs text-architectural mt-1">
                               {new Date(note.addedAt).toLocaleDateString()}
                             </p>
-                          </div>
+                          </Card>
                         ))}
                       </div>
                     </div>
                   )}
 
                   <div>
-                    <h3 className="font-semibold text-charcoal mb-2">Add Note</h3>
+                    <label className="block text-sm font-medium text-charcoal mb-1">Add Note</label>
                     <textarea
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       placeholder="Add a note about this application..."
                       rows={3}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 mb-2"
+                      className="w-full p-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors mb-2"
                     />
-                    <button
+                    <Button
+                      variant="primary"
+                      fullWidth
                       onClick={handleAddNote}
-                      className="w-full px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 transition-colors"
                     >
                       Add Note
-                    </button>
+                    </Button>
                   </div>
 
-                  <div className="flex space-x-2 pt-4 border-t">
-                    <button
+                  <div className="flex gap-2 pt-4 border-t border-stone-200">
+                    <Button
+                      variant="success"
+                      fullWidth
                       onClick={() => handleStatusChange(selectedApplication.id, 'approved')}
-                      className="flex-1 px-4 py-2 bg-eucalyptus text-porcelain rounded-lg hover:bg-eucalyptus-600 transition-colors"
                     >
                       Approve
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="danger"
+                      fullWidth
                       onClick={() => handleStatusChange(selectedApplication.id, 'rejected')}
-                      className="flex-1 px-4 py-2 bg-error text-porcelain rounded-lg hover:opacity-90 transition-colors"
                     >
                       Reject
-                    </button>
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             ) : (
-              <div className="bg-stone-100 rounded-xl shadow-md p-6 text-center">
-                <p className="text-gray-500">Select an application to view details</p>
-              </div>
+              <Card variant="elevated" padding="lg" className="text-center">
+                <p className="text-architectural">Select an application to view details</p>
+              </Card>
             )}
           </div>
         </div>

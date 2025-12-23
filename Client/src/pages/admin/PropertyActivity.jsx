@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { adminAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import MetricCard from '../../components/ui/MetricCard';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function PropertyActivity() {
   const [logs, setLogs] = useState([]);
@@ -193,22 +200,19 @@ function PropertyActivity() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <label className="text-sm text-architectural">Auto-refresh:</label>
-              <button
+              <Button
+                variant={isAutoRefreshEnabled ? "success" : "secondary"}
+                size="sm"
                 onClick={() => setIsAutoRefreshEnabled(!isAutoRefreshEnabled)}
-                className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  isAutoRefreshEnabled
-                    ? 'bg-eucalyptus text-porcelain hover:opacity-90'
-                    : 'bg-stone-300 text-charcoal hover:bg-stone-400'
-                }`}
               >
                 {isAutoRefreshEnabled ? 'ON' : 'OFF'}
-              </button>
+              </Button>
             </div>
             {isAutoRefreshEnabled && (
               <select
                 value={refreshInterval}
                 onChange={(e) => setRefreshInterval(Number(e.target.value))}
-                className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian text-sm"
+                className="px-3 py-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 text-sm transition-colors"
               >
                 <option value={5}>5s</option>
                 <option value={10}>10s</option>
@@ -216,13 +220,15 @@ function PropertyActivity() {
                 <option value={60}>60s</option>
               </select>
             )}
-            <button
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => loadActivityData()}
               disabled={loading}
-              className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light font-semibold disabled:opacity-50"
+              loading={loading}
             >
-              {loading ? 'Refreshing...' : 'Refresh'}
-            </button>
+              Refresh
+            </Button>
           </div>
         </div>
 
@@ -239,105 +245,97 @@ function PropertyActivity() {
         {/* Statistics Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-architectural">Total Properties</h3>
-                <svg className="w-5 h-5 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <MetricCard
+              title="Total Properties"
+              value={stats.totalProperties.toString()}
+              variant="primary"
+              icon={
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
-              </div>
-              <p className="text-3xl font-bold text-charcoal">{stats.totalProperties}</p>
-            </div>
-
-            <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-architectural">Created Today</h3>
-                <svg className="w-5 h-5 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              }
+            />
+            <MetricCard
+              title="Created Today"
+              value={stats.propertiesCreatedToday.toString()}
+              variant="default"
+              icon={
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-              </div>
-              <p className="text-3xl font-bold text-charcoal">{stats.propertiesCreatedToday}</p>
-            </div>
-
-            <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-architectural">Activity (24h)</h3>
-                <svg className="w-5 h-5 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              }
+            />
+            <MetricCard
+              title="Activity (24h)"
+              value={stats.recentActivity.last24Hours.toString()}
+              variant="default"
+              icon={
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-              </div>
-              <p className="text-3xl font-bold text-charcoal">{stats.recentActivity.last24Hours}</p>
-            </div>
-
-            <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-architectural">Activity (7d)</h3>
-                <svg className="w-5 h-5 text-obsidian" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              }
+            />
+            <MetricCard
+              title="Activity (7d)"
+              value={stats.recentActivity.last7Days.toString()}
+              variant="default"
+              icon={
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-              </div>
-              <p className="text-3xl font-bold text-charcoal">{stats.recentActivity.last7Days}</p>
-            </div>
+              }
+            />
           </div>
         )}
 
         {/* Error Message */}
-        {error && (
-          <div className="p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-            <button
-              onClick={() => loadActivityData()}
-              className="ml-4 px-3 py-1 bg-error text-porcelain rounded hover:opacity-90 text-sm"
-            >
-              Retry
-            </button>
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={() => loadActivityData()} className="mb-6" />}
 
         {/* Filters and Search */}
-        <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
+        <Card variant="elevated" padding="lg">
+          <Card.Title className="mb-4">Filters</Card.Title>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <input
+            <Input
               type="text"
               placeholder="Search activities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
             />
-            <select
-              value={filters.action}
-              onChange={(e) => setFilters({ ...filters, action: e.target.value, offset: 0 })}
-              className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-            >
-              {propertyActions.map(action => (
-                <option key={action.value} value={action.value}>{action.label}</option>
-              ))}
-            </select>
-            <input
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">Action</label>
+              <select
+                value={filters.action}
+                onChange={(e) => setFilters({ ...filters, action: e.target.value, offset: 0 })}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
+              >
+                {propertyActions.map(action => (
+                  <option key={action.value} value={action.value}>{action.label}</option>
+                ))}
+              </select>
+            </div>
+            <Input
               type="number"
               placeholder="Property ID"
               value={filters.propertyId}
               onChange={(e) => setFilters({ ...filters, propertyId: e.target.value, offset: 0 })}
-              className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
             />
-            <input
+            <Input
               type="date"
-              placeholder="Start Date"
+              label="Start Date"
               value={filters.startDate}
               onChange={(e) => setFilters({ ...filters, startDate: e.target.value, offset: 0 })}
-              className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
+            <Input
               type="date"
-              placeholder="End Date"
+              label="End Date"
               value={filters.endDate}
               onChange={(e) => setFilters({ ...filters, endDate: e.target.value, offset: 0 })}
-              className="px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
             />
-            <div className="flex items-center gap-2">
-              <button
+            <div className="flex items-center">
+              <Button
+                variant="secondary"
                 onClick={() => setFilters({
                   action: '',
                   propertyId: '',
@@ -347,47 +345,59 @@ function PropertyActivity() {
                   limit: 50,
                   offset: 0
                 })}
-                className="px-4 py-2 bg-stone-300 text-charcoal rounded-lg hover:bg-stone-400 font-semibold text-sm"
               >
                 Clear Filters
-              </button>
+              </Button>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Activity Feed */}
-        <div className="bg-stone-100 rounded-2xl shadow-md p-6 border border-stone-200">
+        <Card variant="elevated" padding="lg">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-charcoal">Activity Feed</h2>
+            <Card.Title className="text-2xl">Activity Feed</Card.Title>
             <span className="text-sm text-architectural">
               Showing {filteredLogs.length} of {total} activities
             </span>
           </div>
 
           {loading && logs.length === 0 ? (
-            <div className="py-12 text-center text-architectural">Loading activity...</div>
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton.Card key={i} />
+              ))}
+            </div>
           ) : filteredLogs.length === 0 ? (
-            <div className="py-12 text-center text-architectural">No property activity found</div>
+            <EmptyState
+              title="No property activity found"
+              description="No activities match your current filters."
+              icon={
+                <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              }
+            />
           ) : (
             <div className="space-y-3 max-h-[70vh] overflow-y-auto">
               {filteredLogs.map((log) => {
                 const isNew = newActivityIds.has(log.id);
                 return (
-                  <div
+                  <Card
                     key={log.id}
-                    className={`bg-porcelain rounded-lg p-4 border border-stone-200 hover:bg-stone-50 transition-all ${
-                      isNew ? 'animate-pulse border-eucalyptus border-2' : ''
-                    }`}
+                    variant={isNew ? "filled" : "default"}
+                    padding="md"
+                    hover
+                    className={isNew ? 'border-eucalyptus-500 border-2' : ''}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           {isNew && (
-                            <span className="px-2 py-1 bg-eucalyptus text-porcelain rounded text-xs font-semibold animate-bounce">
+                            <span className="px-2 py-1 bg-eucalyptus-500 text-porcelain rounded text-xs font-semibold animate-bounce">
                               NEW
                             </span>
                           )}
-                          <span className="px-2 py-1 bg-obsidian/10 text-obsidian rounded text-xs font-semibold">
+                          <span className="px-2 py-1 bg-obsidian-100 text-obsidian-700 rounded text-xs font-semibold">
                             {log.action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                           </span>
                           <span className="px-2 py-1 bg-stone-200 text-charcoal rounded text-xs">
@@ -430,7 +440,7 @@ function PropertyActivity() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -439,15 +449,15 @@ function PropertyActivity() {
           {/* Load More */}
           {total > filteredLogs.length && (
             <div className="mt-4 text-center">
-              <button
+              <Button
+                variant="primary"
                 onClick={() => setFilters({ ...filters, limit: filters.limit + 50 })}
-                className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light font-semibold"
               >
                 Load More ({total - filteredLogs.length} remaining)
-              </button>
+              </Button>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

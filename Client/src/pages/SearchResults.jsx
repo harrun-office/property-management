@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { propertiesAPI } from '../services/api';
 import PropertyCard from '../components/PropertyCard';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Skeleton from '../components/ui/Skeleton';
+import ErrorDisplay from '../components/ui/ErrorDisplay';
+import EmptyState from '../components/ui/EmptyState';
 
 function SearchResults() {
   const [searchParams] = useSearchParams();
@@ -43,28 +48,30 @@ function SearchResults() {
         </p>
 
         {loading && (
-          <div className="text-center py-12">
-            <p className="text-architectural text-lg">Searching...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
           </div>
         )}
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={() => performSearch(query)} className="mb-6" />}
 
         {!loading && !error && properties.length === 0 && (
-          <div className="bg-stone-100 p-12 rounded-xl text-center border border-stone-200">
-            <svg className="w-16 h-16 mx-auto text-architectural mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <h3 className="text-xl font-semibold text-charcoal mb-2">No properties found</h3>
-            <p className="text-architectural mb-6">Try adjusting your search terms or browse all properties.</p>
-            <a href="/properties" className="inline-block px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors">
-              Browse All Properties
-            </a>
-          </div>
+          <EmptyState
+            title="No properties found"
+            description="Try adjusting your search terms or browse all properties."
+            action={
+              <Link to="/properties">
+                <Button variant="primary">Browse All Properties</Button>
+              </Link>
+            }
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            }
+          />
         )}
 
         {!loading && !error && properties.length > 0 && (

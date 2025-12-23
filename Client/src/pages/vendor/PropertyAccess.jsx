@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { vendorAPI } from '../../services/api';
 import PropertyCard from '../../components/PropertyCard';
+import Card from '../../components/ui/Card';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function PropertyAccess() {
   const [properties, setProperties] = useState([]);
@@ -26,45 +30,57 @@ function PropertyAccess() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading properties...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="40%" className="mb-2" />
+            <Skeleton variant="text" width="60%" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Assigned Properties</h1>
-          <p className="text-gray-600">Properties you have access to</p>
+          <h1 className="text-4xl font-bold text-charcoal mb-2">Assigned Properties</h1>
+          <p className="text-architectural">Properties you have access to</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadProperties} className="mb-6" />}
 
         {properties.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl shadow-md">
-            <p className="text-gray-600 text-lg">No properties assigned yet.</p>
-          </div>
+          <EmptyState
+            title="No properties assigned yet"
+            description="You don't have access to any properties at the moment."
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.map((property) => {
               const vendorAssignment = property.assignedVendors?.find(v => v.vendorId);
               return (
-                <div key={property.id} className="bg-white rounded-2xl shadow-md overflow-hidden">
+                <Card key={property.id} variant="elevated" padding="none" className="overflow-hidden">
                   <PropertyCard property={property} noLink={true} />
                   {vendorAssignment && (
-                    <div className="p-4 border-t">
-                      <p className="text-sm text-gray-600">
-                        Permission: <span className="font-semibold capitalize">{vendorAssignment.permissionScope}</span>
+                    <Card.Body className="p-4 border-t border-stone-200">
+                      <p className="text-sm text-architectural">
+                        Permission: <span className="font-semibold text-charcoal capitalize">{vendorAssignment.permissionScope}</span>
                       </p>
-                    </div>
+                    </Card.Body>
                   )}
-                </div>
+                </Card>
               );
             })}
           </div>

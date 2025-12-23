@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ownerAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function ServiceAgreement() {
   const { id } = useParams();
@@ -29,20 +34,31 @@ function ServiceAgreement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-charcoal text-lg">Loading agreement...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="text" width="30%" className="mb-4" />
+            <Skeleton variant="title" width="50%" className="mb-2" />
+            <Skeleton variant="text" width="70%" />
+          </div>
+          <Skeleton.Card />
+        </div>
       </div>
     );
   }
 
   if (error || !agreement) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-error text-lg mb-4">{error || 'Agreement not found'}</p>
-          <Link to={`/owner/subscriptions/${id}`} className="text-obsidian hover:text-brass transition-colors">
-            Back to Subscription
-          </Link>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <ErrorDisplay
+            message={error || 'Agreement not found'}
+            action={
+              <Link to={`/owner/subscriptions/${id}`}>
+                <Button variant="primary">Back to Subscription</Button>
+              </Link>
+            }
+          />
         </div>
       </div>
     );
@@ -52,46 +68,50 @@ function ServiceAgreement() {
     <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <Link to={`/owner/subscriptions/${id}`} className="text-obsidian hover:text-brass transition-colors mb-4 inline-block">
-            ← Back to Subscription
+          <Link to={`/owner/subscriptions/${id}`} className="mb-4 inline-block">
+            <Button variant="ghost" icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            }>
+              Back to Subscription
+            </Button>
           </Link>
           <h1 className="text-4xl font-bold text-charcoal mb-2">Service Agreement</h1>
         </div>
 
-        <div className="bg-stone-100 rounded-xl shadow-md p-8 border border-stone-200">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-charcoal mb-4">Property Management Service Agreement</h2>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <p className="text-architectural text-sm">Manager</p>
-                <p className="font-semibold text-charcoal">{agreement.manager?.name || 'N/A'}</p>
-                <p className="text-sm text-architectural">{agreement.manager?.email}</p>
-              </div>
-              <div>
-                <p className="text-architectural text-sm">Property</p>
-                <p className="font-semibold text-charcoal">{agreement.property?.title || 'N/A'}</p>
-                <p className="text-sm text-architectural">{agreement.property?.address}</p>
-              </div>
+        <Card variant="elevated" padding="lg">
+          <Card.Title className="text-2xl mb-4">Property Management Service Agreement</Card.Title>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <p className="text-architectural text-sm mb-1">Manager</p>
+              <p className="font-semibold text-charcoal">{agreement.manager?.name || 'N/A'}</p>
+              <p className="text-sm text-architectural">{agreement.manager?.email}</p>
+            </div>
+            <div>
+              <p className="text-architectural text-sm mb-1">Property</p>
+              <p className="font-semibold text-charcoal">{agreement.property?.title || 'N/A'}</p>
+              <p className="text-sm text-architectural">{agreement.property?.address}</p>
             </div>
           </div>
 
-          <div className="bg-porcelain p-6 rounded-lg border border-stone-200 mb-6">
-            <h3 className="font-semibold text-charcoal mb-3">Services Included</h3>
+          <Card variant="filled" padding="lg" className="mb-6">
+            <Card.Title className="mb-3">Services Included</Card.Title>
             <ul className="list-disc list-inside space-y-2 text-charcoal">
               {agreement.services && agreement.services.map((service, idx) => (
                 <li key={idx} className="capitalize">{service.replace(/_/g, ' ')}</li>
               ))}
             </ul>
-          </div>
+          </Card>
 
-          <div className="bg-porcelain p-6 rounded-lg border border-stone-200 mb-6">
-            <h3 className="font-semibold text-charcoal mb-3">Terms and Conditions</h3>
+          <Card variant="filled" padding="lg" className="mb-6">
+            <Card.Title className="mb-3">Terms and Conditions</Card.Title>
             <p className="text-charcoal whitespace-pre-line">{agreement.terms}</p>
-          </div>
+          </Card>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <p className="text-architectural text-sm">Signed by Owner</p>
+              <p className="text-architectural text-sm mb-1">Signed by Owner</p>
               <p className="font-semibold text-charcoal">
                 {agreement.signedByOwner ? '✓ Signed' : 'Not signed'}
               </p>
@@ -102,22 +122,20 @@ function ServiceAgreement() {
               )}
             </div>
             <div>
-              <p className="text-architectural text-sm">Signed by Manager</p>
+              <p className="text-architectural text-sm mb-1">Signed by Manager</p>
               <p className="font-semibold text-charcoal">
                 {agreement.signedByManager ? '✓ Signed' : 'Pending'}
               </p>
             </div>
           </div>
 
-          <div className="flex space-x-4">
-            <button
-              onClick={() => alert('PDF download feature coming soon')}
-              className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors"
-            >
-              Download PDF
-            </button>
-          </div>
-        </div>
+          <Button
+            variant="primary"
+            onClick={() => alert('PDF download feature coming soon')}
+          >
+            Download PDF
+          </Button>
+        </Card>
       </div>
     </div>
   );

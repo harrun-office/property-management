@@ -1,12 +1,14 @@
+import Card from './ui/Card';
+
 function FeatureCard({ icon, title, description }) {
   return (
-    <div className="bg-stone-100 rounded-2xl shadow-md p-8 hover:shadow-xl transition-shadow border border-stone-200">
-      <div className="text-obsidian mb-4">
+    <Card variant="elevated" padding="lg" hover className="h-full">
+      <div className="text-obsidian-500 mb-4 transform group-hover:scale-110 transition-transform duration-200">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold text-charcoal mb-3">{title}</h3>
-      <p className="text-architectural leading-relaxed">{description}</p>
-    </div>
+      <Card.Title className="mb-3">{title}</Card.Title>
+      <Card.Description className="leading-relaxed">{description}</Card.Description>
+    </Card>
   );
 }
 

@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ownerAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function SubscriptionPayment() {
   const { id } = useParams();
@@ -47,45 +53,46 @@ function SubscriptionPayment() {
     <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <Link to={`/owner/subscriptions/${id}`} className="text-obsidian hover:text-brass transition-colors mb-4 inline-block">
-            ← Back to Subscription
+          <Link to={`/owner/subscriptions/${id}`} className="mb-4 inline-block">
+            <Button variant="ghost" icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            }>
+              Back to Subscription
+            </Button>
           </Link>
           <h1 className="text-4xl font-bold text-charcoal mb-2">Payment Management</h1>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
-
+        {error && <ErrorDisplay message={error} className="mb-6" />}
         {success && (
-          <div className="mb-6 p-4 bg-eucalyptus/20 border border-eucalyptus text-eucalyptus rounded-lg">
+          <div className="mb-6 p-4 bg-eucalyptus-100 border border-eucalyptus-500 text-eucalyptus-700 rounded-lg">
             {success}
           </div>
         )}
 
         {/* Payment Method */}
-        <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200 mb-6">
-          <h2 className="text-xl font-bold text-charcoal mb-4">Payment Method</h2>
+        <Card variant="elevated" padding="lg" className="mb-6">
+          <Card.Title className="mb-4">Payment Method</Card.Title>
           <select
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+            className="w-full px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
           >
             <option value="credit_card">Credit Card</option>
             <option value="debit_card">Debit Card</option>
             <option value="bank_transfer">Bank Transfer</option>
           </select>
-        </div>
+        </Card>
 
         {/* Pending Payments */}
         {pendingPayments.length > 0 && (
-          <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200 mb-6">
-            <h2 className="text-xl font-bold text-charcoal mb-4">Pending Payments</h2>
+          <Card variant="elevated" padding="lg" className="mb-6">
+            <Card.Title className="mb-4">Pending Payments</Card.Title>
             <div className="space-y-3">
               {pendingPayments.map((payment) => (
-                <div key={payment.id} className="bg-porcelain p-4 rounded-lg border border-stone-200">
+                <Card key={payment.id} variant="filled" padding="md">
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-semibold text-charcoal">${payment.amount}</p>
@@ -93,30 +100,39 @@ function SubscriptionPayment() {
                         Due: {new Date(payment.dueDate).toLocaleDateString()}
                       </p>
                     </div>
-                    <button
+                    <Button
+                      variant="primary"
+                      size="sm"
                       onClick={() => handlePay(payment.id)}
-                      className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors"
                     >
                       Pay Now
-                    </button>
+                    </Button>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Payment History */}
-        <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
-          <h2 className="text-xl font-bold text-charcoal mb-4">Payment History</h2>
+        <Card variant="elevated" padding="lg">
+          <Card.Title className="mb-4">Payment History</Card.Title>
           {loading ? (
-            <p className="text-architectural">Loading payments...</p>
+            <Skeleton variant="text" width="100%" />
           ) : paidPayments.length === 0 ? (
-            <p className="text-architectural">No payment history</p>
+            <EmptyState
+              title="No payment history"
+              description="Your payment history will appear here once you make payments."
+              icon={
+                <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a1.5 1.5 0 103 0 1.5 1.5 0 00-3 0z" />
+                </svg>
+              }
+            />
           ) : (
             <div className="space-y-3">
               {paidPayments.map((payment) => (
-                <div key={payment.id} className="bg-porcelain p-4 rounded-lg border border-stone-200">
+                <Card key={payment.id} variant="filled" padding="md">
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-semibold text-charcoal">${payment.amount}</p>
@@ -125,23 +141,26 @@ function SubscriptionPayment() {
                       </p>
                       <p className="text-xs text-architectural">Method: {payment.paymentMethod}</p>
                     </div>
-                    <span className="px-3 py-1 bg-eucalyptus/20 text-eucalyptus rounded-full text-xs font-semibold">
-                      Paid
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 bg-eucalyptus-100 text-eucalyptus-700 rounded-full text-xs font-semibold">
+                        Paid
+                      </span>
+                      {payment.receiptUrl && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => alert('Receipt download feature coming soon')}
+                        >
+                          Download Receipt
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  {payment.receiptUrl && (
-                    <button
-                      onClick={() => alert('Receipt download feature coming soon')}
-                      className="mt-2 text-sm text-obsidian hover:text-brass transition-colors"
-                    >
-                      Download Receipt
-                    </button>
-                  )}
-                </div>
+                </Card>
               ))}
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

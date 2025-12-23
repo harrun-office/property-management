@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { tenantAPI, authAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
 
 function TenantProfile() {
   const { user, login } = useAuth();
@@ -93,8 +98,14 @@ function TenantProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-charcoal text-lg">Loading profile...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="40%" className="mb-2" />
+            <Skeleton variant="text" width="60%" />
+          </div>
+          <Skeleton.Card />
+        </div>
       </div>
     );
   }
@@ -107,129 +118,113 @@ function TenantProfile() {
           <p className="text-architectural">Manage your account information and preferences</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} className="mb-6" />}
 
         {success && (
-          <div className="mb-6 p-4 bg-eucalyptus/20 border border-eucalyptus text-eucalyptus rounded-lg">
+          <div className="mb-6 p-4 bg-eucalyptus-100 border border-eucalyptus-500 text-eucalyptus-700 rounded-lg">
             {success}
           </div>
         )}
 
         {/* Profile Information */}
-        <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200 mb-6">
-          <h2 className="text-2xl font-bold text-charcoal mb-4">Profile Information</h2>
+        <Card variant="elevated" padding="lg" className="mb-6">
+          <Card.Title className="text-2xl mb-4">Profile Information</Card.Title>
           <form onSubmit={handleUpdateProfile} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">Name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                required
-              />
-            </div>
+            <Input
+              label="Name"
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1">Email</label>
               <input
                 type="email"
                 value={profile?.email || ''}
                 disabled
-                className="w-full px-3 py-2 border rounded-lg bg-stone-200 text-architectural cursor-not-allowed"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg bg-stone-200 text-architectural cursor-not-allowed"
               />
               <p className="text-xs text-architectural mt-1">Email cannot be changed</p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">Mobile Number</label>
-              <input
-                type="tel"
-                value={formData.mobileNumber}
-                onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                placeholder="Optional"
-              />
-            </div>
+            <Input
+              label="Mobile Number"
+              type="tel"
+              value={formData.mobileNumber}
+              onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value })}
+              placeholder="Optional"
+            />
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1">Role</label>
               <input
                 type="text"
                 value={profile?.role || ''}
                 disabled
-                className="w-full px-3 py-2 border rounded-lg bg-stone-200 text-architectural cursor-not-allowed capitalize"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg bg-stone-200 text-architectural cursor-not-allowed capitalize"
               />
             </div>
-            <button
+            <Button
               type="submit"
-              disabled={saving}
-              className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors disabled:opacity-50"
+              variant="primary"
+              fullWidth
+              loading={saving}
             >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+              Save Changes
+            </Button>
           </form>
-        </div>
+        </Card>
 
         {/* Change Password */}
-        <div className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
+        <Card variant="elevated" padding="lg">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-charcoal">Change Password</h2>
-            <button
+            <Card.Title className="text-2xl">Change Password</Card.Title>
+            <Button
+              variant={showPasswordForm ? "secondary" : "primary"}
+              size="sm"
               onClick={() => {
                 setShowPasswordForm(!showPasswordForm);
                 setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
                 setError('');
               }}
-              className="px-4 py-2 bg-stone-300 text-charcoal rounded-lg hover:bg-stone-400 transition-colors"
             >
               {showPasswordForm ? 'Cancel' : 'Change Password'}
-            </button>
+            </Button>
           </div>
           {showPasswordForm && (
             <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Current Password</label>
-                <input
-                  type="password"
-                  value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">New Password</label>
-                <input
-                  type="password"
-                  value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                  placeholder="Minimum 6 characters"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Confirm New Password</label>
-                <input
-                  type="password"
-                  value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
-                  required
-                />
-              </div>
-              <button
+              <Input
+                label="Current Password"
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                required
+              />
+              <Input
+                label="New Password"
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                placeholder="Minimum 6 characters"
+                required
+              />
+              <Input
+                label="Confirm New Password"
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                required
+              />
+              <Button
                 type="submit"
-                disabled={saving}
-                className="px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors disabled:opacity-50"
+                variant="primary"
+                fullWidth
+                loading={saving}
               >
-                {saving ? 'Changing...' : 'Change Password'}
-              </button>
+                Change Password
+              </Button>
             </form>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

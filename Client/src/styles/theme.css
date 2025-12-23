@@ -2,54 +2,109 @@
 /* Premium Property Management Color System - Bold, Vibrant & Inviting */
 
 :root {
-  /* Primary Colors - Bold & Vibrant */
-  --obsidian-primary: #2D5F5F;
-  --obsidian-light: #3D7A7A;
-  --stone-primary: #F0E6D6;
-  --stone-light: #F8F2E8;
-  --brass-primary: #E8B86D;
-  --brass-light: #F5C98A;
-  --eucalyptus-primary: #5FB896;
-  
-  /* Neutral System - Enhanced Warmth */
-  --porcelain: #FFFEFB;
-  --porcelain-dark: #FAF7F0;
-  --charcoal: #3A3D42;
-  --charcoal-light: #4A4D52;
-  --architectural: #6B7875;
-  
-  /* Semantic Colors - Enhanced Vibrancy */
-  --success: #4FA87A;
-  --warning: #F5C98A;
-  --error: #D67A7A;
-  
-  /* Text Colors */
-  --text-primary: #3A3D42;
-  --text-secondary: #6B7875;
-  --text-light: #FFFEFB;
-  
-  /* Background Colors */
-  --bg-primary: #FFFEFB;
-  --bg-secondary: #F0E6D6;
-  --bg-dark: #2D5F5F;
+  /* Brand (mapped to legacy names for compatibility) */
+  --obsidian-primary: #3F76A8;   /* primary 500 */
+  --obsidian-light: #6F9FC4;     /* primary 400 */
+  --stone-primary: #F1F5F9;      /* background secondary */
+  --stone-light: #E5E7EB;        /* background tertiary */
+  --brass-primary: #2F9F88;      /* accent 500 */
+  --brass-light: #5FBDA6;        /* accent 400 */
+  --eucalyptus-primary: #2F9F88; /* map to accent */
+
+  /* Neutral System */
+  --porcelain: #F9FAFB;          /* background primary */
+  --porcelain-dark: #F1F5F9;
+  --charcoal: #1F2933;           /* text primary */
+  --charcoal-light: #4B5563;     /* text secondary */
+  --architectural: #6B7280;      /* text muted */
+
+  /* Semantic Colors */
+  --success: #1F9D55;
+  --warning: #F59E0B;
+  --error: #DC2626;
+  --info: #2563EB;
+
+  /* Text + Surfaces */
+  --text-primary: var(--charcoal);
+  --text-secondary: var(--charcoal-light);
+  --text-light: #FFFFFF;
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-inverse: var(--text-light);
+
+  --bg-primary: var(--porcelain);
+  --bg-secondary: var(--stone-primary);
+  --bg-tertiary: var(--stone-light);
+  --bg-dark: #111827;
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F8FAFC;
+  --color-border: #D1D5DB;
+  --color-border-strong: #9CA3AF;
+
+  --color-primary: var(--obsidian-primary);
+  --color-primary-strong: #2B5074; /* primary 700 */
+  --color-primary-soft: #E6EEF5;   /* primary 100 */
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+
+  /* Focus token */
+  --focus-ring: var(--color-info);
 }
 
-/* Dark Mode - Maintained Warmth */
+/* Dark Mode */
 .dark {
-  --obsidian-primary: #3D7A7A;
-  --stone-primary: #E8D4C0;
-  --charcoal: #4A4D52;
-  --porcelain: #FAF7F0;
-  --text-primary: #FFFEFB;
-  --text-secondary: #E8D4C0;
-  --bg-primary: #3A3D42;
-  --bg-secondary: #4A4D52;
+  --obsidian-primary: #6FA8DC;   /* brand primary override */
+  --brass-primary: #4FBFA5;      /* accent override */
+
+  --charcoal: #F9FAFB;
+  --charcoal-light: #D1D5DB;
+  --architectural: #9CA3AF;
+
+  --text-primary: var(--charcoal);
+  --text-secondary: var(--charcoal-light);
+  --text-light: #111827;
+
+  --bg-primary: #0F172A;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1F2937;
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-inverse: var(--text-light);
+
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+
+  --color-surface: #020617;
+  --color-surface-alt: #020617;
+
+  --color-primary: var(--obsidian-primary);
+  --color-primary-strong: #2B5074;
+  --color-primary-soft: #6FA8DC;
+
+  --color-border: #374151;
+  --color-border-strong: #4B5563;
+
+  --color-success: #22C55E;
+  --color-warning: #FBBF24;
+  --color-error: #EF4444;
+  --color-info: #60A5FA;
+
+  --focus-ring: var(--color-info);
 }
 
 /* Base Typography */
 body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 /* Ensure no pure white backgrounds */

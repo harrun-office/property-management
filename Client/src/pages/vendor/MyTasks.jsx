@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { vendorAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function MyTasks() {
   const [tasks, setTasks] = useState([]);
@@ -55,8 +60,18 @@ function MyTasks() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-porcelain flex items-center justify-center">
-        <p className="text-architectural">Loading tasks...</p>
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="30%" className="mb-2" />
+            <Skeleton variant="text" width="50%" />
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -69,109 +84,124 @@ function MyTasks() {
           <p className="text-architectural">View and manage your assigned tasks</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadTasks} className="mb-6" />}
 
         {tasks.length === 0 ? (
-          <div className="text-center py-12 bg-stone-100 rounded-2xl shadow-md">
-            <p className="text-architectural text-lg">No tasks assigned yet.</p>
-          </div>
+          <EmptyState
+            title="No tasks assigned yet"
+            description="You don't have any tasks assigned at the moment."
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            }
+          />
         ) : (
           <div className="space-y-6">
             {tasks.map((task) => (
-              <div key={task.id} className="bg-stone-100 rounded-2xl shadow-md p-6">
+              <Card key={task.id} variant="elevated" padding="lg">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-charcoal mb-2">{task.title}</h3>
-                    <p className="text-architectural mb-4">{task.description}</p>
-                    <div className="flex items-center space-x-4 text-sm text-architectural">
+                    <Card.Title className="text-xl mb-2">{task.title}</Card.Title>
+                    <Card.Description className="mb-4">{task.description}</Card.Description>
+                    <div className="flex items-center gap-4 text-sm text-architectural flex-wrap">
                       <span>Property ID: {task.propertyId}</span>
                       {task.dueDate && (
                         <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
                       )}
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        task.priority === 'high' ? 'bg-error/20 text-error' :
-                        task.priority === 'medium' ? 'bg-warning/20 text-warning' :
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        task.priority === 'high' ? 'bg-error-100 text-error-700' :
+                        task.priority === 'medium' ? 'bg-warning-100 text-warning-700' :
                         'bg-stone-200 text-charcoal'
                       }`}>
                         {task.priority}
                       </span>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    task.status === 'completed' ? 'bg-eucalyptus/20 text-eucalyptus' :
-                    task.status === 'in_progress' ? 'bg-obsidian/20 text-obsidian-500' :
-                    'bg-warning/20 text-warning'
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    task.status === 'completed' ? 'bg-eucalyptus-100 text-eucalyptus-700' :
+                    task.status === 'in_progress' ? 'bg-obsidian-100 text-obsidian-700' :
+                    'bg-warning-100 text-warning-700'
                   }`}>
                     {task.status}
                   </span>
                 </div>
 
                 {/* Status Update */}
-                <div className="mb-4 pt-4 border-t border-stone-300">
-                  <label className="block text-sm font-medium text-charcoal mb-2">Update Status</label>
-                  <div className="flex space-x-2">
-                    {task.status !== 'pending' && (
-                      <button
-                        onClick={() => handleStatusUpdate(task.id, 'pending')}
-                        className="px-4 py-2 bg-stone-200 text-charcoal rounded-lg hover:bg-stone-300 transition-colors"
-                      >
-                        Mark as Pending
-                      </button>
-                    )}
-                    {task.status !== 'in_progress' && (
-                      <button
-                        onClick={() => handleStatusUpdate(task.id, 'in_progress')}
-                        className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 transition-colors"
-                      >
-                        Start Work
-                      </button>
-                    )}
-                    {task.status !== 'completed' && (
-                      <button
-                        onClick={() => handleStatusUpdate(task.id, 'completed')}
-                        className="px-4 py-2 bg-eucalyptus text-porcelain rounded-lg hover:bg-eucalyptus-600 transition-colors"
-                      >
-                        Mark Complete
-                      </button>
-                    )}
+                <Card.Footer className="mb-4 pt-4 border-t border-stone-200">
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Update Status</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {task.status !== 'pending' && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleStatusUpdate(task.id, 'pending')}
+                        >
+                          Mark as Pending
+                        </Button>
+                      )}
+                      {task.status !== 'in_progress' && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handleStatusUpdate(task.id, 'in_progress')}
+                        >
+                          Start Work
+                        </Button>
+                      )}
+                      {task.status !== 'completed' && (
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => handleStatusUpdate(task.id, 'completed')}
+                        >
+                          Mark Complete
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </Card.Footer>
 
                 {/* File Upload */}
-                <div className="pt-4 border-t border-stone-300">
-                  <label className="block text-sm font-medium text-charcoal mb-2">Upload Files</label>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleFileInput(task.id, 'photo')}
-                      disabled={uploadingFile === task.id}
-                      className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 disabled:opacity-50 transition-colors"
-                    >
-                      Upload Photo
-                    </button>
-                    <button
-                      onClick={() => handleFileInput(task.id, 'invoice')}
-                      disabled={uploadingFile === task.id}
-                      className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 disabled:opacity-50 transition-colors"
-                    >
-                      Upload Invoice
-                    </button>
-                    <button
-                      onClick={() => handleFileInput(task.id, 'report')}
-                      disabled={uploadingFile === task.id}
-                      className="px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-600 disabled:opacity-50 transition-colors"
-                    >
-                      Upload Report
-                    </button>
+                <Card.Footer className="pt-4 border-t border-stone-200">
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Upload Files</label>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleFileInput(task.id, 'photo')}
+                        disabled={uploadingFile === task.id}
+                        loading={uploadingFile === task.id}
+                      >
+                        Upload Photo
+                      </Button>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleFileInput(task.id, 'invoice')}
+                        disabled={uploadingFile === task.id}
+                        loading={uploadingFile === task.id}
+                      >
+                        Upload Invoice
+                      </Button>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleFileInput(task.id, 'report')}
+                        disabled={uploadingFile === task.id}
+                        loading={uploadingFile === task.id}
+                      >
+                        Upload Report
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </Card.Footer>
 
                 {/* Attachments */}
                 {task.attachments && task.attachments.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-stone-300">
+                  <Card.Footer className="mt-4 pt-4 border-t border-stone-200">
                     <p className="text-sm font-medium text-charcoal mb-2">Attachments:</p>
                     <div className="flex flex-wrap gap-2">
                       {task.attachments.map((att, idx) => (
@@ -180,15 +210,15 @@ function MyTasks() {
                           href={att.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3 py-1 bg-porcelain text-charcoal rounded-lg text-sm hover:bg-stone-200 transition-colors"
+                          className="px-3 py-1 bg-stone-100 text-charcoal rounded-lg text-sm hover:bg-stone-200 transition-colors"
                         >
                           {att.fileName || att.type}
                         </a>
                       ))}
                     </div>
-                  </div>
+                  </Card.Footer>
                 )}
-              </div>
+              </Card>
             ))}
           </div>
         )}

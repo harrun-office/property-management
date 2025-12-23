@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ownerAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function MySubscriptions() {
   const [subscriptions, setSubscriptions] = useState([]);
@@ -69,18 +74,14 @@ function MySubscriptions() {
           </Link>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} className="mb-6" />}
 
         {/* Filter */}
         <div className="mb-6">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+            className="px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
           >
             <option value="all">All Statuses</option>
             <option value="active">Active</option>
@@ -92,25 +93,30 @@ function MySubscriptions() {
 
         {/* Subscriptions List */}
         {loading ? (
-          <div className="text-center py-12 text-architectural">Loading subscriptions...</div>
-        ) : filteredSubscriptions.length === 0 ? (
-          <div className="bg-stone-100 rounded-xl shadow-md p-12 text-center border border-stone-200">
-            <svg className="w-16 h-16 mx-auto text-architectural mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <h3 className="text-xl font-semibold text-charcoal mb-2">No Subscriptions Found</h3>
-            <p className="text-architectural mb-6">You don't have any subscriptions yet.</p>
-            <Link
-              to="/owner/managers"
-              className="inline-block px-6 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors"
-            >
-              Browse Managers
-            </Link>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[1, 2].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
           </div>
+        ) : filteredSubscriptions.length === 0 ? (
+          <EmptyState
+            title="No Subscriptions Found"
+            description="You don't have any subscriptions yet."
+            action={
+              <Link to="/owner/managers">
+                <Button variant="primary">Browse Managers</Button>
+              </Link>
+            }
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {filteredSubscriptions.map((subscription) => (
-              <div key={subscription.id} className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200">
+              <Card key={subscription.id} variant="elevated" padding="lg">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-xl font-semibold text-charcoal mb-1">
@@ -144,23 +150,27 @@ function MySubscriptions() {
                     <span className="text-charcoal">{new Date(subscription.startDate).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <div className="flex space-x-2 pt-4 border-t border-stone-200">
+                <div className="flex gap-2 pt-4 border-t border-stone-200">
                   <Link
                     to={`/owner/subscriptions/${subscription.id}`}
-                    className="flex-1 px-4 py-2 bg-stone-300 text-charcoal rounded-lg hover:bg-stone-400 transition-colors text-center text-sm font-medium"
+                    className="flex-1"
                   >
-                    View Details
+                    <Button variant="secondary" size="sm" fullWidth>
+                      View Details
+                    </Button>
                   </Link>
                   {subscription.status === 'active' && (
-                    <button
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      fullWidth
                       onClick={() => handleCancel(subscription.id)}
-                      className="flex-1 px-4 py-2 bg-error/20 text-error rounded-lg hover:bg-error/30 transition-colors text-sm font-medium"
                     >
                       Cancel
-                    </button>
+                    </Button>
                   )}
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}

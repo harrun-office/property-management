@@ -1,17 +1,20 @@
+import Card from './ui/Card';
+import Button from './ui/Button';
+
 function VendorCard({ vendor, onAssign, onEdit }) {
   return (
-    <div className="bg-stone-100 rounded-2xl shadow-md p-6 hover:shadow-lg transition-shadow border border-stone-200">
+    <Card variant="elevated" padding="lg" hover>
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-xl font-semibold text-charcoal mb-1">{vendor.companyName}</h3>
-          <p className="text-architectural mb-2">{vendor.contactName}</p>
-          <p className="text-sm text-stone-600 mb-3">{vendor.email}</p>
+          <Card.Title className="mb-1">{vendor.companyName}</Card.Title>
+          <Card.Description className="mb-2">{vendor.contactName}</Card.Description>
+          <p className="text-sm text-architectural mb-3">{vendor.email}</p>
           
           <div className="mb-3">
-            <p className="text-sm font-medium text-charcoal mb-1">Service Types:</p>
+            <p className="text-sm font-medium text-charcoal mb-2">Service Types:</p>
             <div className="flex flex-wrap gap-2">
               {vendor.serviceTypes.map((type, idx) => (
-                <span key={idx} className="px-2 py-1 bg-obsidian-100 text-obsidian-500 rounded text-xs capitalize">
+                <span key={idx} className="px-2.5 py-1 bg-obsidian-100 text-obsidian-700 rounded-lg text-xs font-medium capitalize">
                   {type}
                 </span>
               ))}
@@ -45,34 +48,30 @@ function VendorCard({ vendor, onAssign, onEdit }) {
             </p>
           </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
           vendor.status === 'active' ? 'bg-eucalyptus-100 text-eucalyptus-700' :
-          vendor.status === 'suspended' ? 'bg-error/20 text-error' :
-          'bg-warning/20 text-warning'
+          vendor.status === 'suspended' ? 'bg-error-100 text-error-700' :
+          'bg-warning-100 text-warning-700'
         }`}>
           {vendor.status}
         </span>
       </div>
 
-      <div className="flex space-x-2 pt-4 border-t border-stone-300">
-        {onAssign && (
-          <button
-            onClick={() => onAssign(vendor)}
-            className="flex-1 px-4 py-2 bg-obsidian-500 text-porcelain rounded-lg hover:bg-obsidian-600 transition-colors text-sm"
-          >
-            Assign Property
-          </button>
-        )}
-        {onEdit && (
-          <button
-            onClick={() => onEdit(vendor)}
-            className="flex-1 px-4 py-2 bg-stone-200 text-charcoal rounded-lg hover:bg-stone-300 transition-colors text-sm"
-          >
-            Edit
-          </button>
-        )}
-      </div>
-    </div>
+      <Card.Footer>
+        <div className="flex space-x-2">
+          {onAssign && (
+            <Button variant="primary" size="sm" fullWidth onClick={() => onAssign(vendor)}>
+              Assign Property
+            </Button>
+          )}
+          {onEdit && (
+            <Button variant="secondary" size="sm" fullWidth onClick={() => onEdit(vendor)}>
+              Edit
+            </Button>
+          )}
+        </div>
+      </Card.Footer>
+    </Card>
   );
 }
 

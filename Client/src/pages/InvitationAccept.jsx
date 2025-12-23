@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { invitationAPI } from '../services/api';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Skeleton from '../components/ui/Skeleton';
+import ErrorDisplay from '../components/ui/ErrorDisplay';
 
 function InvitationAccept() {
   const { token } = useParams();
@@ -130,26 +135,31 @@ function InvitationAccept() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-porcelain">
-        <p className="text-architectural">Validating invitation...</p>
+      <div className="min-h-screen flex items-center justify-center bg-porcelain px-4">
+        <div className="max-w-md w-full">
+          <Skeleton.Card />
+        </div>
       </div>
     );
   }
 
   if (error && !invitationData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-porcelain">
-        <div className="max-w-md w-full bg-stone-100 rounded-2xl shadow-lg p-8 text-center border border-stone-200">
-          <div className="text-error mb-4">
-            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold mb-4 text-charcoal">Invalid Invitation</h2>
-          <p className="text-architectural mb-6">{error}</p>
-          <a href="/login" className="text-obsidian font-semibold hover:text-brass transition-colors">
-            Go to Login
-          </a>
+      <div className="min-h-screen flex items-center justify-center bg-porcelain px-4">
+        <div className="max-w-md w-full">
+          <ErrorDisplay
+            message={error || 'Invalid Invitation'}
+            action={
+              <Link to="/login">
+                <Button variant="primary">Go to Login</Button>
+              </Link>
+            }
+            icon={
+              <svg className="w-16 h-16 text-error-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          />
         </div>
       </div>
     );
@@ -157,95 +167,65 @@ function InvitationAccept() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-porcelain px-4">
-      <div className="max-w-md w-full bg-stone-100 rounded-2xl shadow-lg p-8 border border-stone-200">
-        <h2 className="text-3xl font-bold text-center mb-2 text-obsidian">Accept Invitation</h2>
-        <p className="text-center text-architectural mb-6">
+      <Card variant="elevated" padding="lg" className="max-w-md w-full">
+        <Card.Title className="text-3xl text-center mb-2">Accept Invitation</Card.Title>
+        <Card.Description className="text-center mb-6">
           Welcome, {invitationData?.name}! Set your password to complete your account setup.
-        </p>
+        </Card.Description>
         
-        {error && (
-          <div className="mb-4 p-3 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} className="mb-4" />}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={invitationData?.email || ''}
-              disabled
-              className="w-full p-3 border border-stone-300 rounded-xl bg-porcelain-dark text-architectural"
-            />
-          </div>
+          <Input
+            label="Email"
+            type="email"
+            value={invitationData?.email || ''}
+            disabled
+            className="bg-stone-100"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Role
-            </label>
-            <input
-              type="text"
-              value={invitationData?.role === 'property_manager' ? 'Property Manager' : invitationData?.role === 'vendor' ? 'Vendor' : invitationData?.role || ''}
-              disabled
-              className="w-full p-3 border border-stone-300 rounded-xl bg-porcelain-dark text-architectural capitalize"
-            />
-          </div>
+          <Input
+            label="Role"
+            type="text"
+            value={invitationData?.role === 'property_manager' ? 'Property Manager' : invitationData?.role === 'vendor' ? 'Vendor' : invitationData?.role || ''}
+            disabled
+            className="bg-stone-100 capitalize"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Password <span className="text-error">*</span>
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => handleChange('password', e.target.value)}
-              onBlur={(e) => handleBlur('password', e.target.value)}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.password ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="Enter your password"
-            />
-            {errors.password && touched.password && (
-              <p className="mt-1 text-sm text-error">{errors.password}</p>
-            )}
-            {!errors.password && password && (
-              <p className="mt-1 text-xs text-architectural">Must contain uppercase, lowercase, and number</p>
-            )}
-          </div>
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => handleChange('password', e.target.value)}
+            onBlur={(e) => handleBlur('password', e.target.value)}
+            required
+            error={errors.password && touched.password ? errors.password : undefined}
+            helperText={!errors.password && password ? 'Must contain uppercase, lowercase, and number' : undefined}
+            placeholder="Enter your password"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">
-              Confirm Password <span className="text-error">*</span>
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => handleChange('confirmPassword', e.target.value)}
-              onBlur={(e) => handleBlur('confirmPassword', e.target.value)}
-              required
-              className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain ${
-                errors.confirmPassword ? 'border-error' : 'border-stone-300'
-              }`}
-              placeholder="Confirm your password"
-            />
-            {errors.confirmPassword && touched.confirmPassword && (
-              <p className="mt-1 text-sm text-error">{errors.confirmPassword}</p>
-            )}
-          </div>
+          <Input
+            label="Confirm Password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => handleChange('confirmPassword', e.target.value)}
+            onBlur={(e) => handleBlur('confirmPassword', e.target.value)}
+            required
+            error={errors.confirmPassword && touched.confirmPassword ? errors.confirmPassword : undefined}
+            placeholder="Confirm your password"
+          />
 
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            fullWidth
             disabled={accepting}
-            className="w-full py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            loading={accepting}
           >
-            {accepting ? 'Setting up account...' : 'Accept Invitation & Continue'}
-          </button>
+            Accept Invitation & Continue
+          </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

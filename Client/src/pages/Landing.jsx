@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import HeroSection from '../components/HeroSection';
 import FeatureCard from '../components/FeatureCard';
 import CTASection from '../components/CTASection';
+import Card from '../components/ui/Card';
+import MetricCard from '../components/ui/MetricCard';
 
 function Landing() {
   const { user, isSuperAdmin, isPropertyManager, isVendor, isPropertyOwner } = useAuth();
@@ -81,129 +83,111 @@ function Landing() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-porcelain">
       {/* Hero Section */}
       <HeroSection
-        title="Your Complete Property Management Solution"
-        subtitle="Connect tenants with property owners. Search properties, manage listings, and handle everything in one secure platform. Free for tenants, no commission fees for owners."
+        title="Modern Property Operations, Elevated"
+        subtitle="Search, lease, pay, and manage in a single premium experience. No commissions for owners, effortless discovery for tenants, and streamlined workflows for managers."
         primaryCTA="Get Started Free"
         primaryLink="/register"
         secondaryCTA="Browse Properties"
         secondaryLink="/properties"
       />
 
+      {/* Hero promise strip */}
+      <section className="bg-porcelain px-4 pb-12 -mt-12">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { title: 'Premium Experience', value: 'Design-first', subtitle: 'Crystal-clear hierarchy, zero clutter' },
+            { title: 'Launch Fast', value: '< 3 minutes', subtitle: 'Pick your role, start doing real work' },
+            { title: 'All Roles, One Hub', value: 'Tenant • Owner • PM • Vendor', subtitle: 'Unified platform, no silos' }
+          ].map((item) => (
+            <Card key={item.title} variant="elevated" padding="lg" className="h-full bg-[var(--color-surface)]/95 backdrop-blur">
+              <Card.Title className="text-xs uppercase tracking-[0.18em] text-architectural">{item.title}</Card.Title>
+              <p className="text-2xl font-bold text-charcoal mt-2">{item.value}</p>
+              <p className="text-sm text-architectural mt-1">{item.subtitle}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* What is PropManage Section */}
-      <section className="py-16 px-4 bg-porcelain">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6 text-charcoal">What is PropManage?</h2>
-          <p className="text-xl text-architectural leading-relaxed mb-6">
-            PropManage is a comprehensive property management platform that connects tenants and property owners in one easy-to-use system. 
-            Whether you're looking for your next home or managing rental properties, we provide all the tools you need.
-          </p>
-          <div className="grid md:grid-cols-3 gap-6 mt-8">
-            <div className="bg-stone-100 p-6 rounded-xl shadow-md border border-stone-200">
-              <h3 className="text-lg font-semibold mb-2 text-charcoal">For Tenants</h3>
-              <p className="text-architectural">Search properties, contact owners, and manage your rental journey</p>
-            </div>
-            <div className="bg-stone-100 p-6 rounded-xl shadow-md border border-stone-200">
-              <h3 className="text-lg font-semibold mb-2 text-charcoal">For Property Owners</h3>
-              <p className="text-architectural">List properties, manage tenants, and track everything from one dashboard</p>
-            </div>
-            <div className="bg-stone-100 p-6 rounded-xl shadow-md border border-stone-200">
-              <h3 className="text-lg font-semibold mb-2 text-charcoal">For Property Managers</h3>
-              <p className="text-architectural">Manage multiple properties, assign vendors, and track maintenance tasks</p>
-            </div>
+      <section className="py-16 px-4 bg-[var(--color-surface)]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4 text-charcoal">What is PropManage?</h2>
+            <p className="text-lg md:text-xl text-architectural leading-relaxed">
+              A premium, role-aware platform that unifies discovery, leasing, payments, maintenance, and analytics with a clean, modern interface.
+            </p>
           </div>
-          <div className="mt-8 p-6 bg-obsidian text-porcelain rounded-xl">
-            <h3 className="text-2xl font-semibold mb-3 text-porcelain">Key Differentiators</h3>
+
+          <div className="grid md:grid-cols-3 gap-6 mt-12">
+            {[
+              { title: 'For Tenants', desc: 'Search beautifully, favorite quickly, message instantly, and track applications in one flow.' },
+              { title: 'For Owners', desc: 'List with zero commissions, manage tenants and payments, and view clear portfolio analytics.' },
+              { title: 'For Managers', desc: 'Onboard properties, orchestrate vendors, track maintenance, and monitor revenue in real time.' }
+            ].map((item) => (
+              <Card key={item.title} variant="elevated" padding="lg" className="h-full">
+                <Card.Title className="text-xl mb-2">{item.title}</Card.Title>
+                <Card.Description className="leading-relaxed">{item.desc}</Card.Description>
+              </Card>
+            ))}
+          </div>
+
+          <Card variant="filled" padding="lg" className="mt-12 bg-obsidian text-porcelain border border-obsidian-500">
             <div className="grid md:grid-cols-3 gap-4 text-left">
-              <div>
-                <span className="font-semibold text-porcelain">✓ No Commission Fees</span>
-                <p className="text-stone-200 text-sm mt-1">Owners keep 100% of rental income</p>
-              </div>
-              <div>
-                <span className="font-semibold text-porcelain">✓ All-in-One Platform</span>
-                <p className="text-stone-200 text-sm mt-1">Everything you need in one place</p>
-              </div>
-              <div>
-                <span className="font-semibold text-porcelain">✓ Secure & Trusted</span>
-                <p className="text-stone-200 text-sm mt-1">Industry-standard security measures</p>
-              </div>
+              {[
+                { title: 'No Commissions', desc: 'Keep 100% of rental income—evergreen pricing.' },
+                { title: 'One Platform', desc: 'Search, lease, pay, track, and message without context switching.' },
+                { title: 'Secure & Private', desc: 'Enterprise-grade security with privacy-first defaults.' }
+              ].map((item) => (
+                <div key={item.title}>
+                  <span className="font-semibold text-porcelain">✓ {item.title}</span>
+                  <p className="text-stone-200 text-sm mt-1">{item.desc}</p>
+                </div>
+              ))}
             </div>
-          </div>
+          </Card>
         </div>
       </section>
 
       {/* Value Propositions */}
       <section className="py-16 px-4 bg-porcelain">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 text-charcoal">
-            Why Choose PropManage?
-          </h2>
+          <h2 className="text-4xl font-bold text-center mb-10 text-charcoal">Why Choose PropManage?</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-obsidian mb-4">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-semibold mb-3 text-charcoal">For Tenants</h3>
-              <p className="text-architectural mb-4">
-                <strong>Free to browse</strong> thousands of properties with advanced search filters. Save favorites, 
-                contact owners directly, and track your applications—all in one place.
-              </p>
-              <ul className="text-sm text-architectural mb-4 text-left space-y-1">
-                <li>✓ Advanced property search</li>
-                <li>✓ Direct owner communication</li>
-                <li>✓ Save favorite properties</li>
-                <li>✓ Track applications</li>
-              </ul>
-              <Link to="/for-tenants" className="text-obsidian font-semibold hover:text-brass transition-colors">
-                Learn more →
-              </Link>
-            </div>
-            <div className="text-center">
-              <div className="text-obsidian mb-4">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-semibold mb-3 text-charcoal">For Owners</h3>
-              <p className="text-architectural mb-4">
-                <strong>No commission fees!</strong> List unlimited properties, reach thousands of tenants, and manage 
-                everything from one powerful dashboard. Keep 100% of your rental income.
-              </p>
-              <ul className="text-sm text-architectural mb-4 text-left space-y-1">
-                <li>✓ Unlimited property listings</li>
-                <li>✓ Zero commission fees</li>
-                <li>✓ Tenant management tools</li>
-                <li>✓ Analytics & reports</li>
-              </ul>
-              <Link to="/for-owners" className="text-obsidian font-semibold hover:text-brass transition-colors">
-                Learn more →
-              </Link>
-            </div>
-            <div className="text-center">
-              <div className="text-obsidian mb-4">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-semibold mb-3 text-charcoal">All-in-One</h3>
-              <p className="text-architectural mb-4">
-                Complete property management solution. From property discovery to rent collection, tenant communication 
-                to maintenance tracking—everything you need in one secure platform.
-              </p>
-              <ul className="text-sm text-architectural mb-4 text-left space-y-1">
-                <li>✓ Property search & listing</li>
-                <li>✓ Direct messaging system</li>
-                <li>✓ Secure payment processing</li>
-                <li>✓ Mobile-friendly design</li>
-              </ul>
-              <Link to="/features" className="text-obsidian font-semibold hover:text-brass transition-colors">
-                View features →
-              </Link>
-            </div>
+            {[
+              {
+                title: 'For Tenants',
+                items: ['Advanced search & filters', 'Direct owner chat', 'Favorites & application tracking', 'Mobile-first experience'],
+                cta: { text: 'Learn more →', link: '/for-tenants' }
+              },
+              {
+                title: 'For Owners',
+                items: ['Unlimited listings', 'Zero commission fees', 'Tenant & payment tools', 'Analytics & reporting'],
+                cta: { text: 'Learn more →', link: '/for-owners' }
+              },
+              {
+                title: 'All-in-One',
+                items: ['Search, lease, and pay', 'Messaging & maintenance', 'Secure processing', 'Unified operations'],
+                cta: { text: 'View features →', link: '/features' }
+              }
+            ].map((block) => (
+              <Card key={block.title} variant="elevated" padding="lg" className="h-full">
+                <Card.Title className="text-2xl mb-3">{block.title}</Card.Title>
+                <ul className="text-sm text-architectural mb-5 space-y-2">
+                  {block.items.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <span className="mt-1 text-brass">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link to={block.cta.link} className="text-obsidian font-semibold hover:text-brass transition-colors text-sm">
+                  {block.cta.text}
+                </Link>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -233,39 +217,30 @@ function Landing() {
 
       {/* Quick Start Section */}
       <section className="py-16 px-4 bg-stone-100">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 text-charcoal">Get Started in 3 Simple Steps</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-obsidian text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">1</div>
-              <h3 className="text-xl font-semibold mb-3 text-charcoal">Browse Properties</h3>
-              <p className="text-architectural mb-4">Explore available properties without creating an account. Use filters to find exactly what you're looking for.</p>
-              <Link to="/properties" className="text-obsidian font-semibold hover:text-brass transition-colors text-sm">
-                Browse now →
-              </Link>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-obsidian text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">2</div>
-              <h3 className="text-xl font-semibold mb-3 text-charcoal">Choose Your Role</h3>
-              <p className="text-architectural mb-4">Register as a Tenant to find properties, or as a Property Owner to list and manage your properties.</p>
-              <Link to="/how-it-works" className="text-obsidian font-semibold hover:text-brass transition-colors text-sm">
-                Learn more →
-              </Link>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-obsidian text-porcelain rounded-full flex items-center justify-center font-bold text-2xl mx-auto mb-4">3</div>
-              <h3 className="text-xl font-semibold mb-3 text-charcoal">Start Using</h3>
-              <p className="text-architectural mb-4">Create your free account in seconds. No credit card required. Start managing properties or finding your next home today.</p>
-              <Link to="/register" className="text-obsidian font-semibold hover:text-brass transition-colors text-sm">
-                Register now →
-              </Link>
-            </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { step: '1', title: 'Browse Properties', desc: 'Explore curated listings with filters for location, price, and amenities.' },
+              { step: '2', title: 'Choose Your Role', desc: 'Sign up as Tenant, Owner, or Manager and unlock role-specific tools.' },
+              { step: '3', title: 'Launch in Minutes', desc: 'Onboard quickly—no credit card required. Manage or apply immediately.' }
+            ].map((item) => (
+              <Card key={item.step} variant="elevated" padding="lg" className="text-center h-full">
+                <div className="w-14 h-14 bg-obsidian text-porcelain rounded-xl flex items-center justify-center font-bold text-xl mx-auto mb-4 shadow-md">
+                  {item.step}
+                </div>
+                <Card.Title className="text-xl mb-2">{item.title}</Card.Title>
+                <Card.Description className="text-architectural">{item.desc}</Card.Description>
+              </Card>
+            ))}
           </div>
           <div className="text-center mt-12">
-            <p className="text-architectural mb-4">Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian font-semibold hover:text-brass transition-colors">See how it works</Link></p>
+            <p className="text-architectural mb-4">
+              Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian font-semibold hover:text-brass transition-colors">See how it works</Link>
+            </p>
             <Link
               to="/register"
-              className="inline-block px-8 py-4 bg-brass text-porcelain rounded-xl font-semibold text-lg hover:bg-brass-light transition-colors shadow-lg"
+              className="inline-block px-8 py-4 bg-gradient-to-r from-obsidian to-brass text-porcelain rounded-xl font-semibold text-lg hover:brightness-110 transition-transform hover:-translate-y-0.5 shadow-xl"
             >
               Create Your Free Account
             </Link>
@@ -274,30 +249,14 @@ function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-obsidian text-porcelain">
+      <section className="py-16 px-4 bg-gradient-to-br from-obsidian-700 via-obsidian-600 to-obsidian-800 text-porcelain">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12 text-porcelain">Trusted by Property Owners and Tenants</h2>
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-5xl font-bold mb-2 text-brass">100+</div>
-              <div className="text-porcelain">Properties Listed</div>
-              <div className="text-stone-200 text-sm mt-1">And growing daily</div>
-            </div>
-            <div>
-              <div className="text-5xl font-bold mb-2 text-brass">500+</div>
-              <div className="text-porcelain">Active Users</div>
-              <div className="text-stone-200 text-sm mt-1">Tenants and owners</div>
-            </div>
-            <div>
-              <div className="text-5xl font-bold mb-2 text-brass">98%</div>
-              <div className="text-porcelain">Satisfaction Rate</div>
-              <div className="text-stone-200 text-sm mt-1">Happy customers</div>
-            </div>
-            <div>
-              <div className="text-5xl font-bold mb-2 text-brass">24/7</div>
-              <div className="text-porcelain">Support Available</div>
-              <div className="text-stone-200 text-sm mt-1">Always here to help</div>
-            </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <MetricCard title="Properties Listed" value="100+" subtitle="Growing daily" variant="gradient" accent="brass" />
+            <MetricCard title="Active Users" value="500+" subtitle="Tenants & owners" variant="gradient" accent="obsidian" />
+            <MetricCard title="Satisfaction" value="98%" subtitle="Happy customers" variant="gradient" accent="brass" />
+            <MetricCard title="Support" value="24/7" subtitle="Always here to help" variant="gradient" accent="obsidian" />
           </div>
         </div>
       </section>

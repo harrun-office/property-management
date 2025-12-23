@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { tenantAPI } from '../../services/api';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
+import ErrorDisplay from '../../components/ui/ErrorDisplay';
+import EmptyState from '../../components/ui/EmptyState';
 
 function TenantDocuments() {
   const [documents, setDocuments] = useState([]);
@@ -53,12 +58,30 @@ function TenantDocuments() {
 
   const getTypeBadge = (type) => {
     const styles = {
-      lease: 'bg-obsidian/20 text-obsidian',
-      receipt: 'bg-eucalyptus/20 text-eucalyptus',
-      notice: 'bg-warning/20 text-warning'
+      lease: 'bg-obsidian-100 text-obsidian-700',
+      receipt: 'bg-eucalyptus-100 text-eucalyptus-700',
+      notice: 'bg-warning-100 text-warning-700'
     };
     return styles[type] || 'bg-stone-200 text-charcoal';
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-porcelain py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Skeleton variant="title" width="30%" className="mb-2" />
+            <Skeleton variant="text" width="50%" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton.Card key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-porcelain py-8 px-4">
@@ -68,18 +91,15 @@ function TenantDocuments() {
           <p className="text-architectural">Access your important documents and receipts</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error text-error rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <ErrorDisplay message={error} onRetry={loadDocuments} className="mb-6" />}
 
         {/* Filter */}
         <div className="mb-6">
+          <label className="block text-sm font-medium text-charcoal mb-1">Filter by Type</label>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-2 border rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian focus:border-obsidian"
+            className="px-4 py-2.5 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
           >
             <option value="all">All Documents</option>
             <option value="lease">Lease Agreements</option>
@@ -89,41 +109,40 @@ function TenantDocuments() {
         </div>
 
         {/* Documents List */}
-        {loading ? (
-          <div className="bg-stone-100 rounded-xl shadow-md p-8 text-center border border-stone-200">
-            <p className="text-architectural">Loading documents...</p>
-          </div>
-        ) : filteredDocuments.length === 0 ? (
-          <div className="bg-stone-100 rounded-xl shadow-md p-12 text-center border border-stone-200">
-            <svg className="w-16 h-16 mx-auto text-architectural mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            <h3 className="text-xl font-semibold text-charcoal mb-2">No documents found</h3>
-            <p className="text-architectural">Documents will appear here once available.</p>
-          </div>
+        {filteredDocuments.length === 0 ? (
+          <EmptyState
+            title="No documents found"
+            description="Documents will appear here once available."
+            icon={
+              <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDocuments.map((doc) => (
-              <div key={doc.id} className="bg-stone-100 rounded-xl shadow-md p-6 border border-stone-200 hover:shadow-lg transition-shadow">
+              <Card key={doc.id} variant="elevated" padding="lg" hover>
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-obsidian/10 rounded-lg flex items-center justify-center text-obsidian">
+                  <div className="w-12 h-12 bg-obsidian-100 rounded-lg flex items-center justify-center text-obsidian-500">
                     {getTypeIcon(doc.type)}
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getTypeBadge(doc.type)}`}>
                     {doc.type}
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-charcoal mb-2">{doc.name}</h3>
-                <p className="text-sm text-architectural mb-4">
+                <Card.Title className="text-lg mb-2">{doc.name}</Card.Title>
+                <Card.Description className="mb-4">
                   Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}
-                </p>
-                <button
+                </Card.Description>
+                <Button
+                  variant="primary"
+                  fullWidth
                   onClick={() => alert('Document download feature coming soon')}
-                  className="w-full px-4 py-2 bg-obsidian text-porcelain rounded-lg hover:bg-obsidian-light transition-colors"
                 >
                   Download
-                </button>
-              </div>
+                </Button>
+              </Card>
             ))}
           </div>
         )}
