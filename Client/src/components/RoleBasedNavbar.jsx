@@ -3,6 +3,26 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tenantAPI } from '../services/api';
 
+/**
+ * TODO: DESIGN SYSTEM VIOLATIONS - Extensive violations throughout this component.
+ * This is a complex navigation component with many primitive token violations.
+ * All instances of:
+ * - obsidian-*, stone-*, brass-*, eucalyptus-*, porcelain, charcoal, architectural
+ * - bg-obsidian, text-obsidian, bg-brass, text-brass, etc.
+ * Must be replaced with semantic --ui-* tokens.
+ * 
+ * Key areas requiring fixes:
+ * - Navbar background (line 149): bg-obsidian/95, border-stone-500/20
+ * - Text colors: text-porcelain, text-stone-*, text-charcoal, text-architectural
+ * - Interactive states: hover:text-brass, hover:bg-obsidian-light
+ * - Borders: border-stone-*, border-brass
+ * - Backgrounds: bg-obsidian-*, bg-brass-*, bg-stone-*
+ * - Gradients: from-brass-400 to-brass-600, etc.
+ * - Status colors: bg-error, text-error
+ * 
+ * Navbar requires explicit background color (--ui-bg-surface or --ui-bg-inverse)
+ */
+
 function RoleBasedNavbar() {
   const { isAuthenticated, user, logout, isSuperAdmin, isPropertyManager, isVendor, isPropertyOwner, isTenant } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

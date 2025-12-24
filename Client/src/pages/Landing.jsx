@@ -83,7 +83,7 @@ function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-porcelain">
+    <div className="min-h-screen bg-[var(--ui-bg-page)]">
       {/* Hero Section */}
       <HeroSection
         title="Modern Property Operations, Elevated"
@@ -95,28 +95,28 @@ function Landing() {
       />
 
       {/* Hero promise strip */}
-      <section className="bg-porcelain px-4 pb-12 -mt-12">
+      <section className="bg-[var(--ui-bg-page)] px-4 pb-12 -mt-12">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { title: 'Premium Experience', value: 'Design-first', subtitle: 'Crystal-clear hierarchy, zero clutter' },
             { title: 'Launch Fast', value: '< 3 minutes', subtitle: 'Pick your role, start doing real work' },
             { title: 'All Roles, One Hub', value: 'Tenant • Owner • PM • Vendor', subtitle: 'Unified platform, no silos' }
           ].map((item) => (
-            <Card key={item.title} variant="elevated" padding="lg" className="h-full bg-[var(--color-surface)]/95 backdrop-blur">
-              <Card.Title className="text-xs uppercase tracking-[0.18em] text-architectural">{item.title}</Card.Title>
-              <p className="text-2xl font-bold text-charcoal mt-2">{item.value}</p>
-              <p className="text-sm text-architectural mt-1">{item.subtitle}</p>
+            <Card key={item.title} variant="elevated" padding="lg" className="h-full">
+              <Card.Title className="text-xs uppercase tracking-[0.18em]">{item.title}</Card.Title>
+              <p className="text-2xl font-bold mt-2">{item.value}</p>
+              <p className="text-sm mt-1">{item.subtitle}</p>
             </Card>
           ))}
         </div>
       </section>
 
       {/* What is PropManage Section */}
-      <section className="py-16 px-4 bg-[var(--color-surface)]">
+      <section className="py-16 px-4 bg-[var(--ui-bg-surface)]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto">
-            <h2 className="text-4xl font-bold mb-4 text-charcoal">What is PropManage?</h2>
-            <p className="text-lg md:text-xl text-architectural leading-relaxed">
+            <h2 className="text-4xl font-bold mb-4">What is PropManage?</h2>
+            <p className="text-lg md:text-xl leading-relaxed">
               A premium, role-aware platform that unifies discovery, leasing, payments, maintenance, and analytics with a clean, modern interface.
             </p>
           </div>
@@ -134,7 +134,7 @@ function Landing() {
             ))}
           </div>
 
-          <Card variant="filled" padding="lg" className="mt-12 bg-obsidian text-porcelain border border-obsidian-500">
+          <Card variant="filled" padding="lg" className="mt-12">
             <div className="grid md:grid-cols-3 gap-4 text-left">
               {[
                 { title: 'No Commissions', desc: 'Keep 100% of rental income—evergreen pricing.' },
@@ -142,8 +142,8 @@ function Landing() {
                 { title: 'Secure & Private', desc: 'Enterprise-grade security with privacy-first defaults.' }
               ].map((item) => (
                 <div key={item.title}>
-                  <span className="font-semibold text-porcelain">✓ {item.title}</span>
-                  <p className="text-stone-200 text-sm mt-1">{item.desc}</p>
+                  <span className="font-semibold">✓ {item.title}</span>
+                  <p className="text-sm mt-1">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -152,9 +152,9 @@ function Landing() {
       </section>
 
       {/* Value Propositions */}
-      <section className="py-16 px-4 bg-porcelain">
+      <section className="py-16 px-4 bg-[var(--ui-bg-page)]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-10 text-charcoal">Why Choose PropManage?</h2>
+          <h2 className="text-4xl font-bold text-center mb-10">Why Choose PropManage?</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -175,15 +175,15 @@ function Landing() {
             ].map((block) => (
               <Card key={block.title} variant="elevated" padding="lg" className="h-full">
                 <Card.Title className="text-2xl mb-3">{block.title}</Card.Title>
-                <ul className="text-sm text-architectural mb-5 space-y-2">
+                <ul className="text-sm mb-5 space-y-2">
                   {block.items.map((item) => (
                     <li key={item} className="flex items-start gap-2">
-                      <span className="mt-1 text-brass">•</span>
+                      <span className="mt-1">•</span>
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
-                <Link to={block.cta.link} className="text-obsidian font-semibold hover:text-brass transition-colors text-sm">
+                <Link to={block.cta.link} className="font-semibold text-sm">
                   {block.cta.text}
                 </Link>
               </Card>
@@ -193,11 +193,11 @@ function Landing() {
       </section>
 
       {/* Features Preview */}
-      <section className="py-16 px-4 bg-porcelain">
+      <section className="py-16 px-4 bg-[var(--ui-bg-page)]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-charcoal mb-4">Powerful Features</h2>
-            <p className="text-xl text-architectural">Everything you need to manage properties efficiently</p>
+            <h2 className="text-4xl font-bold mb-4">Powerful Features</h2>
+            <p className="text-xl">Everything you need to manage properties efficiently</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
@@ -207,7 +207,7 @@ function Landing() {
           <div className="text-center mt-8">
             <Link
               to="/features"
-              className="inline-block px-6 py-3 bg-obsidian text-porcelain rounded-xl font-semibold hover:bg-obsidian-light transition-colors"
+              className="inline-block px-6 py-3 rounded-xl font-semibold"
             >
               View All Features
             </Link>
@@ -216,9 +216,9 @@ function Landing() {
       </section>
 
       {/* Quick Start Section */}
-      <section className="py-16 px-4 bg-stone-100">
+      <section className="py-16 px-4 bg-[var(--ui-bg-muted)]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 text-charcoal">Get Started in 3 Simple Steps</h2>
+          <h2 className="text-4xl font-bold text-center mb-12">Get Started in 3 Simple Steps</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
               { step: '1', title: 'Browse Properties', desc: 'Explore curated listings with filters for location, price, and amenities.' },
@@ -226,21 +226,21 @@ function Landing() {
               { step: '3', title: 'Launch in Minutes', desc: 'Onboard quickly—no credit card required. Manage or apply immediately.' }
             ].map((item) => (
               <Card key={item.step} variant="elevated" padding="lg" className="text-center h-full">
-                <div className="w-14 h-14 bg-obsidian text-porcelain rounded-xl flex items-center justify-center font-bold text-xl mx-auto mb-4 shadow-md">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-xl mx-auto mb-4 shadow-md">
                   {item.step}
                 </div>
                 <Card.Title className="text-xl mb-2">{item.title}</Card.Title>
-                <Card.Description className="text-architectural">{item.desc}</Card.Description>
+                <Card.Description>{item.desc}</Card.Description>
               </Card>
             ))}
           </div>
           <div className="text-center mt-12">
-            <p className="text-architectural mb-4">
-              Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian font-semibold hover:text-brass transition-colors">See how it works</Link>
+            <p className="mb-4">
+              Not sure which role to choose? <Link to="/how-it-works" className="font-semibold">See how it works</Link>
             </p>
             <Link
               to="/register"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-obsidian to-brass text-porcelain rounded-xl font-semibold text-lg hover:brightness-110 transition-transform hover:-translate-y-0.5 shadow-xl"
+              className="inline-block px-8 py-4 rounded-xl font-semibold text-lg transition-transform hover:-translate-y-0.5 shadow-xl"
             >
               Create Your Free Account
             </Link>
@@ -249,14 +249,14 @@ function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-gradient-to-br from-obsidian-700 via-obsidian-600 to-obsidian-800 text-porcelain">
+      <section className="py-16 px-4 bg-[var(--ui-bg-inverse)] text-[var(--ui-text-inverse)]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-porcelain">Trusted by Property Owners and Tenants</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Trusted by Property Owners and Tenants</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <MetricCard title="Properties Listed" value="100+" subtitle="Growing daily" variant="gradient" accent="brass" />
-            <MetricCard title="Active Users" value="500+" subtitle="Tenants & owners" variant="gradient" accent="obsidian" />
-            <MetricCard title="Satisfaction" value="98%" subtitle="Happy customers" variant="gradient" accent="brass" />
-            <MetricCard title="Support" value="24/7" subtitle="Always here to help" variant="gradient" accent="obsidian" />
+            <MetricCard title="Properties Listed" value="100+" subtitle="Growing daily" variant="gradient" />
+            <MetricCard title="Active Users" value="500+" subtitle="Tenants & owners" variant="gradient" />
+            <MetricCard title="Satisfaction" value="98%" subtitle="Happy customers" variant="gradient" />
+            <MetricCard title="Support" value="24/7" subtitle="Always here to help" variant="gradient" />
           </div>
         </div>
       </section>

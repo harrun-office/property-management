@@ -4,6 +4,16 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 
+/**
+ * TODO: DESIGN SYSTEM VIOLATIONS - Replace primitive tokens with semantic tokens:
+ * - Line 67: text-architectural
+ *   Should use: text-[var(--ui-text-muted)]
+ * - Line 71: border-obsidian-500, bg-obsidian-50
+ *   Should use: border-[var(--ui-action-primary)], bg-[var(--ui-bg-muted)]
+ * - Line 77: text-obsidian-500, focus:ring-obsidian-500
+ *   Should use: text-[var(--ui-action-primary)], focus:ring-[var(--ui-focus)]
+ */
+
 function PropertyAssignmentModal({ title, properties = [], selectedIds = [], onSave, onClose }) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(selectedIds);

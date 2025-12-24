@@ -3,6 +3,24 @@ import React from 'react';
 /**
  * Modern Button Component - International Design Standards
  * Supports multiple variants, sizes, and states
+ * 
+ * TODO: DESIGN SYSTEM VIOLATIONS - Replace primitive tokens with semantic tokens:
+ * - Line 24: bg-obsidian-500, text-white, hover:bg-obsidian-600, focus:ring-obsidian-500, active:bg-obsidian-700
+ *   Should use: bg-[var(--ui-action-primary)], text-[var(--ui-text-inverse)], hover:bg-[var(--ui-action-primary-hover)]
+ * - Line 25: bg-stone-200, text-charcoal, hover:bg-stone-300, focus:ring-stone-500, active:bg-stone-400, border-stone-300
+ *   Should use: bg-[var(--ui-action-secondary)], text-[var(--ui-text-primary)], border-[var(--ui-border-default)]
+ * - Line 26: bg-brass-500, hover:bg-brass-600, focus:ring-brass-500, active:bg-brass-700
+ *   Should use: bg-[var(--ui-action-primary)] (or create --ui-action-accent if needed)
+ * - Line 27: bg-eucalyptus-500, hover:bg-eucalyptus-600, focus:ring-eucalyptus-500, active:bg-eucalyptus-700
+ *   Should use: bg-[var(--ui-success)] for success variant
+ * - Line 28: bg-error-500, hover:bg-error-600, focus:ring-error-500, active:bg-error-700
+ *   Should use: bg-[var(--ui-error)], hover:bg-[var(--ui-error)] with opacity
+ * - Line 29: border-obsidian-500, text-obsidian-500, hover:bg-obsidian-50, focus:ring-obsidian-500, active:bg-obsidian-100
+ *   Should use: border-[var(--ui-action-primary)], text-[var(--ui-action-primary)], hover:bg-[var(--ui-bg-muted)]
+ * - Line 30: text-obsidian-500, hover:bg-obsidian-50, focus:ring-obsidian-500, active:bg-obsidian-100
+ *   Should use: text-[var(--ui-action-primary)], hover:bg-[var(--ui-bg-muted)]
+ * - Line 31: text-obsidian-500, hover:text-obsidian-600
+ *   Should use: text-[var(--ui-link)], hover:text-[var(--ui-link-hover)]
  */
 const Button = ({
   children,

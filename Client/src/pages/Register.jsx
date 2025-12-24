@@ -305,7 +305,7 @@ function Register() {
                   value={formData.role}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-[var(--color-surface)] text-charcoal transition-all"
+                  className="w-full px-4 py-2.5 border border-[var(--ui-border-default)] rounded-lg focus:ring-2 focus:ring-[var(--ui-focus)] focus:border-[var(--ui-action-primary)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] transition-all"
                 >
                   <option value="tenant">Tenant - Looking for a property to rent</option>
                   <option value="property_owner">Property Owner - Want to list and manage properties</option>

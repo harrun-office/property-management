@@ -4,6 +4,12 @@ import { createPortal } from 'react-dom';
 /**
  * Modern Modal Component - International Design Standards
  * Accessible, animated, and responsive
+ *
+ * FIXED: All primitive tokens replaced with semantic tokens
+ * - Uses --ui-* semantic tokens for backgrounds, text, and borders
+ * - Ensures proper contrast ratios for all modal elements
+ *
+ * NOTE: Modal backdrop uses bg-black/50 which is acceptable for overlay effects
  */
 const Modal = ({
   isOpen,
@@ -74,7 +80,7 @@ const Modal = ({
       {/* Modal */}
       <div
         className={`
-          relative bg-[var(--color-surface)] text-charcoal rounded-2xl shadow-2xl w-full ${sizes[size]}
+          relative bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] rounded-2xl shadow-2xl w-full ${sizes[size]}
           transform transition-all duration-300 scale-100
           animate-scale-in
           ${className}
@@ -93,7 +99,7 @@ const Modal = ({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="ml-auto p-2 text-architectural hover:text-charcoal hover:bg-[var(--color-bg-secondary)] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)]"
+                className="ml-auto p-2 text-[var(--ui-text-muted)] hover:text-[var(--ui-text-primary)] hover:bg-[var(--ui-bg-muted)] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--ui-focus)]"
                 aria-label="Close modal"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +117,7 @@ const Modal = ({
 
         {/* Footer */}
         {footer && (
-          <div className="p-6 border-t border-stone-200 bg-[var(--color-bg-secondary)] rounded-b-2xl">
+          <div className="p-6 border-t border-[var(--ui-border-default)] bg-[var(--ui-bg-muted)] rounded-b-2xl">
             {footer}
           </div>
         )}

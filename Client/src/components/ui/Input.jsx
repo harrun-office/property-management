@@ -3,6 +3,24 @@ import React, { forwardRef } from 'react';
 /**
  * Modern Input Component - International Design Standards
  * Supports floating labels, error states, and icons
+ * 
+ * TODO: DESIGN SYSTEM VIOLATIONS - Replace primitive tokens with semantic tokens:
+ * - Line 22: border-stone-300, text-charcoal, placeholder-architectural, focus:border-obsidian-500, focus:ring-obsidian-500
+ *   Should use: border-[var(--ui-border-default)], text-[var(--ui-text-primary)], placeholder-[var(--ui-text-muted)], focus:border-[var(--ui-action-primary)], focus:ring-[var(--ui-focus)]
+ * - Line 23: border-error-500, text-charcoal, placeholder-architectural, focus:border-error-500, focus:ring-error-500
+ *   Should use: border-[var(--ui-error)], text-[var(--ui-text-primary)], placeholder-[var(--ui-text-muted)], focus:border-[var(--ui-error)], focus:ring-[var(--ui-focus)]
+ * - Line 24: border-eucalyptus-500, text-charcoal, placeholder-architectural, focus:border-eucalyptus-500, focus:ring-eucalyptus-500
+ *   Should use: border-[var(--ui-success)], text-[var(--ui-text-primary)], placeholder-[var(--ui-text-muted)], focus:border-[var(--ui-success)], focus:ring-[var(--ui-focus)]
+ * - Line 51: text-architectural
+ *   Should use: text-[var(--ui-text-muted)]
+ * - Line 59: text-charcoal
+ *   Should use: text-[var(--ui-text-primary)]
+ * - Line 61: text-error-500
+ *   Should use: text-[var(--ui-error)]
+ * - Line 75: text-error-500
+ *   Should use: text-[var(--ui-error)]
+ * - Line 83: text-architectural
+ *   Should use: text-[var(--ui-text-muted)]
  */
 const Input = forwardRef(({
   label,
@@ -19,9 +37,9 @@ const Input = forwardRef(({
   const baseStyles = 'w-full rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0';
   
   const variants = {
-    default: 'border-stone-300 bg-[var(--color-surface)] text-charcoal placeholder-architectural focus:border-obsidian-500 focus:ring-obsidian-500',
-    error: 'border-error-500 bg-[var(--color-surface)] text-charcoal placeholder-architectural focus:border-error-500 focus:ring-error-500',
-    success: 'border-eucalyptus-500 bg-[var(--color-surface)] text-charcoal placeholder-architectural focus:border-eucalyptus-500 focus:ring-eucalyptus-500',
+    default: 'border-[var(--ui-border-default)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-action-primary)] focus:ring-[var(--ui-focus)]',
+    error: 'border-[var(--ui-error)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-error)] focus:ring-[var(--ui-focus)]',
+    success: 'border-[var(--ui-success)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-success)] focus:ring-[var(--ui-focus)]',
   };
   
   const sizes = {

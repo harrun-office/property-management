@@ -3,6 +3,18 @@ import React from 'react';
 /**
  * Modern Card Component - International Design Standards
  * Supports multiple variants and interactive states
+ * 
+ * TODO: DESIGN SYSTEM VIOLATIONS - Replace primitive tokens with semantic tokens:
+ * - Line 16: text-charcoal
+ *   Should use: text-[var(--ui-text-primary)]
+ * - Line 19-22: border-stone-200, border-stone-300
+ *   Should use: border-[var(--ui-border-default)], border-[var(--ui-border-strong)]
+ * - Line 73: text-charcoal
+ *   Should use: text-[var(--ui-text-primary)]
+ * - Line 79: text-architectural
+ *   Should use: text-[var(--ui-text-muted)]
+ * - Line 91: border-stone-200
+ *   Should use: border-[var(--ui-border-default)]
  */
 const Card = ({
   children,
@@ -13,13 +25,13 @@ const Card = ({
   onClick,
   ...props
 }) => {
-  const baseStyles = 'rounded-xl transition-all duration-200 text-charcoal';
+  const baseStyles = 'rounded-xl transition-all duration-200 text-[var(--ui-text-primary)]';
   
   const variants = {
-    default: 'bg-[var(--color-surface)] border border-stone-200 shadow-sm',
-    elevated: 'bg-[var(--color-surface)] border border-stone-200 shadow-md',
-    outlined: 'bg-transparent border-2 border-stone-300',
-    filled: 'bg-[var(--color-surface-alt)] border border-stone-200',
+    default: 'bg-[var(--ui-bg-surface)] border border-[var(--ui-border-default)] shadow-sm',
+    elevated: 'bg-[var(--ui-bg-surface)] border border-[var(--ui-border-default)] shadow-md',
+    outlined: 'bg-[var(--ui-bg-surface)] border-2 border-[var(--ui-border-strong)]',
+    filled: 'bg-[var(--ui-bg-muted)] border border-[var(--ui-border-default)]',
     glass: 'glass-effect shadow-lg',
   };
   
@@ -70,7 +82,7 @@ Card.Header = ({ children, className = '', ...props }) => (
 );
 
 Card.Title = ({ children, className = '', ...props }) => (
-  <h3 className={`text-xl font-semibold text-charcoal mb-2 ${className}`} {...props}>
+  <h3 className={`text-xl font-semibold text-[var(--ui-text-primary)] mb-2 ${className}`} {...props}>
     {children}
   </h3>
 );

@@ -181,7 +181,7 @@ function Login() {
                   onChange={(e) => handleChange('role', e.target.value)}
                   onBlur={(e) => handleBlur('role', e.target.value)}
                   required
-                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-[var(--color-surface)] text-charcoal transition-all ${
+                  className={`w-full px-4 py-2.5 border border-[var(--ui-border-default)] rounded-lg focus:ring-2 focus:ring-[var(--ui-focus)] focus:border-[var(--ui-action-primary)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] transition-all ${
                     errors.role ? 'border-error-500' : 'border-stone-300'
                   }`}
                 >

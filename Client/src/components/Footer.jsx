@@ -1,5 +1,18 @@
 import { Link } from 'react-router-dom';
 
+/**
+ * TODO: DESIGN SYSTEM VIOLATIONS - Replace primitive tokens with semantic tokens:
+ * This component has extensive violations. All primitive tokens (stone-*, obsidian, brass-*, charcoal, architectural, eucalyptus-*)
+ * must be replaced with semantic --ui-* tokens. Key violations:
+ * - bg-stone-200, border-stone-300, hover:bg-stone-300
+ * - text-charcoal, text-obsidian, text-brass-500
+ * - bg-brass-400, bg-brass-500, bg-brass-600
+ * - text-architectural
+ * - bg-gradient-to-br from-brass-400 to-brass-600 (gradients may need special handling)
+ * 
+ * Footer requires explicit background color (--ui-bg-surface or --ui-bg-muted)
+ */
+
 function Footer() {
   const currentYear = new Date().getFullYear();
 

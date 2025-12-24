@@ -2,9 +2,13 @@ import React from 'react';
 
 /**
  * Skeleton Loading Component - For loading states
+ *
+ * FIXED: All primitive tokens replaced with semantic tokens
+ * - Card and MetricCard variants use semantic backgrounds and borders
+ * - Gradient uses semantic background tokens
  */
 const Skeleton = ({ variant = 'text', width, height, className = '', ...props }) => {
-  const baseStyles = 'animate-skeleton bg-gradient-to-r from-[var(--color-bg-secondary)] via-[var(--color-bg-tertiary)] to-[var(--color-bg-secondary)] bg-[length:200%_100%] rounded';
+  const baseStyles = 'animate-skeleton bg-gradient-to-r from-[var(--ui-bg-muted)] via-[var(--ui-bg-secondary)] to-[var(--ui-bg-muted)] bg-[length:200%_100%] rounded';
   
   const variants = {
     text: 'h-4',
@@ -31,7 +35,7 @@ const Skeleton = ({ variant = 'text', width, height, className = '', ...props })
 
 // Skeleton Card Component
 Skeleton.Card = ({ className = '', ...props }) => (
-  <div className={`bg-[var(--color-surface)] rounded-xl shadow-md p-6 border border-stone-200 ${className}`} {...props}>
+  <div className={`bg-[var(--ui-bg-surface)] rounded-xl shadow-md p-6 border border-[var(--ui-border-default)] ${className}`} {...props}>
     <Skeleton variant="title" width="60%" className="mb-4" />
     <Skeleton variant="text" width="100%" className="mb-2" />
     <Skeleton variant="text" width="80%" />
@@ -40,7 +44,7 @@ Skeleton.Card = ({ className = '', ...props }) => (
 
 // Skeleton Metric Card
 Skeleton.MetricCard = ({ className = '', ...props }) => (
-  <div className={`bg-[var(--color-surface)] rounded-2xl shadow-md p-6 border border-stone-200 ${className}`} {...props}>
+  <div className={`bg-[var(--ui-bg-surface)] rounded-2xl shadow-md p-6 border border-[var(--ui-border-default)] ${className}`} {...props}>
     <Skeleton variant="text" width="40%" className="mb-3" />
     <Skeleton variant="heading" width="60%" className="mb-2" />
     <Skeleton variant="text" width="50%" />

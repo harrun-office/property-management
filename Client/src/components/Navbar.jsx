@@ -1,6 +1,24 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+/**
+ * TODO: DESIGN SYSTEM VIOLATIONS - Replace primitive tokens with semantic tokens:
+ * - Line 8: bg-porcelain
+ *   Should use: bg-[var(--ui-bg-surface)] (navbar requires explicit background)
+ * - Line 9: text-charcoal
+ *   Should use: text-[var(--ui-text-primary)]
+ * - Line 10: text-charcoal
+ *   Should use: text-[var(--ui-text-primary)]
+ * - Line 11-16, 21-22, 35: hover:text-obsidian-500
+ *   Should use: hover:text-[var(--ui-link-hover)]
+ * - Line 25: text-architectural
+ *   Should use: text-[var(--ui-text-muted)]
+ * - Line 28: bg-error-500, text-porcelain, hover:bg-error-600
+ *   Should use: bg-[var(--ui-error)], text-[var(--ui-text-inverse)], hover:bg-[var(--ui-error)] with opacity
+ * - Line 36: bg-obsidian-500, text-porcelain, hover:bg-obsidian-600
+ *   Should use: bg-[var(--ui-action-primary)], text-[var(--ui-text-inverse)], hover:bg-[var(--ui-action-primary-hover)]
+ */
+
 function Navbar() {
   const { isAuthenticated, user, logout, isOwner } = useAuth();
 

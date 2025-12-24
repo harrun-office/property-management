@@ -3,6 +3,20 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 
+/**
+ * TODO: DESIGN SYSTEM VIOLATIONS - Replace primitive tokens with semantic tokens:
+ * - Line 121: text-charcoal
+ *   Should use: text-[var(--ui-text-primary)]
+ * - Line 122: text-error-500
+ *   Should use: text-[var(--ui-error)]
+ * - Line 126: hover:bg-stone-100
+ *   Should use: hover:bg-[var(--ui-bg-muted)]
+ * - Line 131: text-obsidian-500, focus:ring-obsidian-500
+ *   Should use: text-[var(--ui-action-primary)], focus:ring-[var(--ui-focus)]
+ * - Line 133: text-charcoal
+ *   Should use: text-[var(--ui-text-primary)]
+ */
+
 function EditVendorModal({ vendor, serviceTypes = [], onSave, onClose }) {
   const [form, setForm] = useState({
     name: vendor?.name || '',
