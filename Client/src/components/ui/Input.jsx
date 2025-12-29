@@ -34,12 +34,12 @@ const Input = forwardRef(({
   className = '',
   ...props
 }, ref) => {
-  const baseStyles = 'w-full rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0';
-  
+  const baseStyles = 'w-full rounded-lg border transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-0 shadow-xs focus:shadow-soft hover:shadow-soft';
+
   const variants = {
-    default: 'border-[var(--ui-border-default)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-action-primary)] focus:ring-[var(--ui-focus)]',
-    error: 'border-[var(--ui-error)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-error)] focus:ring-[var(--ui-focus)]',
-    success: 'border-[var(--ui-success)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-success)] focus:ring-[var(--ui-focus)]',
+    default: 'border-[var(--ui-border-default)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--brand-accent)] focus:ring-[var(--brand-accent)]/20 hover:border-[var(--ui-border-strong)]',
+    error: 'border-[var(--ui-error)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-error)] focus:ring-[var(--ui-error)]/20 shadow-soft',
+    success: 'border-[var(--ui-success)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-success)] focus:ring-[var(--ui-success)]/20 shadow-soft',
   };
   
   const sizes = {
@@ -66,7 +66,7 @@ const Input = forwardRef(({
   `.trim().replace(/\s+/g, ' ');
 
   const iconElement = icon && (
-    <div className={`absolute ${iconPosition === 'left' ? 'left-3' : 'right-3'} top-1/2 transform -translate-y-1/2 text-architectural ${iconSizes[size]}`}>
+    <div className={`absolute ${iconPosition === 'left' ? 'left-3' : 'right-3'} top-1/2 transform -translate-y-1/2 text-[var(--ui-text-muted)] ${iconSizes[size]} transition-colors duration-200`}>
       {icon}
     </div>
   );
@@ -74,9 +74,9 @@ const Input = forwardRef(({
   return (
     <div className={`${fullWidth ? 'w-full' : ''}`}>
       {label && (
-        <label className="block text-sm font-medium text-charcoal mb-1.5">
+        <label className="block text-sm font-medium text-[var(--ui-text-primary)] mb-2">
           {label}
-          {props.required && <span className="text-error-500 ml-1">*</span>}
+          {props.required && <span className="text-[var(--ui-error)] ml-1">*</span>}
         </label>
       )}
       <div className="relative">
@@ -90,15 +90,15 @@ const Input = forwardRef(({
         />
       </div>
       {error && (
-        <p id={`${props.id || 'input'}-error`} className="mt-1.5 text-sm text-error-500 flex items-center">
-          <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+        <p id={`${props.id || 'input'}-error`} className="mt-2 text-sm text-[var(--ui-error)] flex items-center animate-slide-down">
+          <svg className="w-4 h-4 mr-1.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {error}
         </p>
       )}
       {helperText && !error && (
-        <p id={`${props.id || 'input'}-helper`} className="mt-1.5 text-sm text-architectural">
+        <p id={`${props.id || 'input'}-helper`} className="mt-2 text-sm text-[var(--ui-text-muted)]">
           {helperText}
         </p>
       )}

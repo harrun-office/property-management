@@ -28,11 +28,11 @@ const Card = ({
   const baseStyles = 'rounded-xl transition-all duration-200 text-[var(--ui-text-primary)]';
   
   const variants = {
-    default: 'bg-[var(--ui-bg-surface)] border border-[var(--ui-border-default)] shadow-sm',
-    elevated: 'bg-[var(--ui-bg-surface)] border border-[var(--ui-border-default)] shadow-md',
-    outlined: 'bg-[var(--ui-bg-surface)] border-2 border-[var(--ui-border-strong)]',
-    filled: 'bg-[var(--ui-bg-muted)] border border-[var(--ui-border-default)]',
-    glass: 'glass-effect shadow-lg',
+    default: 'bg-[var(--ui-bg-surface)] border border-[var(--ui-border-default)] shadow-soft hover:shadow-medium transition-all duration-300',
+    elevated: 'bg-[var(--ui-bg-surface)] border border-[var(--ui-border-default)] shadow-medium hover:shadow-strong hover:-translate-y-1 transition-all duration-300',
+    outlined: 'bg-[var(--ui-bg-surface)] border-2 border-[var(--ui-border-strong)] shadow-soft hover:shadow-medium transition-all duration-300',
+    filled: 'bg-[var(--ui-bg-muted)] border border-[var(--ui-border-default)] shadow-soft hover:shadow-medium transition-all duration-300',
+    glass: 'bg-[var(--ui-bg-surface)]/80 backdrop-blur-sm border border-[var(--ui-border-default)] shadow-medium hover:shadow-strong hover:-translate-y-0.5 transition-all duration-300',
   };
   
   const paddings = {
@@ -88,7 +88,7 @@ Card.Title = ({ children, className = '', ...props }) => (
 );
 
 Card.Description = ({ children, className = '', ...props }) => (
-  <p className={`text-architectural text-sm ${className}`} {...props}>
+  <p className={`text-[var(--ui-text-muted)] text-sm ${className}`} {...props}>
     {children}
   </p>
 );

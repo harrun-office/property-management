@@ -140,9 +140,9 @@ function Login() {
       } else if (response.user.role === 'vendor') {
         navigate('/vendor/dashboard');
       } else if (response.user.role === 'tenant') {
-        navigate('/');
+        navigate('/tenant/dashboard');
       } else if (response.user.role === 'property_owner') {
-        navigate('/');
+        navigate('/owner/dashboard');
       } else {
         navigate('/');
       }

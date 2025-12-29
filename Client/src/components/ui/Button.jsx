@@ -36,17 +36,17 @@ const Button = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transform';
   
   const variants = {
-    primary: 'bg-obsidian-500 text-white hover:bg-obsidian-600 focus:ring-obsidian-500 active:bg-obsidian-700 shadow-md hover:shadow-lg',
-    secondary: 'bg-stone-200 text-charcoal hover:bg-stone-300 focus:ring-stone-500 active:bg-stone-400 border border-stone-300',
-    accent: 'bg-brass-500 text-white hover:bg-brass-600 focus:ring-brass-500 active:bg-brass-700 shadow-md hover:shadow-lg',
-    success: 'bg-eucalyptus-500 text-white hover:bg-eucalyptus-600 focus:ring-eucalyptus-500 active:bg-eucalyptus-700 shadow-md hover:shadow-lg',
-    danger: 'bg-error-500 text-white hover:bg-error-600 focus:ring-error-500 active:bg-error-700 shadow-md hover:shadow-lg',
-    outline: 'bg-transparent border-2 border-obsidian-500 text-obsidian-500 hover:bg-obsidian-50 focus:ring-obsidian-500 active:bg-obsidian-100',
-    ghost: 'bg-transparent text-obsidian-500 hover:bg-obsidian-50 focus:ring-obsidian-500 active:bg-obsidian-100',
-    link: 'bg-transparent text-obsidian-500 hover:text-obsidian-600 underline-offset-4 hover:underline focus:ring-obsidian-500 p-0',
+    primary: 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-dark)] focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-[var(--brand-accent-dark)] shadow-soft hover:shadow-medium hover:-translate-y-0.5',
+    secondary: 'bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] hover:bg-[var(--ui-bg-muted)] focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-[var(--ui-bg-secondary)] border border-[var(--ui-border-default)] shadow-xs hover:shadow-soft',
+    accent: 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-dark)] text-white hover:from-[var(--brand-accent-dark)] hover:to-[var(--brand-accent)] focus:ring-white/20 focus:ring-offset-2 active:from-[var(--brand-accent-dark)] active:to-[var(--brand-accent)] shadow-medium hover:shadow-strong hover:-translate-y-0.5',
+    success: 'bg-[var(--ui-success)] text-white hover:bg-[var(--ui-success)]/90 focus:ring-[var(--ui-success)]/20 focus:ring-offset-2 active:bg-[var(--ui-success)]/95 shadow-soft hover:shadow-medium',
+    danger: 'bg-[var(--ui-error)] text-white hover:bg-[var(--ui-error)]/90 focus:ring-[var(--ui-error)]/20 focus:ring-offset-2 active:bg-[var(--ui-error)]/95 shadow-soft hover:shadow-medium',
+    outline: 'bg-transparent border-2 border-[var(--brand-accent)] text-[var(--brand-accent)] hover:bg-[var(--brand-accent)] hover:text-white focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-[var(--brand-accent)] active:text-white shadow-xs hover:shadow-soft',
+    ghost: 'bg-transparent text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/5 focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-[var(--brand-accent)]/10 shadow-none hover:shadow-xs',
+    link: 'bg-transparent text-[var(--brand-accent)] hover:text-[var(--brand-accent-dark)] underline-offset-4 hover:underline focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 p-0 shadow-none',
   };
   
   const sizes = {

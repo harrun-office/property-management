@@ -49,14 +49,22 @@ const MetricCard = ({
 
   const subtitleColor = getSubtitleColor(variant);
 
+  const getTextColor = (variant) => {
+    if (variant === 'gradient') {
+      return 'text-[var(--ui-text-inverse)]'; // White text on dark backgrounds
+    }
+    return 'text-[var(--ui-text-primary)]'; // Primary text on light backgrounds
+  };
+
+  const textColor = getTextColor(variant);
+
   return (
     <div
       className={`
-        relative rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300
+        relative rounded-xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 ease-out
         ${variants[variant] || variants.default}
-        ${onClick ? 'cursor-pointer hover:-translate-y-1 active:translate-y-0' : ''}
+        ${onClick ? 'cursor-pointer hover:-translate-y-1 active:translate-y-0 active:scale-[0.98] group' : 'group'}
         ${className}
-        group
       `}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
@@ -70,7 +78,7 @@ const MetricCard = ({
       {...props}
     >
       {/* Background Pattern (for gradient variants) */}
-      {isGradient && (
+      {variant === 'gradient' && (
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
             backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',

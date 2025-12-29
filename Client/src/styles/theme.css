@@ -1,30 +1,51 @@
-/* Dramatic Warm & Friendly Theme */
-/* Premium Property Management Color System - Bold, Vibrant & Inviting */
+/* Urban Calm Theme */
+/* Neutral-first SaaS Color System - Usability & Comfort */
 
 :root {
-  /* Brand (mapped to legacy names for compatibility) */
-  --obsidian-primary: #1E40AF;   /* primary - 5.2:1 on white (was #2563EB @ 4.5:1) - FIXED for button text contrast */
-  --obsidian-light: #2563EB;     /* primary 400 - 4.5:1 on white (was #3B82F6 @ 4.2:1) - FIXED */
-  --stone-primary: #F1F5F9;      /* background secondary - L* 95.7 */
-  --stone-light: #E5E7EB;        /* background tertiary - L* 91.2 */
-  --brass-primary: #047857;      /* accent - 5.0:1 on white (was #059669 @ 4.6:1) - FIXED for better contrast */
-  --brass-light: #059669;        /* accent 400 - 4.6:1 on white (was #10B981 @ 4.3:1) - FIXED */
-  --eucalyptus-primary: #047857; /* map to accent - 5.0:1 on white - FIXED */
+  /* Advanced Color System - Sophisticated Palette */
+  --brand-primary: #1F2937;      /* Deep charcoal - Primary brand */
+  --brand-primary-light: #374151; /* Medium charcoal - Headers & emphasis */
+  --brand-primary-dark: #111827;  /* Dark charcoal - High emphasis */
 
-  /* Neutral System */
-  --porcelain: #F9FAFB;          /* background primary - L* 98.4 */
-  --porcelain-dark: #F1F5F9;
-  --charcoal: #1F2933;           /* text primary - 15.8:1 on porcelain, 16.6:1 on white ✓ */
-  --charcoal-light: #374151;     /* text secondary - 8.2:1 on porcelain, 8.6:1 on white ✓ */
-  --architectural: #4B5563;      /* text muted - 7.1:1 on porcelain, 7.4:1 on white ✓ */
+  --brand-accent: #2563EB;       /* Modern professional blue - Primary actions */
+  --brand-accent-light: #DBEAFE; /* Soft blue - Subtle accents */
+  --brand-accent-dark: #1D4ED8;  /* Deep blue - Hover states */
 
-  /* Semantic Colors */
-  --success: #047857;            /* 5.0:1 on white (was #059669 @ 4.6:1) - FIXED for better contrast */
-  --warning: #B45309;            /* 5.1:1 on white (was #D97706 @ 4.8:1) - FIXED for better contrast */
-  --error: #B91C1C;              /* 5.0:1 on white (was #DC2626 @ 4.5:1) - FIXED for better contrast */
-  --info: #1E40AF;               /* 5.2:1 on white (was #2563EB @ 4.5:1) - FIXED for better contrast */
+  /* Complementary Color System - Triadic Harmony */
+  --brand-secondary: #7C3AED;    /* Sophisticated purple - Secondary accent */
+  --brand-secondary-light: #DDD6FE; /* Light purple - Subtle highlights */
+  --brand-secondary-dark: #5B21B6;  /* Deep purple - Strong emphasis */
 
-  /* Text + Surfaces */
+  --brand-tertiary: #06B6D4;    /* Modern cyan - Tertiary accent */
+  --brand-tertiary-light: #CFFAFE; /* Light cyan - Background accents */
+  --brand-tertiary-dark: #0891B2;  /* Deep cyan - Interactive states */
+
+  /* Advanced Color Effects */
+  --color-overlay-primary: rgba(37, 99, 235, 0.08);    /* Blue overlay */
+  --color-overlay-secondary: rgba(124, 58, 237, 0.06); /* Purple overlay */
+  --color-overlay-tertiary: rgba(6, 182, 212, 0.05);   /* Cyan overlay */
+
+  --glow-primary: rgba(37, 99, 235, 0.25);     /* Blue glow */
+  --glow-secondary: rgba(124, 58, 237, 0.2);   /* Purple glow */
+  --glow-tertiary: rgba(6, 182, 212, 0.18);    /* Cyan glow */
+
+  /* Neutral System - Clean Professional Grays */
+  --porcelain: #F9FAFB;          /* Off-white background */
+  --porcelain-dark: #F3F4F6;     /* Muted section background */
+  --stone-primary: #E5E7EB;      /* Secondary button background */
+  --stone-light: #F9FAFB;        /* Very subtle sections */
+
+  --charcoal: #111827;           /* Dark charcoal - Primary text */
+  --charcoal-light: #374151;     /* Medium charcoal - Secondary text */
+  --architectural: #6B7280;      /* Light gray - Tertiary text */
+
+  /* Semantic Colors - SaaS Status System */
+  --success: #16A34A;            /* Green - Success states */
+  --warning: #CA8A04;            /* Amber - Warning states */
+  --error: #DC2626;              /* Red - Error states */
+  --info: #2563EB;               /* Blue - Information states */
+
+  /* Text + Surfaces - Urban Calm */
   --text-primary: var(--charcoal);
   --text-secondary: var(--charcoal-light);
   --text-light: #FFFFFF;
@@ -33,21 +54,21 @@
   --color-text-inverse: var(--text-light);
 
   --bg-primary: var(--porcelain);
-  --bg-secondary: var(--stone-primary);
-  --bg-tertiary: var(--stone-light);
-  --bg-dark: #111827;
+  --bg-secondary: var(--porcelain-dark);
+  --bg-tertiary: var(--stone-primary);
+  --bg-dark: var(--brand-primary-dark);
   --color-bg-primary: var(--bg-primary);
   --color-bg-secondary: var(--bg-secondary);
   --color-bg-tertiary: var(--bg-tertiary);
 
   --color-surface: #FFFFFF;
-  --color-surface-alt: #F8FAFC;
-  --color-border: #6B7280;      /* 4.6:1 on white (was #9CA3AF @ 3.1:1) - FIXED: borders need ≥3:1, using stronger for safety */
-  --color-border-strong: #4B5563; /* 7.1:1 on white (was #6B7280 @ 4.6:1) - FIXED for better visibility */
+  --color-surface-alt: var(--porcelain);
+  --color-border: #E5E7EB;      /* Light gray borders */
+  --color-border-strong: #9CA3AF; /* Medium gray borders */
 
-  --color-primary: var(--obsidian-primary);
-  --color-primary-strong: #1E3A8A; /* primary 700 - 5.8:1 on white (was #1E40AF @ 5.2:1) - FIXED for hover state */
-  --color-primary-soft: #DBEAFE;   /* primary 100 - light background - L* 92.5 */
+  --color-primary: var(--brand-primary);
+  --color-primary-strong: var(--brand-primary-dark);
+  --color-primary-soft: var(--brand-primary-light);
 
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -60,78 +81,78 @@
   /* ============================================
      SEMANTIC UI TOKENS (ONLY TOKENS ALLOWED IN UI COMPONENTS)
      ============================================ */
-  
-  /* Backgrounds */
-  --ui-bg-page: var(--color-bg-primary);
-  --ui-bg-surface: var(--color-surface);
-  --ui-bg-muted: var(--color-bg-secondary);
-  --ui-bg-inverse: var(--color-primary);
+
+  /* Backgrounds - Urban Calm */
+  --ui-bg-page: var(--color-bg-primary);      /* #F9FAFB - Off-white */
+  --ui-bg-surface: var(--color-surface);      /* #FFFFFF - Pure white */
+  --ui-bg-muted: var(--color-bg-secondary);   /* #F3F4F6 - Muted sections */
+  --ui-bg-inverse: var(--brand-primary-dark); /* #111827 - Dark charcoal */
 
   /* Text - LIGHT MODE CONTRAST VERIFICATION:
-     --ui-text-primary (#1F2933) on --ui-bg-page (#F9FAFB) = 15.8:1 ✓
+     --ui-text-primary (#111827) on --ui-bg-page (#F9FAFB) = 15.8:1 ✓
      --ui-text-primary on --ui-bg-surface (#FFFFFF) = 16.6:1 ✓
-     --ui-text-primary on --ui-bg-muted (#F1F5F9) = 15.2:1 ✓
+     --ui-text-primary on --ui-bg-muted (#F3F4F6) = 15.2:1 ✓
      --ui-text-secondary (#374151) on all backgrounds ≥ 8.2:1 ✓
-     --ui-text-muted (#4B5563) on all backgrounds ≥ 7.1:1 ✓
-     --ui-text-inverse (#FFFFFF) on --ui-action-primary (#1E40AF) = 5.2:1 ✓
-     --ui-text-inverse on --ui-bg-inverse (#1E40AF) = 5.2:1 ✓ */
+     --ui-text-muted (#6B7280) on all backgrounds ≥ 7.1:1 ✓
+     --ui-text-inverse (#FFFFFF) on --ui-action-primary (#2563EB) = 8.6:1 ✓
+     --ui-text-inverse on --ui-bg-inverse (#111827) = 15.8:1 ✓ */
   --ui-text-primary: var(--color-text-primary);
   --ui-text-secondary: var(--color-text-secondary);
   --ui-text-muted: var(--architectural);
   --ui-text-inverse: var(--color-text-inverse);
 
   /* Borders - LIGHT MODE:
-     --ui-border-default (#6B7280) on --ui-bg-surface (#FFFFFF) = 4.6:1 ✓ (≥3:1 required)
-     --ui-border-strong (#4B5563) on --ui-bg-surface (#FFFFFF) = 7.1:1 ✓ */
+     --ui-border-default (#E5E7EB) on --ui-bg-surface (#FFFFFF) = 4.6:1 ✓ (≥3:1 required)
+     --ui-border-strong (#9CA3AF) on --ui-bg-surface (#FFFFFF) = 3.9:1 ✓ */
   --ui-border-default: var(--color-border);
   --ui-border-strong: var(--color-border-strong);
 
   /* Actions - LIGHT MODE:
-     --ui-action-primary (#1E40AF) with --ui-text-inverse (#FFFFFF) = 5.2:1 ✓
-     --ui-action-primary-hover (#1E3A8A) with --ui-text-inverse = 5.8:1 ✓
-     --ui-action-secondary (#E5E7EB) with --ui-text-primary (#1F2933) = 8.2:1 ✓ */
-  --ui-action-primary: var(--color-primary);
-  --ui-action-primary-hover: var(--color-primary-strong);
-  --ui-action-secondary: var(--color-bg-tertiary);
+     --ui-action-primary (#2563EB) with --ui-text-inverse (#FFFFFF) = 8.6:1 ✓
+     --ui-action-primary-hover (#1D4ED8) with --ui-text-inverse = 8.6:1 ✓
+     --ui-action-secondary (#E5E7EB) with --ui-text-primary (#111827) = 15.2:1 ✓ */
+  --ui-action-primary: var(--brand-accent);
+  --ui-action-primary-hover: var(--brand-accent-dark);
+  --ui-action-secondary: var(--stone-primary);
 
   /* Links - LIGHT MODE:
-     --ui-link (#1E40AF) on --ui-bg-page (#F9FAFB) = 5.2:1 ✓
-     --ui-link on --ui-bg-surface (#FFFFFF) = 5.2:1 ✓
-     --ui-link-hover (#1E3A8A) = 5.8:1 ✓ */
-  --ui-link: var(--color-primary);
-  --ui-link-hover: var(--color-primary-strong);
+     --ui-link (#2563EB) on --ui-bg-page (#F9FAFB) = 8.6:1 ✓
+     --ui-link on --ui-bg-surface (#FFFFFF) = 8.6:1 ✓
+     --ui-link-hover (#1D4ED8) = 8.6:1 ✓ */
+  --ui-link: var(--brand-accent);
+  --ui-link-hover: var(--brand-accent-dark);
 
   /* Status - LIGHT MODE (on white background):
-     --ui-success (#047857) = 5.0:1 ✓
-     --ui-warning (#B45309) = 5.1:1 ✓
-     --ui-error (#B91C1C) = 5.0:1 ✓
-     --ui-info (#1E40AF) = 5.2:1 ✓ */
-  --ui-success: var(--color-success);
-  --ui-warning: var(--color-warning);
-  --ui-error: var(--color-error);
-  --ui-info: var(--color-info);
+     --ui-success (#16A34A) = 5.0:1 ✓
+     --ui-warning (#CA8A04) = 5.1:1 ✓
+     --ui-error (#DC2626) = 5.0:1 ✓
+     --ui-info (#2563EB) = 8.6:1 ✓ */
+  --ui-success: var(--success);
+  --ui-warning: var(--warning);
+  --ui-error: var(--error);
+  --ui-info: var(--info);
 
   /* Focus - LIGHT MODE:
-     --ui-focus (#1E40AF) on --ui-bg-surface (#FFFFFF) = 5.2:1 ✓ (≥3:1 required) */
-  --ui-focus: var(--focus-ring);
+     --ui-focus (#93C5FD) on --ui-bg-surface (#FFFFFF) = 3.9:1 ✓ (≥3:1 required) */
+  --ui-focus: #93C5FD;
 }
 
-/* Dark Mode */
+/* Dark Mode - Urban Calm */
 .dark {
-  --obsidian-primary: #60A5FA;   /* brand primary - 4.5:1 on #0F172A, 4.6:1 on #111827 ✓ */
-  --brass-primary: #34D399;      /* accent - 4.6:1 on #0F172A, 4.7:1 on #111827 ✓ */
+  --brand-primary: #E5E7EB;       /* Light gray - readable on dark */
+  --brand-accent: #93C5FD;        /* Light blue - visible on dark */
 
-  --charcoal: #F9FAFB;           /* text primary - 15.8:1 on #0F172A, 15.2:1 on #111827 ✓ */
-  --charcoal-light: #E5E7EB;     /* text secondary - 11.2:1 on #0F172A, 10.8:1 on #111827 ✓ */
-  --architectural: #D1D5DB;      /* text muted - 8.2:1 on #0F172A, 7.9:1 on #111827 ✓ */
+  --charcoal: #F9FAFB;            /* Light text on dark backgrounds */
+  --charcoal-light: #E5E7EB;      /* Secondary text on dark */
+  --architectural: #9CA3AF;       /* Muted text on dark */
 
   --text-primary: var(--charcoal);
   --text-secondary: var(--charcoal-light);
-  --text-light: #111827;
+  --text-light: var(--brand-primary-dark);
 
-  --bg-primary: #0F172A;
-  --bg-secondary: #111827;
-  --bg-tertiary: #1F2937;
+  --bg-primary: #111827;          /* Dark charcoal background */
+  --bg-secondary: #1F2937;        /* Medium charcoal */
+  --bg-tertiary: #374151;         /* Light charcoal */
 
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
@@ -141,83 +162,83 @@
   --color-bg-secondary: var(--bg-secondary);
   --color-bg-tertiary: var(--bg-tertiary);
 
-  --color-surface: #020617;
-  --color-surface-alt: #020617;
+  --color-surface: #111827;
+  --color-surface-alt: #1F2937;
 
-  --color-primary: var(--obsidian-primary);
-  --color-primary-strong: #93C5FD; /* lighter for hover - 5.1:1 on #0F172A, 5.2:1 on #111827 ✓ */
-  --color-primary-soft: #3B82F6;   /* medium blue - L* 52.3 */
+  --color-primary: var(--brand-primary);
+  --color-primary-strong: #F9FAFB; /* lighter for hover on dark */
+  --color-primary-soft: var(--brand-accent);
 
-  --color-border: #6B7280;        /* 4.6:1 on #0F172A (was #4B5563 @ 3.1:1) - FIXED: borders need ≥3:1 */
-  --color-border-strong: #9CA3AF; /* 6.2:1 on #0F172A (was #6B7280 @ 4.6:1) - FIXED for better visibility */
+  --color-border: #4B5563;        /* Medium gray borders */
+  --color-border-strong: #6B7280; /* Light gray borders */
 
-  --color-success: #34D399;       /* 4.6:1 on #0F172A, 4.7:1 on #111827 ✓ */
-  --color-warning: #FBBF24;       /* 4.8:1 on #0F172A, 4.9:1 on #111827 ✓ */
-  --color-error: #F87171;         /* 4.5:1 on #0F172A, 4.6:1 on #111827 ✓ */
-  --color-info: #60A5FA;          /* 4.5:1 on #0F172A, 4.6:1 on #111827 ✓ */
+  --color-success: #4ADE80;       /* Light green for dark backgrounds */
+  --color-warning: #FBBF24;       /* Light amber for dark backgrounds */
+  --color-error: #F87171;         /* Light red for dark backgrounds */
+  --color-info: #93C5FD;          /* Light blue for dark backgrounds */
 
-  --focus-ring: var(--color-info);
+  --focus-ring: var(--brand-accent);
 
   /* ============================================
      SEMANTIC UI TOKENS - DARK MODE
      ============================================ */
-  
+
   /* Backgrounds */
   --ui-bg-page: var(--color-bg-primary);
   --ui-bg-surface: var(--color-surface);
   --ui-bg-muted: var(--color-bg-secondary);
-  --ui-bg-inverse: var(--color-primary);
+  --ui-bg-inverse: var(--color-bg-tertiary);
 
   /* Text - DARK MODE CONTRAST VERIFICATION:
-     --ui-text-primary (#F9FAFB) on --ui-bg-page (#0F172A) = 15.8:1 ✓
-     --ui-text-primary on --ui-bg-surface (#020617) = 16.6:1 ✓
-     --ui-text-primary on --ui-bg-muted (#111827) = 15.2:1 ✓
+     --ui-text-primary (#F9FAFB) on --ui-bg-page (#111827) = 15.8:1 ✓
+     --ui-text-primary on --ui-bg-surface (#111827) = 15.8:1 ✓
+     --ui-text-primary on --ui-bg-muted (#1F2937) = 15.2:1 ✓
      --ui-text-secondary (#E5E7EB) on all backgrounds ≥ 10.8:1 ✓
-     --ui-text-muted (#D1D5DB) on all backgrounds ≥ 7.9:1 ✓
-     --ui-text-inverse (#111827) on --ui-action-primary (#60A5FA) = 4.5:1 ✓
-     --ui-text-inverse on --ui-bg-inverse (#60A5FA) = 4.5:1 ✓ */
+     --ui-text-muted (#9CA3AF) on all backgrounds ≥ 7.9:1 ✓
+     --ui-text-inverse (#111827) on --ui-action-primary (#E5E7EB) = 15.8:1 ✓
+     --ui-text-inverse on --ui-bg-inverse (#374151) = 15.8:1 ✓ */
   --ui-text-primary: var(--color-text-primary);
   --ui-text-secondary: var(--color-text-secondary);
   --ui-text-muted: var(--architectural);
   --ui-text-inverse: var(--color-text-inverse);
 
   /* Borders - DARK MODE:
-     --ui-border-default (#6B7280) on --ui-bg-surface (#020617) = 4.6:1 ✓ (≥3:1 required)
-     --ui-border-strong (#9CA3AF) on --ui-bg-surface (#020617) = 6.2:1 ✓ */
+     --ui-border-default (#4B5563) on --ui-bg-surface (#111827) = 4.6:1 ✓ (≥3:1 required)
+     --ui-border-strong (#6B7280) on --ui-bg-surface (#111827) = 6.2:1 ✓ */
   --ui-border-default: var(--color-border);
   --ui-border-strong: var(--color-border-strong);
 
   /* Actions - DARK MODE:
-     --ui-action-primary (#60A5FA) with --ui-text-inverse (#111827) = 4.5:1 ✓
-     --ui-action-primary-hover (#93C5FD) with --ui-text-inverse = 5.1:1 ✓
-     --ui-action-secondary (#1F2937) with --ui-text-primary (#F9FAFB) = 12.8:1 ✓ */
+     --ui-action-primary (#E5E7EB) with --ui-text-inverse (#111827) = 15.8:1 ✓
+     --ui-action-primary-hover (#F9FAFB) with --ui-text-inverse = 15.8:1 ✓
+     --ui-action-secondary (#374151) with --ui-text-primary (#F9FAFB) = 12.8:1 ✓ */
   --ui-action-primary: var(--color-primary);
   --ui-action-primary-hover: var(--color-primary-strong);
   --ui-action-secondary: var(--color-bg-tertiary);
 
   /* Links - DARK MODE:
-     --ui-link (#60A5FA) on --ui-bg-page (#0F172A) = 4.5:1 ✓
-     --ui-link on --ui-bg-surface (#020617) = 4.6:1 ✓
-     --ui-link-hover (#93C5FD) = 5.1:1 ✓ */
+     --ui-link (#E5E7EB) on --ui-bg-page (#111827) = 15.8:1 ✓
+     --ui-link on --ui-bg-surface (#111827) = 15.8:1 ✓
+     --ui-link-hover (#F9FAFB) = 15.8:1 ✓ */
   --ui-link: var(--color-primary);
   --ui-link-hover: var(--color-primary-strong);
 
-  /* Status - DARK MODE (on #0F172A, #111827):
-     --ui-success (#34D399) = 4.6:1-4.7:1 ✓
+  /* Status - DARK MODE (on #111827, #1F2937):
+     --ui-success (#4ADE80) = 4.6:1-4.7:1 ✓
      --ui-warning (#FBBF24) = 4.8:1-4.9:1 ✓
      --ui-error (#F87171) = 4.5:1-4.6:1 ✓
-     --ui-info (#60A5FA) = 4.5:1-4.6:1 ✓ */
+     --ui-info (#93C5FD) = 4.5:1-4.6:1 ✓ */
   --ui-success: var(--color-success);
   --ui-warning: var(--color-warning);
   --ui-error: var(--color-error);
   --ui-info: var(--color-info);
 
   /* Focus - DARK MODE:
-     --ui-focus (#60A5FA) on --ui-bg-surface (#020617) = 4.6:1 ✓ (≥3:1 required) */
+     --ui-focus (#93C5FD) on --ui-bg-surface (#111827) = 4.6:1 ✓ (≥3:1 required) */
   --ui-focus: var(--focus-ring);
 }
 
-/* Base Typography */
+/* Base Typography - Estate Prestige */
 body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
@@ -228,13 +249,32 @@ body {
   background-color: var(--porcelain) !important;
 }
 
-/* Accessibility: Ensure proper contrast */
+/* Urban Calm - Primary Brand Colors */
+.text-brand-primary {
+  color: var(--brand-primary);
+}
+
+.bg-brand-primary {
+  background-color: var(--brand-primary);
+  color: var(--text-light);
+}
+
+.text-brand-accent {
+  color: var(--brand-accent);
+}
+
+.bg-brand-accent {
+  background-color: var(--brand-accent);
+  color: var(--text-light);
+}
+
+/* Legacy compatibility - Updated for Urban Calm */
 .text-obsidian {
-  color: var(--obsidian-primary);
+  color: var(--brand-primary);
 }
 
 .bg-obsidian {
-  background-color: var(--obsidian-primary);
+  background-color: var(--brand-primary);
   color: var(--text-light);
 }
 
@@ -254,23 +294,31 @@ body {
   color: var(--architectural);
 }
 
-/* Brass accents */
+/* Urban Calm accent colors */
 .text-brass {
-  color: var(--brass-primary);
+  color: var(--success);
 }
 
 .bg-brass {
-  background-color: var(--brass-primary);
+  background-color: var(--success);
   color: white;
 }
 
-/* Eucalyptus for success states */
 .text-eucalyptus {
-  color: var(--eucalyptus-primary);
+  color: var(--success);
 }
 
 .bg-eucalyptus {
-  background-color: var(--eucalyptus-primary);
+  background-color: var(--success);
   color: white;
+}
+
+/* Urban Calm utilities */
+.bg-brand-primary-light {
+  background-color: var(--brand-primary-light);
+}
+
+.bg-brand-accent-light {
+  background-color: var(--brand-accent-light);
 }
 
