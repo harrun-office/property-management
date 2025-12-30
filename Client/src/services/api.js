@@ -19,12 +19,12 @@ export const authAPI = {
       },
       body: JSON.stringify({ email, password })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Login failed');
     }
-    
+
     return response.json();
   },
 
@@ -36,7 +36,7 @@ export const authAPI = {
       },
       body: JSON.stringify({ email, password, name, role, mobileNumber })
     });
-    
+
     if (!response.ok) {
       let errorMessage = 'Registration failed';
       try {
@@ -48,7 +48,7 @@ export const authAPI = {
       }
       throw new Error(errorMessage);
     }
-    
+
     return response.json();
   }
 };
@@ -57,12 +57,12 @@ export const authAPI = {
 export const invitationAPI = {
   validate: async (token) => {
     const response = await fetch(`${API_BASE_URL}/invitations/validate/${token}`);
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Invalid invitation token');
     }
-    
+
     return response.json();
   },
 
@@ -74,12 +74,12 @@ export const invitationAPI = {
       },
       body: JSON.stringify({ token, password })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to accept invitation');
     }
-    
+
     return response.json();
   }
 };
@@ -92,12 +92,12 @@ export const adminAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create property manager');
     }
-    
+
     return response.json();
   },
 
@@ -105,12 +105,12 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/property-managers`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
       throw new Error(errorData.error || 'Failed to fetch property managers');
     }
-    
+
     return response.json();
   },
 
@@ -120,26 +120,27 @@ export const adminAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update property manager');
     }
-    
+
     return response.json();
   },
 
-  suspendPropertyManager: async (id) => {
+  suspendPropertyManager: async (id, data = {}) => {
     const response = await fetch(`${API_BASE_URL}/admin/property-managers/${id}`, {
       method: 'DELETE',
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to suspend property manager');
     }
-    
+
     return response.json();
   },
 
@@ -149,12 +150,12 @@ export const adminAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ propertyIds })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to assign properties');
     }
-    
+
     return response.json();
   },
 
@@ -164,12 +165,12 @@ export const adminAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create vendor');
     }
-    
+
     return response.json();
   },
 
@@ -177,11 +178,11 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/vendors`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch vendors');
     }
-    
+
     return response.json();
   },
 
@@ -189,11 +190,11 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/vendors/${vendorId}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch vendor');
     }
-    
+
     return response.json();
   },
 
@@ -203,26 +204,27 @@ export const adminAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update vendor');
     }
-    
+
     return response.json();
   },
 
-  suspendVendor: async (id) => {
+  suspendVendor: async (id, data = {}) => {
     const response = await fetch(`${API_BASE_URL}/admin/vendors/${id}`, {
       method: 'DELETE',
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to suspend vendor');
     }
-    
+
     return response.json();
   },
 
@@ -231,12 +233,12 @@ export const adminAPI = {
       method: 'POST',
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to activate vendor');
     }
-    
+
     return response.json();
   },
 
@@ -245,12 +247,12 @@ export const adminAPI = {
       method: 'POST',
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to activate property manager');
     }
-    
+
     return response.json();
   },
 
@@ -260,12 +262,12 @@ export const adminAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ newPassword })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to reset password');
     }
-    
+
     return response.json();
   },
 
@@ -273,11 +275,11 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/performance/managers`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch managers performance');
     }
-    
+
     return response.json();
   },
 
@@ -285,11 +287,11 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/performance/vendors`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch vendors performance');
     }
-    
+
     return response.json();
   },
 
@@ -306,12 +308,12 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/audit-logs?${queryParams.toString()}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch audit logs');
     }
-    
+
     return response.json();
   },
 
@@ -319,12 +321,12 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/system-overview`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch system overview');
     }
-    
+
     return response.json();
   },
 
@@ -341,12 +343,12 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/property-activity?${queryParams.toString()}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch property activity');
     }
-    
+
     return response.json();
   },
 
@@ -354,12 +356,12 @@ export const adminAPI = {
     const response = await fetch(`${API_BASE_URL}/admin/property-activity/stats`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch property activity stats');
     }
-    
+
     return response.json();
   }
 };
@@ -370,11 +372,11 @@ export const propertyManagerAPI = {
     const response = await fetch(`${API_BASE_URL}/property-manager/properties`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch properties');
     }
-    
+
     return response.json();
   },
 
@@ -384,12 +386,12 @@ export const propertyManagerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create vendor');
     }
-    
+
     return response.json();
   },
 
@@ -397,11 +399,11 @@ export const propertyManagerAPI = {
     const response = await fetch(`${API_BASE_URL}/property-manager/vendors`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch vendors');
     }
-    
+
     return response.json();
   },
 
@@ -411,12 +413,12 @@ export const propertyManagerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update vendor');
     }
-    
+
     return response.json();
   },
 
@@ -426,12 +428,12 @@ export const propertyManagerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ propertyId, permissionScope })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to assign vendor to property');
     }
-    
+
     return response.json();
   },
 
@@ -441,12 +443,12 @@ export const propertyManagerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create task');
     }
-    
+
     return response.json();
   },
 
@@ -454,11 +456,11 @@ export const propertyManagerAPI = {
     const response = await fetch(`${API_BASE_URL}/property-manager/tasks`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch tasks');
     }
-    
+
     return response.json();
   },
 
@@ -468,12 +470,12 @@ export const propertyManagerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update task');
     }
-    
+
     return response.json();
   },
 
@@ -481,11 +483,11 @@ export const propertyManagerAPI = {
     const response = await fetch(`${API_BASE_URL}/property-manager/reports`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch reports');
     }
-    
+
     return response.json();
   },
 
@@ -494,12 +496,12 @@ export const propertyManagerAPI = {
     const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch subscriptions');
     }
-    
+
     return response.json();
   },
 
@@ -507,12 +509,12 @@ export const propertyManagerAPI = {
     const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch subscription details');
     }
-    
+
     return response.json();
   },
 
@@ -522,12 +524,12 @@ export const propertyManagerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to initiate contact');
     }
-    
+
     return response.json();
   },
 
@@ -537,12 +539,12 @@ export const propertyManagerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to upload property details');
     }
-    
+
     return response.json();
   },
 
@@ -554,12 +556,12 @@ export const propertyManagerAPI = {
     const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions/revenue?${queryParams.toString()}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch revenue');
     }
-    
+
     return response.json();
   },
 
@@ -567,12 +569,12 @@ export const propertyManagerAPI = {
     const response = await fetch(`${API_BASE_URL}/property-manager/subscriptions/reviews`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch reviews');
     }
-    
+
     return response.json();
   }
 };
@@ -583,11 +585,11 @@ export const vendorAPI = {
     const response = await fetch(`${API_BASE_URL}/vendor/properties`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch properties');
     }
-    
+
     return response.json();
   },
 
@@ -595,11 +597,11 @@ export const vendorAPI = {
     const response = await fetch(`${API_BASE_URL}/vendor/tasks`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch tasks');
     }
-    
+
     return response.json();
   },
 
@@ -609,12 +611,12 @@ export const vendorAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ status })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update task status');
     }
-    
+
     return response.json();
   },
 
@@ -624,12 +626,12 @@ export const vendorAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ fileType, fileUrl, fileName })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to upload file');
     }
-    
+
     return response.json();
   },
 
@@ -637,11 +639,11 @@ export const vendorAPI = {
     const response = await fetch(`${API_BASE_URL}/vendor/profile`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch vendor profile');
     }
-    
+
     return response.json();
   }
 };
@@ -654,27 +656,27 @@ export const propertiesAPI = {
     if (filters.minPrice) queryParams.append('minPrice', filters.minPrice);
     if (filters.maxPrice) queryParams.append('maxPrice', filters.maxPrice);
     if (filters.bedrooms) queryParams.append('bedrooms', filters.bedrooms);
-    
+
     const url = `${API_BASE_URL}/properties${queryParams.toString() ? `?${queryParams}` : ''}`;
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch properties');
     }
-    
+
     return response.json();
   },
 
   getById: async (id) => {
     const response = await fetch(`${API_BASE_URL}/properties/${id}`);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         throw new Error('Property not found');
       }
       throw new Error('Failed to fetch property');
     }
-    
+
     return response.json();
   }
 };
@@ -685,11 +687,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/dashboard`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch dashboard data');
     }
-    
+
     return response.json();
   },
 
@@ -698,16 +700,16 @@ export const ownerAPI = {
     if (filters.status) queryParams.append('status', filters.status);
     if (filters.propertyType) queryParams.append('propertyType', filters.propertyType);
     if (filters.search) queryParams.append('search', filters.search);
-    
+
     const url = `${API_BASE_URL}/owner/properties${queryParams.toString() ? `?${queryParams}` : ''}`;
     const response = await fetch(url, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch properties');
     }
-    
+
     return response.json();
   },
 
@@ -717,12 +719,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create property');
     }
-    
+
     return response.json();
   },
 
@@ -732,12 +734,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update property');
     }
-    
+
     return response.json();
   },
 
@@ -746,12 +748,12 @@ export const ownerAPI = {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to delete property');
     }
-    
+
     return response.json();
   },
 
@@ -761,12 +763,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ status })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update property status');
     }
-    
+
     return response.json();
   },
 
@@ -774,11 +776,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/applications`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch applications');
     }
-    
+
     return response.json();
   },
 
@@ -786,11 +788,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/applications/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch application');
     }
-    
+
     return response.json();
   },
 
@@ -800,12 +802,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update application');
     }
-    
+
     return response.json();
   },
 
@@ -815,12 +817,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ note })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to add note');
     }
-    
+
     return response.json();
   },
 
@@ -828,11 +830,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/tenants`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch tenants');
     }
-    
+
     return response.json();
   },
 
@@ -840,11 +842,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/tenants/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch tenant');
     }
-    
+
     return response.json();
   },
 
@@ -852,11 +854,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/messages`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch messages');
     }
-    
+
     return response.json();
   },
 
@@ -864,11 +866,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/messages/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch message');
     }
-    
+
     return response.json();
   },
 
@@ -878,12 +880,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to send message');
     }
-    
+
     return response.json();
   },
 
@@ -892,11 +894,11 @@ export const ownerAPI = {
       method: 'PUT',
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to mark message as read');
     }
-    
+
     return response.json();
   },
 
@@ -904,11 +906,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/viewings`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch viewing requests');
     }
-    
+
     return response.json();
   },
 
@@ -918,12 +920,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update viewing request');
     }
-    
+
     return response.json();
   },
 
@@ -931,11 +933,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/payments`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch payments');
     }
-    
+
     return response.json();
   },
 
@@ -943,11 +945,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/payments/summary`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch payment summary');
     }
-    
+
     return response.json();
   },
 
@@ -957,12 +959,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create payment');
     }
-    
+
     return response.json();
   },
 
@@ -972,12 +974,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update payment');
     }
-    
+
     return response.json();
   },
 
@@ -985,11 +987,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/reports/income`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch income report');
     }
-    
+
     return response.json();
   },
 
@@ -997,11 +999,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/reports/monthly?month=${month}&year=${year}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch monthly report');
     }
-    
+
     return response.json();
   },
 
@@ -1009,11 +1011,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/reports/yearly?year=${year}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch yearly report');
     }
-    
+
     return response.json();
   },
 
@@ -1021,11 +1023,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/analytics/property-performance`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch property performance');
     }
-    
+
     return response.json();
   },
 
@@ -1033,11 +1035,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/analytics/financial`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch financial analytics');
     }
-    
+
     return response.json();
   },
 
@@ -1045,11 +1047,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/analytics/tenant`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch tenant analytics');
     }
-    
+
     return response.json();
   },
 
@@ -1057,11 +1059,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/maintenance`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch maintenance requests');
     }
-    
+
     return response.json();
   },
 
@@ -1069,11 +1071,11 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/maintenance/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch maintenance request');
     }
-    
+
     return response.json();
   },
 
@@ -1083,12 +1085,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update maintenance request');
     }
-    
+
     return response.json();
   },
 
@@ -1098,12 +1100,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ note })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to add note');
     }
-    
+
     return response.json();
   },
 
@@ -1117,12 +1119,12 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/managers/available?${queryParams.toString()}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch available managers');
     }
-    
+
     return response.json();
   },
 
@@ -1130,12 +1132,12 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/managers/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch manager details');
     }
-    
+
     return response.json();
   },
 
@@ -1143,12 +1145,12 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/managers/subscriptions`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch subscriptions');
     }
-    
+
     return response.json();
   },
 
@@ -1158,12 +1160,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create subscription');
     }
-    
+
     return response.json();
   },
 
@@ -1173,12 +1175,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update subscription');
     }
-    
+
     return response.json();
   },
 
@@ -1187,12 +1189,12 @@ export const ownerAPI = {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to cancel subscription');
     }
-    
+
     return response.json();
   },
 
@@ -1200,12 +1202,12 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/managers/subscription/${id}/payments`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch subscription payments');
     }
-    
+
     return response.json();
   },
 
@@ -1215,12 +1217,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(paymentData)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to process payment');
     }
-    
+
     return response.json();
   },
 
@@ -1228,12 +1230,12 @@ export const ownerAPI = {
     const response = await fetch(`${API_BASE_URL}/owner/managers/subscription/${id}/agreement`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch service agreement');
     }
-    
+
     return response.json();
   },
 
@@ -1243,12 +1245,12 @@ export const ownerAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(reviewData)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to submit review');
     }
-    
+
     return response.json();
   }
 };
@@ -1259,12 +1261,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/dashboard`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch dashboard');
     }
-    
+
     return response.json();
   },
 
@@ -1277,12 +1279,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/payments?${queryParams.toString()}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch payments');
     }
-    
+
     return response.json();
   },
 
@@ -1290,12 +1292,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/payments/upcoming`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch upcoming payments');
     }
-    
+
     return response.json();
   },
 
@@ -1303,12 +1305,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/payments/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch payment');
     }
-    
+
     return response.json();
   },
 
@@ -1316,12 +1318,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/messages`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch messages');
     }
-    
+
     return response.json();
   },
 
@@ -1329,12 +1331,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/messages/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch message');
     }
-    
+
     return response.json();
   },
 
@@ -1344,12 +1346,12 @@ export const tenantAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to send message');
     }
-    
+
     return response.json();
   },
 
@@ -1358,12 +1360,12 @@ export const tenantAPI = {
       method: 'PUT',
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to mark message as read');
     }
-    
+
     return response.json();
   },
 
@@ -1374,12 +1376,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/maintenance?${queryParams.toString()}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch maintenance requests');
     }
-    
+
     return response.json();
   },
 
@@ -1389,12 +1391,12 @@ export const tenantAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create maintenance request');
     }
-    
+
     return response.json();
   },
 
@@ -1402,12 +1404,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/maintenance/${id}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch maintenance request');
     }
-    
+
     return response.json();
   },
 
@@ -1417,12 +1419,12 @@ export const tenantAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update maintenance request');
     }
-    
+
     return response.json();
   },
 
@@ -1430,12 +1432,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/current-property`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch current property');
     }
-    
+
     return response.json();
   },
 
@@ -1443,12 +1445,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/lease`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch lease');
     }
-    
+
     return response.json();
   },
 
@@ -1456,12 +1458,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/documents`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch documents');
     }
-    
+
     return response.json();
   },
 
@@ -1469,12 +1471,12 @@ export const tenantAPI = {
     const response = await fetch(`${API_BASE_URL}/tenant/profile`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch profile');
     }
-    
+
     return response.json();
   },
 
@@ -1484,12 +1486,12 @@ export const tenantAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update profile');
     }
-    
+
     return response.json();
   }
 };

@@ -105,8 +105,8 @@ function TenantMessages() {
     try {
       await tenantAPI.sendMessage({
         propertyId: selectedThread.propertyId,
-        recipientId: selectedThread.senderId === JSON.parse(localStorage.getItem('user'))?.id 
-          ? selectedThread.recipientId 
+        recipientId: selectedThread.senderId === JSON.parse(localStorage.getItem('user'))?.id
+          ? selectedThread.recipientId
           : selectedThread.senderId,
         subject: selectedThread.subject,
         message: newMessage.message

@@ -26,7 +26,7 @@ const Card = ({
   ...props
 }) => {
   const baseStyles = 'rounded-xl transition-all duration-200 text-[var(--ui-text-primary)]';
-  
+
   const variants = {
     default: 'bg-[var(--ui-bg-surface)] border border-[var(--ui-border-default)] shadow-soft hover:shadow-medium transition-all duration-300',
     elevated: 'bg-[var(--ui-bg-surface)] border border-[var(--ui-border-default)] shadow-medium hover:shadow-strong hover:-translate-y-1 transition-all duration-300',
@@ -34,7 +34,7 @@ const Card = ({
     filled: 'bg-[var(--ui-bg-muted)] border border-[var(--ui-border-default)] shadow-soft hover:shadow-medium transition-all duration-300',
     glass: 'bg-[var(--ui-bg-surface)]/80 backdrop-blur-sm border border-[var(--ui-border-default)] shadow-medium hover:shadow-strong hover:-translate-y-0.5 transition-all duration-300',
   };
-  
+
   const paddings = {
     none: 'p-0',
     sm: 'p-4',

@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import RoleBasedNavbar from './components/RoleBasedNavbar';
-import Footer from './components/Footer';
+import RoleBasedNavbar from './components/RoleBasedNavbar'; // Still imported for AuthContext usage if needed, but likely not main rendering
+import MainLayout from './components/layout/MainLayout';
+import SimpleLayout from './components/layout/SimpleLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Public pages
@@ -21,8 +22,15 @@ import Notifications from './pages/Notifications';
 import HelpCenter from './pages/HelpCenter';
 
 // Super Admin pages
+import AdminLayout from './components/admin/layout/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
-import PropertyActivity from './pages/admin/PropertyActivity';
+import UserManagement from './pages/admin/UserManagement';
+import VendorManagement from './pages/admin/VendorManagement';
+import AuditLogs from './pages/admin/AuditLogs';
+import PlatformActivity from './pages/admin/PlatformActivity';
+import RevenueHiring from './pages/admin/RevenueHiring';
+import AdminReports from './pages/admin/AdminReports';
+import AdminSettings from './pages/admin/AdminSettings';
 
 // Property Manager pages
 import PropertyManagerDashboard from './pages/property-manager/PropertyManagerDashboard';
@@ -35,12 +43,14 @@ import Onboarding from './pages/property-manager/Onboarding';
 import Revenue from './pages/property-manager/Revenue';
 
 // Vendor pages
+import VendorLayout from './components/vendor/layout/VendorLayout';
 import VendorDashboard from './pages/vendor/VendorDashboard';
 import MyTasks from './pages/vendor/MyTasks';
 import MyProfile from './pages/vendor/MyProfile';
 import PropertyAccess from './pages/vendor/PropertyAccess';
 
 // Tenant pages
+import TenantLayout from './components/tenant/layout/TenantLayout';
 import TenantDashboard from './pages/tenant/TenantDashboard';
 import SavedProperties from './pages/tenant/SavedProperties';
 import TenantApplications from './pages/tenant/TenantApplications';
@@ -74,17 +84,33 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-[var(--ui-bg-page)] text-[var(--ui-text-primary)] flex flex-col">
-          <RoleBasedNavbar />
-          <main className="flex-grow">
-            <Routes>
+        <Routes>
+          {/* Admin Portal (Sidebar Layout only) */}
+          <Route path="/admin" element={<ProtectedRoute requireSuperAdmin><AdminLayout /></ProtectedRoute>}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="credentials/managers" element={<UserManagement />} />
+            <Route path="credentials/vendors" element={<VendorManagement />} />
+            <Route path="activity" element={<PlatformActivity />} />
+            <Route path="revenue" element={<RevenueHiring />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="audit-logs" element={<AuditLogs />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route index element={<AdminDashboard />} />
+          </Route>
+
+          {/* Auth Routes (Navbar only, No Footer) */}
+          <Route element={<SimpleLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/invitation/accept/:token" element={<InvitationAccept />} />
+          </Route>
+
+          {/* Main Application (Navbar + Footer Layout) */}
+          <Route element={<MainLayout />}>
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/properties" element={<BrowseProperties />} />
             <Route path="/properties/:id" element={<PropertyDetails />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/invitation/accept/:token" element={<InvitationAccept />} />
             <Route path="/for-tenants" element={<ForTenants />} />
             <Route path="/for-owners" element={<ForOwners />} />
             <Route path="/features" element={<Features />} />
@@ -92,24 +118,6 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/help" element={<HelpCenter />} />
-
-            {/* Super Admin Routes */}
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/property-activity"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <PropertyActivity />
-                </ProtectedRoute>
-              }
-            />
 
             {/* Property Manager Routes */}
             <Route
@@ -184,8 +192,10 @@ function App() {
                 </ProtectedRoute>
               }
             />
+          </Route>
 
-            {/* Vendor Routes */}
+          {/* Vendor Portal (Navbar only, No Footer) */}
+          <Route element={<VendorLayout />}>
             <Route
               path="/vendor/dashboard"
               element={
@@ -218,8 +228,10 @@ function App() {
                 </ProtectedRoute>
               }
             />
+          </Route>
 
-            {/* Tenant Routes */}
+          {/* Tenant Portal (Navbar only, No Footer) */}
+          <Route element={<TenantLayout />}>
             <Route
               path="/tenant/dashboard"
               element={
@@ -292,6 +304,10 @@ function App() {
                 </ProtectedRoute>
               }
             />
+          </Route>
+
+          {/* Main Application (Navbar + Footer Layout) */}
+          <Route element={<MainLayout />}>
 
             {/* Notifications (All authenticated users) */}
             <Route
@@ -440,10 +456,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+          </Route>
+        </Routes>
       </Router>
     </AuthProvider>
   );

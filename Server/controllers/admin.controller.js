@@ -113,7 +113,7 @@ exports.updatePropertyManager = async (req, res) => {
     if (mobileNumber !== undefined) user.mobileNumber = mobileNumber;
     if (status) user.status = status;
     if (assignedProperties) user.assignedProperties = assignedProperties;
-    
+
     // Handle password reset
     if (password) {
       if (password.length < 6) {
@@ -121,7 +121,7 @@ exports.updatePropertyManager = async (req, res) => {
       }
       user.password = await bcrypt.hash(password, 10);
     }
-    
+
     user.updatedAt = new Date().toISOString();
 
     createAuditLog(req.userId, 'update_property_manager', 'user', userId, { ...req.body, password: password ? '***' : undefined }, getIpAddress(req));
@@ -142,6 +142,7 @@ exports.updatePropertyManager = async (req, res) => {
 exports.suspendPropertyManager = (req, res) => {
   try {
     const userId = parseInt(req.params.id);
+    const { reason, note } = req.body;
     const user = users.find(u => u.id === userId && u.role === 'property_manager');
 
     if (!user) {
@@ -151,7 +152,7 @@ exports.suspendPropertyManager = (req, res) => {
     user.status = 'suspended';
     user.updatedAt = new Date().toISOString();
 
-    createAuditLog(req.userId, 'suspend_property_manager', 'user', userId, {}, getIpAddress(req));
+    createAuditLog(req.userId, 'suspend_property_manager', 'user', userId, { reason, note }, getIpAddress(req));
 
     res.json({ message: 'Property Manager suspended successfully' });
   } catch (error) {
@@ -299,7 +300,7 @@ exports.createVendor = async (req, res) => {
 exports.getVendors = (req, res) => {
   try {
     const vendorUsers = users.filter(u => u.role === 'vendor');
-    
+
     const vendorsList = vendorUsers.map(vendorUser => {
       const vendor = vendors.find(v => v.userId === vendorUser.id);
       return {
@@ -369,7 +370,7 @@ exports.updateVendor = async (req, res) => {
     if (name) vendorUser.name = name;
     if (email) vendorUser.email = email;
     if (mobileNumber !== undefined) vendorUser.mobileNumber = mobileNumber;
-    
+
     // Handle password reset
     if (password) {
       if (password.length < 6) {
@@ -377,7 +378,7 @@ exports.updateVendor = async (req, res) => {
       }
       vendorUser.password = await bcrypt.hash(password, 10);
     }
-    
+
     vendorUser.updatedAt = new Date().toISOString();
 
     // Update vendor record
@@ -409,6 +410,7 @@ exports.updateVendor = async (req, res) => {
 exports.suspendVendor = (req, res) => {
   try {
     const userId = parseInt(req.params.id);
+    const { reason, note } = req.body;
     const vendorUser = users.find(u => u.id === userId && u.role === 'vendor');
 
     if (!vendorUser) {
@@ -424,7 +426,7 @@ exports.suspendVendor = (req, res) => {
       vendor.updatedAt = new Date().toISOString();
     }
 
-    createAuditLog(req.userId, 'suspend_vendor', 'vendor', vendor?.id || userId, {}, getIpAddress(req));
+    createAuditLog(req.userId, 'suspend_vendor', 'vendor', vendor?.id || userId, { reason, note }, getIpAddress(req));
 
     res.json({ message: 'Vendor suspended successfully' });
   } catch (error) {
@@ -500,15 +502,15 @@ exports.getManagersPerformance = (req, res) => {
     if (!users || !Array.isArray(users)) {
       return res.status(500).json({ error: 'Users data not available' });
     }
-    
+
     if (!tasks || !Array.isArray(tasks)) {
       return res.status(500).json({ error: 'Tasks data not available' });
     }
 
     const managers = users.filter(u => u.role === 'property_manager');
-    
+
     const performanceData = managers.map(manager => {
-      const managerTasks = tasks.filter(t => 
+      const managerTasks = tasks.filter(t =>
         (t.assignedTo === manager.id || t.createdBy === manager.id)
       );
       const completedTasks = managerTasks.filter(t => t.status === 'completed');
@@ -541,7 +543,7 @@ exports.getVendorsPerformance = (req, res) => {
     if (!users || !Array.isArray(users)) {
       return res.status(500).json({ error: 'Users data not available' });
     }
-    
+
     if (!tasks || !Array.isArray(tasks)) {
       return res.status(500).json({ error: 'Tasks data not available' });
     }
@@ -551,7 +553,7 @@ exports.getVendorsPerformance = (req, res) => {
     }
 
     const vendorUsers = users.filter(u => u.role === 'vendor');
-    
+
     const performanceData = vendorUsers.map(vendorUser => {
       const vendor = vendors.find(v => v.userId === vendorUser.id);
       const vendorTasks = tasks.filter(t => t.assignedVendorId === vendor?.id);
@@ -586,7 +588,7 @@ exports.getVendorsPerformance = (req, res) => {
 exports.getAuditLogs = (req, res) => {
   try {
     const { limit = 100, offset = 0, action, resourceType, userId, startDate, endDate } = req.query;
-    
+
     if (!auditLogs || !Array.isArray(auditLogs)) {
       return res.status(500).json({ error: 'Audit logs data not available' });
     }
@@ -763,7 +765,7 @@ exports.getSystemOverview = (req, res) => {
 exports.getPropertyActivity = (req, res) => {
   try {
     const { limit = 50, offset = 0, action, propertyId, startDate, endDate, userId } = req.query;
-    
+
     if (!auditLogs || !Array.isArray(auditLogs)) {
       return res.status(500).json({ error: 'Audit logs data not available' });
     }
@@ -779,7 +781,7 @@ exports.getPropertyActivity = (req, res) => {
       'create_task' // Tasks are property-related
     ];
 
-    let filteredLogs = auditLogs.filter(log => 
+    let filteredLogs = auditLogs.filter(log =>
       log.resourceType === 'property' || propertyActions.includes(log.action)
     );
 
@@ -791,8 +793,8 @@ exports.getPropertyActivity = (req, res) => {
     // Filter by property ID (check resourceId or details.propertyId)
     if (propertyId) {
       const propId = parseInt(propertyId);
-      filteredLogs = filteredLogs.filter(log => 
-        log.resourceId === propId || 
+      filteredLogs = filteredLogs.filter(log =>
+        log.resourceId === propId ||
         (log.details && (log.details.propertyId === propId || log.details.propertyIds?.includes(propId)))
       );
     }
@@ -820,7 +822,7 @@ exports.getPropertyActivity = (req, res) => {
     const enrichedLogs = paginatedLogs.map(log => {
       const user = getUser(log.userId);
       let propertyInfo = null;
-      
+
       // Try to get property details
       if (log.resourceId && log.resourceType === 'property') {
         const property = properties.find(p => p.id === log.resourceId);
@@ -883,7 +885,7 @@ exports.getPropertyActivityStats = (req, res) => {
       'create_task'
     ];
 
-    const propertyLogs = auditLogs.filter(log => 
+    const propertyLogs = auditLogs.filter(log =>
       log.resourceType === 'property' || propertyActions.includes(log.action)
     );
 
@@ -893,26 +895,26 @@ exports.getPropertyActivityStats = (req, res) => {
     // Properties created today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const propertiesCreatedToday = propertyLogs.filter(log => 
+    const propertiesCreatedToday = propertyLogs.filter(log =>
       log.action === 'create_property' && new Date(log.timestamp) >= today
     ).length;
 
     // Properties created this week
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const propertiesCreatedThisWeek = propertyLogs.filter(log => 
+    const propertiesCreatedThisWeek = propertyLogs.filter(log =>
       log.action === 'create_property' && new Date(log.timestamp) >= weekAgo
     ).length;
 
     // Recent activity (last 24 hours)
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const recentActivity24h = propertyLogs.filter(log => 
+    const recentActivity24h = propertyLogs.filter(log =>
       new Date(log.timestamp) >= oneDayAgo
     ).length;
 
     // Recent activity (last 7 days)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const recentActivity7d = propertyLogs.filter(log => 
+    const recentActivity7d = propertyLogs.filter(log =>
       new Date(log.timestamp) >= sevenDaysAgo
     ).length;
 

@@ -102,44 +102,44 @@ function TenantLease() {
               <Card.Title className="text-2xl mb-4">Current Property</Card.Title>
               <Card.Body className="space-y-4">
                 <div className="space-y-4">
-                <div>
-                  <p className="text-architectural text-sm">Property Name</p>
-                  <p className="text-lg font-semibold text-charcoal">{currentProperty.title}</p>
-                </div>
-                <div>
-                  <p className="text-architectural text-sm">Address</p>
-                  <p className="text-charcoal">{currentProperty.address}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-architectural text-sm">Bedrooms</p>
-                    <p className="text-charcoal font-semibold">{currentProperty.bedrooms}</p>
+                    <p className="text-architectural text-sm">Property Name</p>
+                    <p className="text-lg font-semibold text-charcoal">{currentProperty.title}</p>
                   </div>
                   <div>
-                    <p className="text-architectural text-sm">Bathrooms</p>
-                    <p className="text-charcoal font-semibold">{currentProperty.bathrooms}</p>
+                    <p className="text-architectural text-sm">Address</p>
+                    <p className="text-charcoal">{currentProperty.address}</p>
                   </div>
-                  <div>
-                    <p className="text-architectural text-sm">Square Feet</p>
-                    <p className="text-charcoal font-semibold">{currentProperty.squareFeet || currentProperty.area}</p>
-                  </div>
-                  <div>
-                    <p className="text-architectural text-sm">Type</p>
-                    <p className="text-charcoal font-semibold capitalize">{currentProperty.propertyType}</p>
-                  </div>
-                </div>
-                {currentProperty.amenities && currentProperty.amenities.length > 0 && (
-                  <div>
-                    <p className="text-architectural text-sm mb-2">Amenities</p>
-                    <div className="flex flex-wrap gap-2">
-                      {currentProperty.amenities.map((amenity, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-porcelain rounded-lg text-sm text-charcoal border border-stone-200">
-                          {amenity}
-                        </span>
-                      ))}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-architectural text-sm">Bedrooms</p>
+                      <p className="text-charcoal font-semibold">{currentProperty.bedrooms}</p>
+                    </div>
+                    <div>
+                      <p className="text-architectural text-sm">Bathrooms</p>
+                      <p className="text-charcoal font-semibold">{currentProperty.bathrooms}</p>
+                    </div>
+                    <div>
+                      <p className="text-architectural text-sm">Square Feet</p>
+                      <p className="text-charcoal font-semibold">{currentProperty.squareFeet || currentProperty.area}</p>
+                    </div>
+                    <div>
+                      <p className="text-architectural text-sm">Type</p>
+                      <p className="text-charcoal font-semibold capitalize">{currentProperty.propertyType}</p>
                     </div>
                   </div>
-                )}
+                  {currentProperty.amenities && currentProperty.amenities.length > 0 && (
+                    <div>
+                      <p className="text-architectural text-sm mb-2">Amenities</p>
+                      <div className="flex flex-wrap gap-2">
+                        {currentProperty.amenities.map((amenity, idx) => (
+                          <span key={idx} className="px-3 py-1 bg-porcelain rounded-lg text-sm text-charcoal border border-stone-200">
+                            {amenity}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Card.Body>
             </Card>
@@ -151,48 +151,48 @@ function TenantLease() {
               <Card.Title className="text-2xl mb-4">Lease Agreement</Card.Title>
               <Card.Body className="space-y-4">
                 <div className="space-y-4">
-                <div>
-                  <p className="text-architectural text-sm">Monthly Rent</p>
-                  <p className="text-2xl font-bold text-charcoal">${lease.monthlyRent.toLocaleString()}/month</p>
-                </div>
-                <div>
-                  <p className="text-architectural text-sm">Security Deposit</p>
-                  <p className="text-lg font-semibold text-charcoal">${lease.securityDeposit.toLocaleString()}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-architectural text-sm">Lease Start</p>
-                    <p className="text-charcoal font-semibold">{new Date(lease.startDate).toLocaleDateString()}</p>
+                    <p className="text-architectural text-sm">Monthly Rent</p>
+                    <p className="text-2xl font-bold text-charcoal">${lease.monthlyRent.toLocaleString()}/month</p>
                   </div>
                   <div>
-                    <p className="text-architectural text-sm">Lease End</p>
-                    <p className="text-charcoal font-semibold">{new Date(lease.endDate).toLocaleDateString()}</p>
+                    <p className="text-architectural text-sm">Security Deposit</p>
+                    <p className="text-lg font-semibold text-charcoal">${lease.securityDeposit.toLocaleString()}</p>
                   </div>
-                </div>
-                <div>
-                  <p className="text-architectural text-sm">Status</p>
-                  <span className="inline-block px-3 py-1 bg-eucalyptus/20 text-eucalyptus rounded-full text-sm font-semibold">
-                    {lease.status}
-                  </span>
-                </div>
-                {lease.owner && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-architectural text-sm">Lease Start</p>
+                      <p className="text-charcoal font-semibold">{new Date(lease.startDate).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-architectural text-sm">Lease End</p>
+                      <p className="text-charcoal font-semibold">{new Date(lease.endDate).toLocaleDateString()}</p>
+                    </div>
+                  </div>
                   <div>
-                    <p className="text-architectural text-sm">Property Owner</p>
-                    <p className="text-charcoal font-semibold">{lease.owner.name}</p>
-                    <p className="text-sm text-architectural">{lease.owner.email}</p>
+                    <p className="text-architectural text-sm">Status</p>
+                    <span className="inline-block px-3 py-1 bg-eucalyptus/20 text-eucalyptus rounded-full text-sm font-semibold">
+                      {lease.status}
+                    </span>
                   </div>
-                )}
-                <div>
-                  <p className="text-architectural text-sm mb-2">Terms</p>
-                  <p className="text-charcoal text-sm">{lease.terms}</p>
-                </div>
-                <Button
-                  variant="primary"
-                  fullWidth
-                  onClick={() => alert('Lease document download feature coming soon')}
-                >
-                  Download Lease Document
-                </Button>
+                  {lease.owner && (
+                    <div>
+                      <p className="text-architectural text-sm">Property Owner</p>
+                      <p className="text-charcoal font-semibold">{lease.owner.name}</p>
+                      <p className="text-sm text-architectural">{lease.owner.email}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-architectural text-sm mb-2">Terms</p>
+                    <p className="text-charcoal text-sm">{lease.terms}</p>
+                  </div>
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    onClick={() => alert('Lease document download feature coming soon')}
+                  >
+                    Download Lease Document
+                  </Button>
                 </div>
               </Card.Body>
             </Card>

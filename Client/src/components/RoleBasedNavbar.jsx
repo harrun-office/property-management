@@ -236,16 +236,14 @@ function RoleBasedNavbar() {
   const NavLink = ({ to, children, className = '', icon, mobile = false, style = {} }) => {
     const active = isActive(to);
     const baseClasses = mobile
-      ? `group relative block py-3 px-4 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden ${
-          active
-            ? 'bg-gradient-to-r from-[var(--brand-accent)]/15 via-[var(--brand-accent)]/10 to-[var(--brand-accent)]/15 text-[var(--brand-accent)] border-l-4 border-[var(--brand-accent)] shadow-md shadow-[var(--brand-accent)]/20'
-            : 'text-[var(--ui-text-secondary)] hover:text-[var(--brand-accent)] hover:bg-gradient-to-r hover:from-[var(--ui-bg-muted)] hover:to-[var(--ui-bg-surface)] hover:shadow-sm'
-        }`
-      : `group relative px-4 py-3 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden ${
-          active
-            ? 'text-[var(--brand-accent)] bg-gradient-to-r from-[var(--brand-accent)]/10 via-[var(--brand-accent)]/5 to-[var(--brand-accent)]/10 shadow-lg shadow-[var(--brand-accent)]/15 border border-[var(--brand-accent)]/20'
-            : 'text-[var(--ui-text-secondary)] hover:text-[var(--brand-accent)] hover:bg-gradient-to-r hover:from-[var(--ui-bg-muted)] hover:to-[var(--ui-bg-surface)] hover:shadow-md'
-        }`;
+      ? `group relative block py-3 px-4 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden ${active
+        ? 'bg-gradient-to-r from-[var(--brand-accent)]/15 via-[var(--brand-accent)]/10 to-[var(--brand-accent)]/15 text-[var(--brand-accent)] border-l-4 border-[var(--brand-accent)] shadow-md shadow-[var(--brand-accent)]/20'
+        : 'text-[var(--ui-text-secondary)] hover:text-[var(--brand-accent)] hover:bg-gradient-to-r hover:from-[var(--ui-bg-muted)] hover:to-[var(--ui-bg-surface)] hover:shadow-sm'
+      }`
+      : `group relative px-4 py-3 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden ${active
+        ? 'text-[var(--brand-accent)] bg-gradient-to-r from-[var(--brand-accent)]/10 via-[var(--brand-accent)]/5 to-[var(--brand-accent)]/10 shadow-lg shadow-[var(--brand-accent)]/15 border border-[var(--brand-accent)]/20'
+        : 'text-[var(--ui-text-secondary)] hover:text-[var(--brand-accent)] hover:bg-gradient-to-r hover:from-[var(--ui-bg-muted)] hover:to-[var(--ui-bg-surface)] hover:shadow-md'
+      }`;
 
     return (
       <Link
@@ -267,22 +265,19 @@ function RoleBasedNavbar() {
 
         <div className="flex items-center space-x-3 relative z-10">
           {icon && (
-            <span className={`inline-flex items-center justify-center w-5 h-5 transition-all duration-300 relative ${
-              active ? 'text-[var(--brand-accent)] scale-110' : 'text-[var(--ui-text-muted)] group-hover:text-[var(--brand-accent)] group-hover:scale-110'
-            }`}>
+            <span className={`inline-flex items-center justify-center w-5 h-5 transition-all duration-300 relative ${active ? 'text-[var(--brand-accent)] scale-110' : 'text-[var(--ui-text-muted)] group-hover:text-[var(--brand-accent)] group-hover:scale-110'
+              }`}>
               {icon}
               {/* Icon glow effect */}
               <div className="absolute inset-0 bg-[var(--brand-accent)]/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100 blur-sm"></div>
             </span>
           )}
-          <span className={`font-medium transition-all duration-300 relative ${
-            active ? 'text-[var(--brand-accent)] font-semibold' : 'group-hover:font-medium'
-          }`}>
+          <span className={`font-medium transition-all duration-300 relative ${active ? 'text-[var(--brand-accent)] font-semibold' : 'group-hover:font-medium'
+            }`}>
             {children}
             {/* Text underline effect */}
-            <span className={`absolute -bottom-0.5 left-0 h-0.5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-secondary)] transition-all duration-300 ${
-              active ? 'w-full' : 'w-0 group-hover:w-full'
-            }`}></span>
+            <span className={`absolute -bottom-0.5 left-0 h-0.5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-secondary)] transition-all duration-300 ${active ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
           </span>
         </div>
 
@@ -298,14 +293,12 @@ function RoleBasedNavbar() {
         )}
 
         {/* Advanced hover glow effect */}
-        <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-          active ? 'bg-gradient-to-r from-[var(--brand-accent)]/5 to-transparent' : 'bg-gradient-to-r from-[var(--ui-bg-muted)] to-transparent'
-        }`}></div>
+        <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${active ? 'bg-gradient-to-r from-[var(--brand-accent)]/5 to-transparent' : 'bg-gradient-to-r from-[var(--ui-bg-muted)] to-transparent'
+          }`}></div>
 
         {/* Morphing background effect */}
-        <div className={`absolute inset-0 rounded-xl scale-0 group-hover:scale-110 transition-transform duration-500 opacity-0 group-hover:opacity-100 ${
-          active ? 'bg-[var(--brand-accent)]/5' : 'bg-[var(--ui-bg-muted)]/30'
-        } blur-xl`}></div>
+        <div className={`absolute inset-0 rounded-xl scale-0 group-hover:scale-110 transition-transform duration-500 opacity-0 group-hover:opacity-100 ${active ? 'bg-[var(--brand-accent)]/5' : 'bg-[var(--ui-bg-muted)]/30'
+          } blur-xl`}></div>
       </Link>
     );
   };
@@ -379,12 +372,12 @@ function RoleBasedNavbar() {
   );
 
   return (
-    <nav className="bg-gradient-to-r from-[var(--ui-bg-surface)]/98 via-[var(--ui-bg-surface)]/95 to-[var(--ui-bg-surface)]/98 backdrop-blur-xl shadow-soft sticky top-0 z-50 border-b border-[var(--ui-border-default)]/60 transition-all duration-300 relative overflow-hidden animate-fade-in" style={{animationDuration: '0.6s'}}>
+    <nav className="bg-gradient-to-r from-[var(--ui-bg-surface)]/98 via-[var(--ui-bg-surface)]/95 to-[var(--ui-bg-surface)]/98 backdrop-blur-xl shadow-soft sticky top-0 z-50 border-b border-[var(--ui-border-default)]/60 transition-all duration-300 relative overflow-hidden animate-fade-in" style={{ animationDuration: '0.6s' }}>
       {/* Enhanced animated background overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-overlay-primary)]/20 via-transparent to-[var(--color-overlay-secondary)]/20 opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-overlay-primary)]/20 via-transparent to-[var(--color-overlay-secondary)]/20 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
       {/* Subtle animated accent line */}
       <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-[var(--brand-accent)] via-[var(--brand-secondary)] to-[var(--brand-tertiary)] transform scale-x-0 hover:scale-x-100 transition-transform duration-700 origin-left"></div>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Enhanced Main Navigation Bar */}
         <div className="flex items-center justify-between px-6 md:px-10 py-5">
           {/* Ultra-Enhanced Logo with Morphing Effects */}
@@ -425,7 +418,7 @@ function RoleBasedNavbar() {
               <span className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-secondary)] transition-all duration-500 w-0 group-hover:w-full"></span>
             </span>
           </Link>
-          
+
           {/* Smart Search Bar with AI Suggestions (Desktop) */}
           <div className="hidden md:flex flex-1 max-w-lg mx-6 space-x-4">
             <form onSubmit={handleSearch} className="flex-1">
@@ -454,7 +447,7 @@ function RoleBasedNavbar() {
                 {/* AI-powered search indicator */}
                 <div className="absolute right-12 top-3.5 text-[var(--brand-accent)]/60 animate-pulse">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 </div>
 
@@ -468,11 +461,10 @@ function RoleBasedNavbar() {
                           onClick={() => handleSuggestionClick(suggestion)}
                           className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[var(--ui-bg-muted)] transition-colors duration-150 group"
                         >
-                          <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${
-                            suggestion.type === 'popular' ? 'bg-[var(--brand-accent)]/10 text-[var(--brand-accent)]' :
+                          <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${suggestion.type === 'popular' ? 'bg-[var(--brand-accent)]/10 text-[var(--brand-accent)]' :
                             suggestion.type === 'location' ? 'bg-[var(--ui-success)]/10 text-[var(--ui-success)]' :
-                            'bg-[var(--ui-text-muted)]/10 text-[var(--ui-text-muted)]'
-                          } group-hover:scale-110 transition-transform duration-200`}>
+                              'bg-[var(--ui-text-muted)]/10 text-[var(--ui-text-muted)]'
+                            } group-hover:scale-110 transition-transform duration-200`}>
                             {suggestion.icon}
                           </div>
                           <div className="flex-1 text-left">
@@ -502,7 +494,7 @@ function RoleBasedNavbar() {
 
             {/* Smart Suggestion */}
             {smartSuggestion && (
-              <div className="animate-fade-in" style={{animationDelay: '0.5s'}}>
+              <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
                 <Link
                   to={smartSuggestion.path}
                   className="group flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-[var(--brand-accent)]/10 to-[var(--brand-secondary)]/10 rounded-xl border border-[var(--brand-accent)]/20 hover:border-[var(--brand-accent)]/40 transition-all duration-300 hover:shadow-md hover:scale-105"
@@ -521,7 +513,7 @@ function RoleBasedNavbar() {
               </div>
             )}
           </div>
-          
+
           {/* Actions */}
           <div className="flex items-center space-x-2">
             {/* Search (Mobile) */}
@@ -550,7 +542,7 @@ function RoleBasedNavbar() {
                     <span className="absolute inset-0 bg-[var(--ui-error)] rounded-full animate-ping opacity-75"></span>
                   </span>
                 </button>
-                
+
                 {notificationMenuOpen && (
                   <div className="absolute right-0 mt-2 w-80 bg-[var(--ui-bg-surface)] rounded-xl shadow-xl border border-[var(--ui-border-default)] py-2 overflow-hidden">
                     <div className="px-4 py-3 border-b border-[var(--ui-border-default)]">
@@ -577,7 +569,7 @@ function RoleBasedNavbar() {
                 )}
               </div>
             )}
-            
+
             {/* Post Property Button (for owners) */}
             {isPropertyOwner && (
               <Link
@@ -588,7 +580,7 @@ function RoleBasedNavbar() {
                 <span>Post Property</span>
               </Link>
             )}
-            
+
             {/* User Menu Dropdown */}
             {isAuthenticated ? (
               <div className="relative" ref={userMenuRef}>
@@ -623,7 +615,7 @@ function RoleBasedNavbar() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                
+
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-64 bg-[var(--ui-bg-surface)] rounded-xl shadow-xl border border-[var(--ui-border-default)] overflow-hidden z-50 animate-fade-in">
                     {/* User Info Header */}
@@ -643,45 +635,45 @@ function RoleBasedNavbar() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Menu Items */}
                     <div className="py-1.5">
-                    <Link
+                      <Link
                         to={
                           isSuperAdmin ? "/admin/dashboard" :
-                          isPropertyManager ? "/property-manager/dashboard" :
-                          isVendor ? "/vendor/profile" :
-                          isPropertyOwner ? "/owner/dashboard" :
-                          isTenant ? "/tenant/profile" :
-                          "/profile"
+                            isPropertyManager ? "/property-manager/dashboard" :
+                              isVendor ? "/vendor/profile" :
+                                isPropertyOwner ? "/owner/dashboard" :
+                                  isTenant ? "/tenant/profile" :
+                                    "/profile"
                         }
                         className="flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-[var(--ui-text-secondary)] hover:bg-[var(--ui-bg-muted)] hover:text-[var(--brand-accent)] transition-all duration-150 group"
-                      onClick={() => setUserMenuOpen(false)}
-                    >
+                        onClick={() => setUserMenuOpen(false)}
+                      >
                         <svg className="w-4 h-4 text-[var(--ui-text-muted)] group-hover:text-[var(--brand-accent)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span>Profile Settings</span>
-                    </Link>
+                      </Link>
                       <div className="my-1 h-px bg-[var(--ui-border-default)]"></div>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setUserMenuOpen(false);
-                      }}
+                      <button
+                        onClick={() => {
+                          logout();
+                          setUserMenuOpen(false);
+                        }}
                         className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-[var(--ui-error)]/90 hover:bg-[var(--ui-error)]/10 hover:text-[var(--ui-error)] transition-all duration-150 group"
-                    >
+                      >
                         <svg className="w-4 h-4 text-[var(--ui-error)]/70 group-hover:text-[var(--ui-error)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                         <span>Logout</span>
-                    </button>
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 relative z-50">
                 <Link to="/register" className="px-3 py-2 text-[var(--ui-text-secondary)] hover:text-[var(--brand-accent)] transition-colors text-sm font-medium">
                   Register
                 </Link>
@@ -691,7 +683,7 @@ function RoleBasedNavbar() {
               </div>
             )}
           </div>
-          
+
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -710,77 +702,72 @@ function RoleBasedNavbar() {
             )}
           </button>
         </div>
-        
+
         {/* Ultra-Enhanced Navigation Bar - Main Links with Staggered Animations */}
         <div className="hidden md:flex items-center justify-center px-6 md:px-12 py-4 border-b border-[var(--ui-border-default)]/30">
           <nav className="flex items-center justify-center space-x-1 text-[var(--ui-text-secondary)] font-medium text-sm" role="navigation" aria-label="Main navigation">
             {isAuthenticated ? (
               <>
-                  {isSuperAdmin && (
-                    <>
-                      <NavLink to="/admin/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>Dashboard</NavLink>
-                      <NavLink to="/admin/property-activity" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>Property Activity</NavLink>
-                    </>
-                  )}
+
                 {isPropertyManager && (
                   <>
-                    <NavLink to="/property-manager/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>Dashboard</NavLink>
-                    <NavLink to="/property-manager/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{animationDelay: '0.15s'}}>Properties</NavLink>
-                    <NavLink to="/property-manager/subscriptions" className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>Subscriptions</NavLink>
-                    <NavLink to="/property-manager/revenue" className="animate-fade-in-up" style={{animationDelay: '0.25s'}}>Revenue</NavLink>
-                    <NavLink to="/property-manager/vendors" className="animate-fade-in-up" style={{animationDelay: '0.3s'}}>Vendors</NavLink>
-                    <NavLink to="/property-manager/tasks" className="animate-fade-in-up" style={{animationDelay: '0.35s'}}>Tasks</NavLink>
-                    <NavLink to="/property-manager/reports" className="animate-fade-in-up" style={{animationDelay: '0.4s'}}>Reports</NavLink>
+                    <NavLink to="/property-manager/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Dashboard</NavLink>
+                    <NavLink to="/property-manager/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Properties</NavLink>
+                    <NavLink to="/property-manager/subscriptions" className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Subscriptions</NavLink>
+                    <NavLink to="/property-manager/revenue" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Revenue</NavLink>
+                    <NavLink to="/property-manager/vendors" className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Vendors</NavLink>
+                    <NavLink to="/property-manager/tasks" className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>Tasks</NavLink>
+                    <NavLink to="/property-manager/reports" className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>Reports</NavLink>
                   </>
                 )}
                 {isVendor && (
                   <>
-                    <NavLink to="/vendor/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>Dashboard</NavLink>
-                    <NavLink to="/vendor/tasks" className="animate-fade-in-up" style={{animationDelay: '0.15s'}}>My Tasks</NavLink>
-                    <NavLink to="/vendor/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>Properties</NavLink>
-                    <NavLink to="/vendor/profile" className="animate-fade-in-up" style={{animationDelay: '0.25s'}}>Profile</NavLink>
+                    <NavLink to="/vendor/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Dashboard</NavLink>
+                    <NavLink to="/vendor/tasks" className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>My Tasks</NavLink>
+                    <NavLink to="/vendor/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Properties</NavLink>
+                    <NavLink to="/vendor/profile" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Profile</NavLink>
                   </>
                 )}
                 {isPropertyOwner && (
                   <>
-                    <NavLink to="/owner/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>Dashboard</NavLink>
-                    <NavLink to="/owner/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{animationDelay: '0.15s'}}>Properties</NavLink>
-                    <NavLink to="/owner/managers" className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>Managers</NavLink>
-                    <NavLink to="/owner/subscriptions" className="animate-fade-in-up" style={{animationDelay: '0.25s'}}>Subscriptions</NavLink>
-                    <NavLink to="/owner/applications" className="animate-fade-in-up" style={{animationDelay: '0.3s'}}>Applications</NavLink>
-                    <NavLink to="/owner/payments" className="animate-fade-in-up" style={{animationDelay: '0.35s'}}>Payments</NavLink>
-                    <NavLink to="/owner/messages" className="animate-fade-in-up" style={{animationDelay: '0.4s'}}>Messages</NavLink>
+                    <NavLink to="/owner/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Dashboard</NavLink>
+                    <NavLink to="/owner/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Properties</NavLink>
+                    <NavLink to="/owner/managers" className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Managers</NavLink>
+                    <NavLink to="/owner/subscriptions" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Subscriptions</NavLink>
+                    <NavLink to="/owner/applications" className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Applications</NavLink>
+                    <NavLink to="/owner/payments" className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>Payments</NavLink>
+                    <NavLink to="/owner/messages" className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>Messages</NavLink>
                   </>
                 )}
                 {isTenant && (
                   <>
-                    <NavLink to="/tenant/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>Dashboard</NavLink>
-                    <NavLink to="/tenant/payments" className="animate-fade-in-up" style={{animationDelay: '0.15s'}}>Payments</NavLink>
-                    <NavLink to="/tenant/messages" className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>Messages</NavLink>
-                    <NavLink to="/tenant/maintenance" className="animate-fade-in-up" style={{animationDelay: '0.25s'}}>Maintenance</NavLink>
-                    <NavLink to="/tenant/lease" className="animate-fade-in-up" style={{animationDelay: '0.3s'}}>Lease</NavLink>
-                    <NavLink to="/tenant/documents" className="animate-fade-in-up" style={{animationDelay: '0.35s'}}>Documents</NavLink>
-                    <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{animationDelay: '0.4s'}}>Profile</NavLink>
+                    <NavLink to="/tenant/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Dashboard</NavLink>
+                    <NavLink to="/tenant/payments" className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Payments</NavLink>
+                    <NavLink to="/tenant/messages" className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Messages</NavLink>
+                    <NavLink to="/tenant/maintenance" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Maintenance</NavLink>
+                    <NavLink to="/tenant/lease" className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Lease</NavLink>
+                    <NavLink to="/tenant/documents" className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>Documents</NavLink>
+                    <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>Profile</NavLink>
                     {!hasActiveProperty && (
-                      <NavLink to="/tenant/saved" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{animationDelay: '0.45s'}}>Saved</NavLink>
+                      <NavLink to="/tenant/saved" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.45s' }}>Saved</NavLink>
                     )}
-                    <NavLink to="/tenant/applications" className="animate-fade-in-up" style={{animationDelay: '0.5s'}}>Applications</NavLink>
+                    <NavLink to="/tenant/applications" className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>Applications</NavLink>
                   </>
                 )}
               </>
             ) : (
               <>
-                <NavLink to="/" icon={<HomeIcon />} className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>Home</NavLink>
-                <NavLink to="/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{animationDelay: '0.15s'}}>Properties</NavLink>
+                <NavLink to="/" icon={<HomeIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Home</NavLink>
+                <NavLink to="/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Properties</NavLink>
                 {!isTenant && (
-                  <NavLink to="/for-tenants" icon={<UserGroupIcon />} className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>For Tenants</NavLink>
+                  <NavLink to="/for-tenants" icon={<UserGroupIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>For Tenants</NavLink>
                 )}
                 {!isTenant && (
-                  <NavLink to="/for-owners" icon={<HomeOwnerIcon />} className="animate-fade-in-up" style={{animationDelay: '0.25s'}}>For Owners</NavLink>
+                  <NavLink to="/for-owners" icon={<HomeOwnerIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>For Owners</NavLink>
                 )}
-                <NavLink to="/features" icon={<SparklesIcon />} className="animate-fade-in-up" style={{animationDelay: '0.3s'}}>Features</NavLink>
-                <NavLink to="/how-it-works" icon={<CogIcon />} className="animate-fade-in-up" style={{animationDelay: '0.35s'}}>How It Works</NavLink>
-                <NavLink to="/about" icon={<InfoIcon />} className="animate-fade-in-up" style={{animationDelay: '0.4s'}}>About</NavLink>
+                <NavLink to="/features" icon={<SparklesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Features</NavLink>
+                <NavLink to="/how-it-works" icon={<CogIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>How It Works</NavLink>
+                <NavLink to="/about" icon={<InfoIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>About</NavLink>
               </>
             )}
           </nav>
@@ -788,10 +775,9 @@ function RoleBasedNavbar() {
       </div>
 
       {/* Enhanced Mobile Menu */}
-      <div className={`md:hidden border-t border-[var(--ui-border-default)]/60 bg-gradient-to-b from-[var(--ui-bg-surface)]/98 via-[var(--ui-bg-surface)]/95 to-[var(--ui-bg-surface)]/90 backdrop-blur-xl overflow-hidden transition-all duration-500 ease-out ${
-        mobileMenuOpen ? 'max-h-screen opacity-100 shadow-2xl' : 'max-h-0 opacity-0'
-      }`}>
-        <div className="px-6 py-6 space-y-4 animate-fade-in" style={{animationDelay: '0.1s', animationFillMode: 'both'}}>
+      <div className={`md:hidden border-t border-[var(--ui-border-default)]/60 bg-gradient-to-b from-[var(--ui-bg-surface)]/98 via-[var(--ui-bg-surface)]/95 to-[var(--ui-bg-surface)]/90 backdrop-blur-xl overflow-hidden transition-all duration-500 ease-out ${mobileMenuOpen ? 'max-h-screen opacity-100 shadow-2xl' : 'max-h-0 opacity-0'
+        }`}>
+        <div className="px-6 py-6 space-y-4 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
           {/* Enhanced Mobile Search */}
           <form onSubmit={handleSearch} className="mb-6">
             <div className="relative group">
@@ -816,7 +802,7 @@ function RoleBasedNavbar() {
               </button>
             </div>
           </form>
-          
+
           {/* Enhanced Mobile Notifications */}
           {isAuthenticated && (
             <Link
@@ -838,7 +824,7 @@ function RoleBasedNavbar() {
               </span>
             </Link>
           )}
-          
+
           {/* Mobile Post Property Button */}
           {isPropertyOwner && (
             <Link
@@ -854,12 +840,12 @@ function RoleBasedNavbar() {
           )}
           {isAuthenticated ? (
             <>
-                 {isSuperAdmin && (
-                   <>
-                     <NavLink to="/admin/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
+              {isSuperAdmin && (
+                <>
+                  <NavLink to="/admin/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
                   <NavLink to="/admin/property-activity" mobile icon={<PropertiesIcon />}>Property Activity</NavLink>
-                   </>
-                 )}
+                </>
+              )}
               {isPropertyManager && (
                 <>
                   <NavLink to="/property-manager/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
@@ -927,20 +913,20 @@ function RoleBasedNavbar() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Menu Items */}
-                 <Link
+                <Link
                   to={
                     isSuperAdmin ? "/admin/dashboard" :
-                    isPropertyManager ? "/property-manager/dashboard" :
-                    isVendor ? "/vendor/profile" :
-                    isPropertyOwner ? "/owner/dashboard" :
-                    isTenant ? "/tenant/profile" :
-                    "/profile"
+                      isPropertyManager ? "/property-manager/dashboard" :
+                        isVendor ? "/vendor/profile" :
+                          isPropertyOwner ? "/owner/dashboard" :
+                            isTenant ? "/tenant/profile" :
+                              "/profile"
                   }
                   className="group flex items-center space-x-4 py-4 px-4 rounded-2xl text-[var(--ui-text-secondary)] hover:bg-gradient-to-r hover:from-[var(--ui-bg-muted)] hover:to-[var(--ui-bg-surface)] hover:text-[var(--brand-accent)] transition-all duration-300 hover:shadow-md hover:scale-105 text-sm font-medium"
-                   onClick={() => setMobileMenuOpen(false)}
-                 >
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   <span className="inline-flex items-center justify-center w-10 h-10 bg-[var(--ui-bg-muted)] group-hover:bg-[var(--brand-accent)]/10 rounded-xl transition-all duration-200 group-hover:scale-110">
                     <svg className="w-5 h-5 text-[var(--ui-text-muted)] group-hover:text-[var(--brand-accent)] transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -950,7 +936,7 @@ function RoleBasedNavbar() {
                   <svg className="w-4 h-4 text-[var(--ui-text-muted)] group-hover:text-[var(--brand-accent)] group-hover:translate-x-1 transition-all duration-200 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                 </Link>
+                </Link>
                 <button
                   onClick={() => {
                     logout();

@@ -27,7 +27,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.role);
     createAuditLog(user.id, 'login', 'user', user.id, {}, getIpAddress(req));
 
     res.json({
@@ -106,7 +106,7 @@ exports.register = async (req, res) => {
     users.push(newUser);
     data.nextUserId = data.nextUserId + 1;
 
-    const token = generateToken(newUser.id);
+    const token = generateToken(newUser.id, newUser.role);
     createAuditLog(newUser.id, 'register', 'user', newUser.id, { email, role }, getIpAddress(req));
 
     res.status(201).json({
@@ -169,7 +169,7 @@ exports.acceptInvitation = async (req, res) => {
     user.status = 'active';
     user.updatedAt = new Date().toISOString();
 
-    const authToken = generateToken(user.id);
+    const authToken = generateToken(user.id, user.role);
     createAuditLog(user.id, 'accept_invitation', 'user', user.id, {}, getIpAddress(req));
 
     res.json({
