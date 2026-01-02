@@ -1,9 +1,13 @@
 const bcrypt = require('bcryptjs');
-const data = require('../data/mockData');
+const User = require('../models/user.model');
+const Property = require('../models/property.model');
+const Task = require('../models/task.model');
+const Vendor = require('../models/vendor.model');
+const MaintenanceRequest = require('../models/maintenanceRequest.model');
+const Payment = require('../models/payment.model');
 const { createAuditLog, getUser } = require('../middleware/auth');
 const { getIpAddress } = require('../utils/helpers');
-
-const { users, properties, tasks, vendors, auditLogs, applications, subscriptionPlans, managerSubscriptions, subscriptionPayments, serviceAgreements, managerReviews } = data;
+const sql = require('../config/db');
 
 // Property Manager Management
 exports.createPropertyManager = async (req, res) => {
@@ -18,7 +22,8 @@ exports.createPropertyManager = async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const existingUser = users.find(u => u.email === email);
+    // Check if user already exists
+    const existingUser = await User.findByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
@@ -26,44 +31,82 @@ exports.createPropertyManager = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const userPermissions = {
+      createVendor: true,
+      assignVendors: true,
+      createTasks: true,
+      viewReports: true,
+      manageAssignedProperties: true
+    };
+
     const newUser = {
-      id: data.nextUserId,
       email,
       password: hashedPassword,
       name,
       role: 'property_manager',
       status: 'active',
-      mobileNumber: mobileNumber || null,
-      invitedBy: req.userId,
-      invitationToken: null,
-      invitationExpires: null,
-      assignedProperties: assignedProperties || [],
-      permissions: {
-        createVendor: true,
-        assignVendors: true,
-        createTasks: true,
-        viewReports: true,
-        manageAssignedProperties: true
-      },
-      twoFactorEnabled: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      mobile_number: mobileNumber || null,
+      invited_by: req.userId,
+      permissions: userPermissions
     };
 
-    users.push(newUser);
-    data.nextUserId = data.nextUserId + 1;
+    const createdUser = await User.create(newUser);
 
-    createAuditLog(req.userId, 'create_property_manager', 'user', newUser.id, { email, name }, getIpAddress(req));
+    // Create manager profile
+    const managerProfileData = {
+      manager_id: createdUser.id,
+      bio: '',
+      experience: 0,
+      specialties: JSON.stringify([]),
+      response_time: '24 hours',
+      properties_managed: 0,
+      average_rating: 0,
+      total_reviews: 0,
+      location: '',
+      languages: JSON.stringify(['English']),
+      certifications: JSON.stringify([])
+    };
+
+    await sql.query(`
+      INSERT INTO manager_profiles
+      (manager_id, bio, experience, specialties, response_time, properties_managed, average_rating, total_reviews, location, languages, certifications)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      managerProfileData.manager_id,
+      managerProfileData.bio,
+      managerProfileData.experience,
+      managerProfileData.specialties,
+      managerProfileData.response_time,
+      managerProfileData.properties_managed,
+      managerProfileData.average_rating,
+      managerProfileData.total_reviews,
+      managerProfileData.location,
+      managerProfileData.languages,
+      managerProfileData.certifications
+    ]);
+
+    // Assign properties if provided
+    if (assignedProperties && assignedProperties.length > 0) {
+      for (const propertyId of assignedProperties) {
+        await sql.query(`
+          INSERT INTO property_managers (property_id, manager_id, assigned_by)
+          VALUES (?, ?, ?)
+          ON DUPLICATE KEY UPDATE assigned_by = VALUES(assigned_by)
+        `, [propertyId, createdUser.id, req.userId]);
+      }
+    }
+
+    createAuditLog(req.userId, 'create_property_manager', 'user', createdUser.id, { email, name }, getIpAddress(req));
 
     res.status(201).json({
       message: 'Property Manager created successfully',
       user: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        role: newUser.role,
-        status: newUser.status,
-        mobileNumber: newUser.mobileNumber
+        id: createdUser.id,
+        email: createdUser.email,
+        name: createdUser.name,
+        role: createdUser.role,
+        status: createdUser.status,
+        mobile_number: mobileNumber
       }
     });
   } catch (error) {
@@ -648,58 +691,57 @@ exports.getAuditLogs = (req, res) => {
 };
 
 // Get System Overview/Statistics
-exports.getSystemOverview = (req, res) => {
+exports.getSystemOverview = async (req, res) => {
   try {
-    if (!users || !Array.isArray(users)) {
-      return res.status(500).json({ error: 'Users data not available' });
-    }
-    if (!properties || !Array.isArray(properties)) {
-      return res.status(500).json({ error: 'Properties data not available' });
-    }
-    if (!tasks || !Array.isArray(tasks)) {
-      return res.status(500).json({ error: 'Tasks data not available' });
-    }
-    if (!vendors || !Array.isArray(vendors)) {
-      return res.status(500).json({ error: 'Vendors data not available' });
-    }
-    if (!applications || !Array.isArray(applications)) {
-      return res.status(500).json({ error: 'Applications data not available' });
-    }
-    if (!auditLogs || !Array.isArray(auditLogs)) {
-      return res.status(500).json({ error: 'Audit logs data not available' });
-    }
-
     // User statistics
-    const totalUsers = users.length;
-    const activeUsers = users.filter(u => u.status === 'active').length;
-    const suspendedUsers = users.filter(u => u.status === 'suspended').length;
+    const [userStats] = await sql.query(`
+      SELECT
+        COUNT(*) as total_users,
+        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_users,
+        SUM(CASE WHEN status = 'suspended' THEN 1 ELSE 0 END) as suspended_users,
+        SUM(CASE WHEN role = 'super_admin' THEN 1 ELSE 0 END) as super_admins,
+        SUM(CASE WHEN role = 'property_manager' THEN 1 ELSE 0 END) as property_managers,
+        SUM(CASE WHEN role = 'vendor' THEN 1 ELSE 0 END) as vendors,
+        SUM(CASE WHEN role = 'property_owner' THEN 1 ELSE 0 END) as property_owners,
+        SUM(CASE WHEN role = 'tenant' THEN 1 ELSE 0 END) as tenants,
+        SUM(CASE WHEN is_online = TRUE THEN 1 ELSE 0 END) as online_users
+      FROM users
+    `);
+
     const usersByRole = {
-      super_admin: users.filter(u => u.role === 'super_admin').length,
-      property_manager: users.filter(u => u.role === 'property_manager').length,
-      vendor: users.filter(u => u.role === 'vendor').length,
-      property_owner: users.filter(u => u.role === 'property_owner').length,
-      tenant: users.filter(u => u.role === 'tenant').length
+      super_admin: userStats[0].super_admins,
+      property_manager: userStats[0].property_managers,
+      vendor: userStats[0].vendors,
+      property_owner: userStats[0].property_owners,
+      tenant: userStats[0].tenants
     };
 
     // Property statistics
-    const totalProperties = properties.length;
-    const availableProperties = properties.filter(p => p.status === 'available').length;
-    const rentedProperties = properties.filter(p => p.status === 'rented').length;
-    const maintenanceProperties = properties.filter(p => p.status === 'maintenance').length;
+    const [propertyStats] = await sql.query(`
+      SELECT
+        COUNT(*) as total_properties,
+        SUM(CASE WHEN status = 'LISTED' THEN 1 ELSE 0 END) as listed_properties,
+        SUM(CASE WHEN status = 'OCCUPIED' THEN 1 ELSE 0 END) as occupied_properties,
+        SUM(CASE WHEN status = 'MAINTENANCE_ACTIVE' THEN 1 ELSE 0 END) as maintenance_properties,
+        SUM(CASE WHEN status = 'INACTIVE' THEN 1 ELSE 0 END) as inactive_properties
+      FROM properties
+    `);
 
     // Task statistics
-    const totalTasks = tasks.length;
-    const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-    const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
-    const completedTasks = tasks.filter(t => t.status === 'completed').length;
-    const cancelledTasks = tasks.filter(t => t.status === 'cancelled').length;
+    const [taskStats] = await sql.query(`
+      SELECT
+        COUNT(*) as total_tasks,
+        SUM(CASE WHEN status = 'OPEN' THEN 1 ELSE 0 END) as open_tasks,
+        SUM(CASE WHEN status = 'IN_PROGRESS' THEN 1 ELSE 0 END) as in_progress_tasks,
+        SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_tasks,
+        SUM(CASE WHEN status = 'CLOSED' THEN 1 ELSE 0 END) as closed_tasks
+      FROM vendor_tasks
+    `);
 
     // Vendor statistics
-    const totalVendors = vendors.length;
-    const activeVendors = vendors.filter(v => {
-      const vendorUser = users.find(u => u.id === v.userId);
-      return vendorUser?.status === 'active';
-    }).length;
+    const [vendorStats] = await sql.query(`
+      SELECT COUNT(*) as total_vendors FROM users WHERE role = 'vendor'
+    `);
 
     // Application statistics
     const totalApplications = applications.length;
@@ -721,27 +763,29 @@ exports.getSystemOverview = (req, res) => {
 
     res.json({
       users: {
-        total: totalUsers,
-        active: activeUsers,
-        suspended: suspendedUsers,
+        total: userStats[0].total_users,
+        active: userStats[0].active_users,
+        suspended: userStats[0].suspended_users,
+        online: userStats[0].online_users,
         byRole: usersByRole
       },
       properties: {
-        total: totalProperties,
-        available: availableProperties,
-        rented: rentedProperties,
-        maintenance: maintenanceProperties
+        total: propertyStats[0].total_properties,
+        listed: propertyStats[0].listed_properties,
+        occupied: propertyStats[0].occupied_properties,
+        maintenance: propertyStats[0].maintenance_properties,
+        inactive: propertyStats[0].inactive_properties
       },
       tasks: {
-        total: totalTasks,
-        pending: pendingTasks,
-        inProgress: inProgressTasks,
-        completed: completedTasks,
-        cancelled: cancelledTasks
+        total: taskStats[0].total_tasks,
+        open: taskStats[0].open_tasks,
+        inProgress: taskStats[0].in_progress_tasks,
+        completed: taskStats[0].completed_tasks,
+        closed: taskStats[0].closed_tasks
       },
       vendors: {
-        total: totalVendors,
-        active: activeVendors
+        total: vendorStats[0].total_vendors,
+        active: vendorStats[0].total_vendors // For now, all vendors are active
       },
       applications: {
         total: totalApplications,

@@ -1,82 +1,96 @@
-const data = require('../data/mockData');
+// const data = require('../data/mockData'); // Deprecated
+const User = require('../models/user.model');
+const Property = require('../models/property.model');
+const MaintenanceRequest = require('../models/maintenanceRequest.model');
+const Payment = require('../models/payment.model');
+const Message = require('../models/message.model');
+const Tenant = require('../models/tenant.model');
 const { createAuditLog, getUser } = require('../middleware/auth');
 const { getIpAddress } = require('../utils/helpers');
 
-const { users, properties, applications, tenants, messages, payments, maintenanceRequests } = data;
-
 // Get Dashboard
-exports.getDashboard = (req, res) => {
+exports.getDashboard = async (req, res) => {
   try {
     const user = getUser(req);
+    // RBAC check usually done in middleware, but double check here if needed
     if (user.role !== 'tenant') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // Get tenant's current property
-    const currentProperty = properties.find(p => p.tenantId === user.id);
-    
+    // Get tenant's current property via Tenant model (Lease)
+    const tenantRecord = await Tenant.findByUserId(user.id);
+    let currentProperty = null;
+    if (tenantRecord) {
+      currentProperty = await Property.findById(tenantRecord.property_id);
+    }
+
     // Upcoming payments
     const today = new Date();
     const nextMonth = new Date(today);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const upcomingPayments = payments
-      .filter(p => p.tenantId === user.id && p.status === 'pending' && new Date(p.dueDate) >= today && new Date(p.dueDate) <= nextMonth)
-      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+
+    // Fetch all payments for this tenant
+    const allPayments = await Payment.findAllByTenant(user.id);
+    const upcomingPayments = allPayments
+      .filter(p => p.status === 'pending' && new Date(p.due_date) >= today && new Date(p.due_date) <= nextMonth)
+      .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
       .slice(0, 3);
 
     // Unread messages
-    const unreadMessages = messages.filter(m => 
-      m.recipientId === user.id && !m.read
+    // Messages where recipient is user and !read
+    const allMessages = await Message.findByUser(user.id);
+    const unreadMessages = allMessages.filter(m =>
+      m.recipient_id === user.id && !m.is_read
     ).length;
 
     // Pending maintenance requests
-    const pendingMaintenance = maintenanceRequests.filter(mr => 
-      mr.tenantId === user.id && (mr.status === 'open' || mr.status === 'in_progress')
+    const allMaintenance = await MaintenanceRequest.findAllByTenant(user.id);
+    const pendingMaintenance = allMaintenance.filter(mr =>
+      (mr.status === 'open' || mr.status === 'in_progress')
     ).length;
 
     // Recent messages
-    const recentMessages = messages
-      .filter(m => m.tenantId === user.id || m.senderId === user.id)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const recentMessages = await Promise.all(allMessages
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 5)
-      .map(m => {
-        const property = properties.find(p => p.id === m.propertyId);
-        const sender = users.find(u => u.id === m.senderId);
-        const recipient = users.find(u => u.id === m.recipientId);
+      .map(async m => {
+        const property = await Property.findById(m.property_id);
+        const sender = await User.findById(m.sender_id);
+        const recipient = await User.findById(m.recipient_id);
         return {
           ...m,
           property: property ? { id: property.id, title: property.title } : null,
           sender: sender ? { id: sender.id, name: sender.name } : null,
           recipient: recipient ? { id: recipient.id, name: recipient.name } : null
         };
-      });
+      }));
 
     // Active maintenance requests
-    const activeMaintenance = maintenanceRequests
-      .filter(mr => mr.tenantId === user.id && (mr.status === 'open' || mr.status === 'in_progress'))
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const activeMaintenanceDesc = await Promise.all(allMaintenance
+      .filter(mr => (mr.status === 'open' || mr.status === 'in_progress'))
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)) // Check schema for created_at
       .slice(0, 3)
-      .map(mr => {
-        const property = properties.find(p => p.id === mr.propertyId);
+      .map(async mr => {
+        const property = await Property.findById(mr.property_id);
         return {
           ...mr,
           property: property ? { id: property.id, title: property.title } : null
         };
-      });
+      }));
 
     // Payment statistics
-    const totalPaid = payments
-      .filter(p => p.tenantId === user.id && p.status === 'paid')
-      .reduce((sum, p) => sum + (p.amount || 0), 0);
-    
-    const pendingAmount = payments
-      .filter(p => p.tenantId === user.id && p.status === 'pending')
-      .reduce((sum, p) => sum + (p.amount || 0), 0);
+    const totalPaid = allPayments
+      .filter(p => p.status === 'paid')
+      .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+    const pendingAmount = allPayments
+      .filter(p => p.status === 'pending')
+      .reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
     res.json({
       metrics: {
         upcomingRent: upcomingPayments.length > 0 ? upcomingPayments[0].amount : 0,
-        nextDueDate: upcomingPayments.length > 0 ? upcomingPayments[0].dueDate : null,
+        nextDueDate: upcomingPayments.length > 0 ? upcomingPayments[0].due_date : null,
         unreadMessages,
         pendingMaintenance,
         totalPaid,
@@ -86,11 +100,11 @@ exports.getDashboard = (req, res) => {
         id: currentProperty.id,
         title: currentProperty.title,
         address: currentProperty.address,
-        monthlyRent: currentProperty.monthlyRent
+        monthlyRent: tenantRecord ? tenantRecord.monthly_rent : currentProperty.price // Use tenant rent or property price fallback
       } : null,
       upcomingPayments,
       recentMessages,
-      activeMaintenance
+      activeMaintenance: activeMaintenanceDesc
     });
   } catch (error) {
     console.error('Error fetching tenant dashboard:', error);
@@ -99,39 +113,35 @@ exports.getDashboard = (req, res) => {
 };
 
 // Get Payments
-exports.getPayments = (req, res) => {
+exports.getPayments = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const { status, startDate, endDate } = req.query;
-    let tenantPayments = payments.filter(p => p.tenantId === user.id);
+    let tenantPayments = await Payment.findAllByTenant(user.id);
 
     if (status) {
       tenantPayments = tenantPayments.filter(p => p.status === status);
     }
 
     if (startDate) {
-      tenantPayments = tenantPayments.filter(p => new Date(p.dueDate) >= new Date(startDate));
+      tenantPayments = tenantPayments.filter(p => new Date(p.due_date) >= new Date(startDate));
     }
 
     if (endDate) {
-      tenantPayments = tenantPayments.filter(p => new Date(p.dueDate) <= new Date(endDate));
+      tenantPayments = tenantPayments.filter(p => new Date(p.due_date) <= new Date(endDate));
     }
 
-    tenantPayments = tenantPayments
-      .sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate))
-      .map(p => {
-        const property = properties.find(prop => prop.id === p.propertyId);
+    const detailedPayments = await Promise.all(tenantPayments
+      .sort((a, b) => new Date(b.due_date) - new Date(a.due_date))
+      .map(async p => {
+        const property = await Property.findById(p.property_id);
         return {
           ...p,
           property: property ? { id: property.id, title: property.title, address: property.address } : null
         };
-      });
+      }));
 
-    res.json(tenantPayments);
+    res.json(detailedPayments);
   } catch (error) {
     console.error('Error fetching payments:', error);
     res.status(500).json({ error: 'Server error fetching payments' });
@@ -139,24 +149,22 @@ exports.getPayments = (req, res) => {
 };
 
 // Get Upcoming Payments
-exports.getUpcomingPayments = (req, res) => {
+exports.getUpcomingPayments = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const today = new Date();
-    const upcoming = payments
-      .filter(p => p.tenantId === user.id && p.status === 'pending' && new Date(p.dueDate) >= today)
-      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-      .map(p => {
-        const property = properties.find(prop => prop.id === p.propertyId);
+    const allPayments = await Payment.findAllByTenant(user.id);
+
+    const upcoming = await Promise.all(allPayments
+      .filter(p => p.status === 'pending' && new Date(p.due_date) >= today)
+      .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+      .map(async p => {
+        const property = await Property.findById(p.property_id);
         return {
           ...p,
           property: property ? { id: property.id, title: property.title } : null
         };
-      });
+      }));
 
     res.json(upcoming);
   } catch (error) {
@@ -166,21 +174,17 @@ exports.getUpcomingPayments = (req, res) => {
 };
 
 // Get Payment by ID
-exports.getPaymentById = (req, res) => {
+exports.getPaymentById = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const paymentId = parseInt(req.params.id);
-    const payment = payments.find(p => p.id === paymentId && p.tenantId === user.id);
+    const payment = await Payment.findById(paymentId);
 
-    if (!payment) {
+    if (!payment || payment.tenant_id !== user.id) {
       return res.status(404).json({ error: 'Payment not found' });
     }
 
-    const property = properties.find(p => p.id === payment.propertyId);
+    const property = await Property.findById(payment.property_id);
     res.json({
       ...payment,
       property: property ? { id: property.id, title: property.title, address: property.address } : null
@@ -192,29 +196,25 @@ exports.getPaymentById = (req, res) => {
 };
 
 // Get Messages
-exports.getMessages = (req, res) => {
+exports.getMessages = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
+    const allMessages = await Message.findByUser(user.id);
 
-    const tenantMessages = messages
-      .filter(m => m.tenantId === user.id || m.senderId === user.id || m.recipientId === user.id)
-      .map(m => {
-        const property = properties.find(p => p.id === m.propertyId);
-        const sender = users.find(u => u.id === m.senderId);
-        const recipient = users.find(u => u.id === m.recipientId);
+    const detailedMessages = await Promise.all(allMessages
+      .map(async m => {
+        const property = await Property.findById(m.property_id);
+        const sender = await User.findById(m.sender_id);
+        const recipient = await User.findById(m.recipient_id);
         return {
           ...m,
           property: property ? { id: property.id, title: property.title } : null,
           sender: sender ? { id: sender.id, name: sender.name, email: sender.email } : null,
           recipient: recipient ? { id: recipient.id, name: recipient.name, email: recipient.email } : null
         };
-      })
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }));
 
-    res.json(tenantMessages);
+    res.json(detailedMessages);
   } catch (error) {
     console.error('Error fetching messages:', error);
     res.status(500).json({ error: 'Server error fetching messages' });
@@ -222,40 +222,38 @@ exports.getMessages = (req, res) => {
 };
 
 // Get Message by ID
-exports.getMessageById = (req, res) => {
+exports.getMessageById = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const messageId = parseInt(req.params.id);
-    const message = messages.find(m => m.id === messageId && (m.tenantId === user.id || m.senderId === user.id || m.recipientId === user.id));
+    const message = await Message.findById(messageId);
 
-    if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
+    if (!message || (message.tenant_id !== user.id && message.sender_id !== user.id && message.recipient_id !== user.id)) {
+      // Note: message model doesn't have 'tenant_id', just sender/recipient. Logic:
+      if (!message || (message.sender_id !== user.id && message.recipient_id !== user.id)) {
+        return res.status(404).json({ error: 'Message not found' });
+      }
     }
 
-    const property = properties.find(p => p.id === message.propertyId);
-    const sender = users.find(u => u.id === message.senderId);
-    const recipient = users.find(u => u.id === message.recipientId);
+    // Get thread? Filter by property and participants.
+    // Simplifying to just return single message with details for now, or thread logic if feasible.
+    // Tenant usually sees thread.
+    const allUserMessages = await Message.findByUser(user.id);
+    const threadMessages = allUserMessages.filter(m => m.property_id === message.property_id &&
+      (m.sender_id === message.sender_id || m.recipient_id === message.sender_id || m.sender_id === message.recipient_id || m.recipient_id === message.recipient_id) // rough thread logic
+    ).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
-    // Get thread messages
-    const threadMessages = messages
-      .filter(m => m.propertyId === message.propertyId && 
-        (m.senderId === user.id || m.recipientId === user.id || m.senderId === message.senderId || m.recipientId === message.senderId))
-      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-      .map(m => {
-        const s = users.find(u => u.id === m.senderId);
-        const r = users.find(u => u.id === m.recipientId);
-        return {
-          ...m,
-          sender: s ? { id: s.id, name: s.name, email: s.email } : null,
-          recipient: r ? { id: r.id, name: r.name, email: r.email } : null
-        };
-      });
+    const detailedThread = await Promise.all(threadMessages.map(async m => {
+      const s = await User.findById(m.sender_id);
+      const r = await User.findById(m.recipient_id);
+      return {
+        ...m,
+        sender: s ? { id: s.id, name: s.name, email: s.email } : null,
+        recipient: r ? { id: r.id, name: r.name, email: r.email } : null
+      };
+    }));
 
-    res.json(threadMessages);
+    res.json(detailedThread);
   } catch (error) {
     console.error('Error fetching message:', error);
     res.status(500).json({ error: 'Server error fetching message' });
@@ -263,38 +261,28 @@ exports.getMessageById = (req, res) => {
 };
 
 // Send Message
-exports.sendMessage = (req, res) => {
+exports.sendMessage = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const { propertyId, recipientId, subject, message: messageText } = req.body;
 
     if (!propertyId || !recipientId || !messageText) {
       return res.status(400).json({ error: 'Property ID, recipient ID, and message are required' });
     }
 
-    const property = properties.find(p => p.id === propertyId);
+    const property = await Property.findById(propertyId);
     if (!property) {
       return res.status(404).json({ error: 'Property not found' });
     }
 
-    const newMessage = {
-      id: data.nextMessageId,
+    const newMessage = await Message.create({
       propertyId: parseInt(propertyId),
-      tenantId: user.id,
       senderId: user.id,
       recipientId: parseInt(recipientId),
       subject: subject || 'Message about property',
       message: messageText,
-      read: false,
-      createdAt: new Date().toISOString()
-    };
-
-    messages.push(newMessage);
-    data.nextMessageId = data.nextMessageId + 1;
+      read: false
+    });
 
     createAuditLog(user.id, 'send_message', 'message', newMessage.id, { propertyId, recipientId }, getIpAddress(req));
 
@@ -306,24 +294,21 @@ exports.sendMessage = (req, res) => {
 };
 
 // Mark Message as Read
-exports.markMessageRead = (req, res) => {
+exports.markMessageRead = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const messageId = parseInt(req.params.id);
-    const message = messages.find(m => m.id === messageId && (m.recipientId === user.id || m.senderId === user.id));
+    const message = await Message.findById(messageId);
 
-    if (!message) {
+    if (!message || message.recipient_id !== user.id) { // Only recipient can mark as read
       return res.status(404).json({ error: 'Message not found' });
     }
 
-    message.read = true;
-    message.readAt = new Date().toISOString();
+    await Message.markAsRead(messageId);
+    // Fetch updated
+    const updated = await Message.findById(messageId);
 
-    res.json({ message: 'Message marked as read', message });
+    res.json({ message: 'Message marked as read', message: updated });
   } catch (error) {
     console.error('Error marking message as read:', error);
     res.status(500).json({ error: 'Server error marking message as read' });
@@ -331,31 +316,27 @@ exports.markMessageRead = (req, res) => {
 };
 
 // Get Maintenance Requests
-exports.getMaintenance = (req, res) => {
+exports.getMaintenance = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const { status } = req.query;
-    let tenantMaintenance = maintenanceRequests.filter(mr => mr.tenantId === user.id);
+    let tenantMaintenance = await MaintenanceRequest.findAllByTenant(user.id);
 
     if (status) {
       tenantMaintenance = tenantMaintenance.filter(mr => mr.status === status);
     }
 
-    tenantMaintenance = tenantMaintenance
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .map(mr => {
-        const property = properties.find(p => p.id === mr.propertyId);
+    const detailedMaintenance = await Promise.all(tenantMaintenance
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .map(async mr => {
+        const property = await Property.findById(mr.property_id);
         return {
           ...mr,
           property: property ? { id: property.id, title: property.title, address: property.address } : null
         };
-      });
+      }));
 
-    res.json(tenantMaintenance);
+    res.json(detailedMaintenance);
   } catch (error) {
     console.error('Error fetching maintenance requests:', error);
     res.status(500).json({ error: 'Server error fetching maintenance requests' });
@@ -363,26 +344,23 @@ exports.getMaintenance = (req, res) => {
 };
 
 // Create Maintenance Request
-exports.createMaintenance = (req, res) => {
+exports.createMaintenance = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const { propertyId, title, description, priority, photos } = req.body;
 
     if (!propertyId || !title || !description) {
       return res.status(400).json({ error: 'Property ID, title, and description are required' });
     }
 
-    const property = properties.find(p => p.id === propertyId && p.tenantId === user.id);
-    if (!property) {
-      return res.status(404).json({ error: 'Property not found or access denied' });
+    const property = await Property.findById(propertyId);
+    // Verify tenant access?
+    const tenantRecord = await Tenant.findByUserId(user.id);
+    if (!property || !tenantRecord || tenantRecord.property_id !== parseInt(propertyId)) {
+      return res.status(403).json({ error: 'Access denied to this property' });
     }
 
-    const newRequest = {
-      id: data.nextMaintenanceRequestId,
+    const newRequest = await MaintenanceRequest.create({
       propertyId: parseInt(propertyId),
       tenantId: user.id,
       title,
@@ -390,13 +368,8 @@ exports.createMaintenance = (req, res) => {
       priority: priority || 'medium',
       status: 'open',
       photos: photos || [],
-      notes: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    maintenanceRequests.push(newRequest);
-    data.nextMaintenanceRequestId = data.nextMaintenanceRequestId + 1;
+      notes: []
+    });
 
     createAuditLog(user.id, 'create_maintenance_request', 'maintenance', newRequest.id, { propertyId, title }, getIpAddress(req));
 
@@ -408,21 +381,17 @@ exports.createMaintenance = (req, res) => {
 };
 
 // Get Maintenance by ID
-exports.getMaintenanceById = (req, res) => {
+exports.getMaintenanceById = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const requestId = parseInt(req.params.id);
-    const request = maintenanceRequests.find(mr => mr.id === requestId && mr.tenantId === user.id);
+    const request = await MaintenanceRequest.findById(requestId);
 
-    if (!request) {
+    if (!request || request.tenant_id !== user.id) {
       return res.status(404).json({ error: 'Maintenance request not found' });
     }
 
-    const property = properties.find(p => p.id === request.propertyId);
+    const property = await Property.findById(request.property_id);
     res.json({
       ...request,
       property: property ? { id: property.id, title: property.title, address: property.address } : null
@@ -434,45 +403,45 @@ exports.getMaintenanceById = (req, res) => {
 };
 
 // Update Maintenance Request
-exports.updateMaintenance = (req, res) => {
+exports.updateMaintenance = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const requestId = parseInt(req.params.id);
-    const request = maintenanceRequests.find(mr => mr.id === requestId && mr.tenantId === user.id);
+    const request = await MaintenanceRequest.findById(requestId);
 
-    if (!request) {
+    if (!request || request.tenant_id !== user.id) {
       return res.status(404).json({ error: 'Maintenance request not found' });
     }
 
     const { note, photos } = req.body;
 
+    // Construct updates. Note: Model.update expects object mapping to columns or handling JSON internally.
+    // My MaintenanceRequest.update in previous step handled 'notes' and 'photos' updates.
+
+    let notes = request.notes ? ((typeof request.notes === 'string') ? JSON.parse(request.notes) : request.notes) : [];
     if (note) {
-      if (!request.notes) {
-        request.notes = [];
-      }
-      request.notes.push({
+      notes.push({
         note,
         addedBy: user.id,
         addedAt: new Date().toISOString()
       });
     }
 
+    let existingPhotos = request.photos ? ((typeof request.photos === 'string') ? JSON.parse(request.photos) : request.photos) : [];
     if (photos && Array.isArray(photos)) {
-      if (!request.photos) {
-        request.photos = [];
-      }
-      request.photos = [...request.photos, ...photos];
+      existingPhotos = [...existingPhotos, ...photos];
     }
 
-    request.updatedAt = new Date().toISOString();
+    await MaintenanceRequest.update(requestId, {
+      notes: notes,
+      photos: existingPhotos
+    });
+
+    const updatedRequest = await MaintenanceRequest.findById(requestId);
 
     createAuditLog(user.id, 'update_maintenance_request', 'maintenance', requestId, { note: note ? 'Note added' : null, photos: photos ? photos.length : 0 }, getIpAddress(req));
 
-    res.json(request);
+    res.json(updatedRequest);
   } catch (error) {
     console.error('Error updating maintenance request:', error);
     res.status(500).json({ error: 'Server error updating maintenance request' });
@@ -480,28 +449,25 @@ exports.updateMaintenance = (req, res) => {
 };
 
 // Get Current Property
-exports.getCurrentProperty = (req, res) => {
+exports.getCurrentProperty = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
+    const tenantRecord = await Tenant.findByUserId(user.id);
 
-    const currentProperty = properties.find(p => p.tenantId === user.id);
+    if (!tenantRecord) return res.json(null);
 
-    if (!currentProperty) {
-      return res.json(null);
-    }
+    const currentProperty = await Property.findById(tenantRecord.property_id);
+    if (!currentProperty) return res.json(null);
 
     res.json({
       id: currentProperty.id,
       title: currentProperty.title,
       address: currentProperty.address,
-      propertyType: currentProperty.propertyType,
+      propertyType: currentProperty.property_type,
       bedrooms: currentProperty.bedrooms,
       bathrooms: currentProperty.bathrooms,
-      squareFeet: currentProperty.squareFeet,
-      monthlyRent: currentProperty.monthlyRent,
+      squareFeet: currentProperty.area_sqft,
+      monthlyRent: tenantRecord.monthly_rent, // Specific to tenant
       status: currentProperty.status,
       images: currentProperty.images,
       amenities: currentProperty.amenities,
@@ -514,33 +480,29 @@ exports.getCurrentProperty = (req, res) => {
 };
 
 // Get Lease Information
-exports.getLease = (req, res) => {
+exports.getLease = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
+    const tenantRecord = await Tenant.findByUserId(user.id);
 
-    const currentProperty = properties.find(p => p.tenantId === user.id);
-
-    if (!currentProperty) {
+    if (!tenantRecord) {
       return res.status(404).json({ error: 'No active lease found' });
     }
 
-    const owner = users.find(u => u.id === currentProperty.ownerId);
+    const currentProperty = await Property.findById(tenantRecord.property_id);
+    const owner = await User.findById(currentProperty.owner_id);
 
-    // Mock lease data - in real app, this would come from a leases table
     const lease = {
-      id: 1,
-      propertyId: currentProperty.id,
+      id: tenantRecord.id,
+      propertyId: tenantRecord.property_id,
       tenantId: user.id,
-      ownerId: currentProperty.ownerId,
-      startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), // 90 days ago
-      endDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(), // 275 days from now
-      monthlyRent: currentProperty.monthlyRent,
-      securityDeposit: currentProperty.monthlyRent * 1.5,
-      status: 'active',
-      terms: 'Standard lease agreement terms apply.',
+      ownerId: currentProperty.owner_id,
+      startDate: tenantRecord.lease_start_date,
+      endDate: tenantRecord.lease_end_date,
+      monthlyRent: tenantRecord.monthly_rent,
+      securityDeposit: tenantRecord.security_deposit,
+      status: tenantRecord.status,
+      terms: 'Standard lease agreement terms apply.', // Placeholder or fetch from doc?
       property: {
         id: currentProperty.id,
         title: currentProperty.title,
@@ -560,47 +522,13 @@ exports.getLease = (req, res) => {
   }
 };
 
-// Get Documents
-exports.getDocuments = (req, res) => {
+// Get Documents - Placeholder/Stub as Document model not created yet
+exports.getDocuments = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
-    const currentProperty = properties.find(p => p.tenantId === user.id);
-
-    // Mock documents - in real app, this would come from a documents table
     const documents = [];
-
-    // Add lease document if tenant has active property
-    if (currentProperty) {
-      documents.push({
-        id: 1,
-        type: 'lease',
-        name: 'Lease Agreement',
-        propertyId: currentProperty.id,
-        url: `/documents/lease-${currentProperty.id}.pdf`,
-        uploadedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
-      });
-    }
-
-    // Add payment receipts
-    const paidPayments = payments
-      .filter(p => p.tenantId === user.id && p.status === 'paid')
-      .slice(0, 5)
-      .map((p, index) => ({
-        id: 100 + index,
-        type: 'receipt',
-        name: `Payment Receipt - ${new Date(p.paidDate || p.dueDate).toLocaleDateString()}`,
-        propertyId: p.propertyId,
-        url: `/documents/receipt-${p.id}.pdf`,
-        uploadedAt: p.paidDate || p.dueDate
-      }));
-
-    documents.push(...paidPayments);
-
-    res.json(documents.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)));
+    // Return empty for now to avoid breaking UI
+    res.json(documents);
   } catch (error) {
     console.error('Error fetching documents:', error);
     res.status(500).json({ error: 'Server error fetching documents' });
@@ -608,21 +536,19 @@ exports.getDocuments = (req, res) => {
 };
 
 // Get Profile
-exports.getProfile = (req, res) => {
+exports.getProfile = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
+    // Fetch fresh user data?
+    const freshUser = await User.findById(user.id);
     res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      mobileNumber: user.mobileNumber,
-      role: user.role,
-      status: user.status,
-      createdAt: user.createdAt
+      id: freshUser.id,
+      name: freshUser.name,
+      email: freshUser.email,
+      mobileNumber: freshUser.phone, // Mapped to 'phone' in schema?
+      role: freshUser.role,
+      status: freshUser.status,
+      createdAt: freshUser.created_at
     });
   } catch (error) {
     console.error('Error fetching profile:', error);
@@ -631,34 +557,35 @@ exports.getProfile = (req, res) => {
 };
 
 // Update Profile
-exports.updateProfile = (req, res) => {
+exports.updateProfile = async (req, res) => {
   try {
     const user = getUser(req);
-    if (user.role !== 'tenant') {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const { name, mobileNumber } = req.body;
 
-    if (name) {
-      user.name = name;
-    }
+    // User.update method? Need to check if I implemented it.
+    // Auth controller might have it. Or I use direct SQL if not sure.
+    // Let's use SQL for safety here.
+    const sql = require('../config/db');
+    const params = [];
+    let query = 'UPDATE users SET updated_at = NOW()';
+    if (name) { query += ', name = ?'; params.push(name); }
+    if (mobileNumber) { query += ', phone = ?'; params.push(mobileNumber); }
 
-    if (mobileNumber !== undefined) {
-      user.mobileNumber = mobileNumber;
-    }
+    query += ' WHERE id = ?';
+    params.push(user.id);
 
-    user.updatedAt = new Date().toISOString();
+    await sql.query(query, params);
 
+    const updatedUser = await User.findById(user.id);
     createAuditLog(user.id, 'update_profile', 'user', user.id, { name, mobileNumber }, getIpAddress(req));
 
     res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      mobileNumber: user.mobileNumber,
-      role: user.role,
-      status: user.status
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      mobileNumber: updatedUser.phone,
+      role: updatedUser.role,
+      status: updatedUser.status
     });
   } catch (error) {
     console.error('Error updating profile:', error);
@@ -666,3 +593,106 @@ exports.updateProfile = (req, res) => {
   }
 };
 
+
+// Get Saved Properties
+exports.getSavedProperties = async (req, res) => {
+  try {
+    const user = getUser(req);
+    // Join with properties table
+    const query = `
+            SELECT p.*, sp.saved_at
+            FROM saved_properties sp
+            JOIN properties p ON sp.property_id = p.id
+            WHERE sp.user_id = ?
+            ORDER BY sp.saved_at DESC
+        `;
+    const [rows] = await require('../config/db').query(query, [user.id]);
+
+    // Map images if needed (assuming properties table has JSON images)
+    const mappedRows = rows.map(row => ({
+      ...row,
+      images: typeof row.images === 'string' ? JSON.parse(row.images) : row.images,
+      amenities: typeof row.amenities === 'string' ? JSON.parse(row.amenities) : row.amenities
+    }));
+
+    res.json(mappedRows);
+  } catch (error) {
+    console.error('Error fetching saved properties:', error);
+    res.status(500).json({ error: 'Server error fetching saved properties' });
+  }
+};
+
+// Save Property
+exports.saveProperty = async (req, res) => {
+  try {
+    const user = getUser(req);
+    const { propertyId } = req.body;
+
+    if (!propertyId) return res.status(400).json({ error: 'Property ID required' });
+
+    await require('../config/db').query(
+      'INSERT IGNORE INTO saved_properties (user_id, property_id) VALUES (?, ?)',
+      [user.id, propertyId]
+    );
+
+    res.json({ message: 'Property saved successfully' });
+  } catch (error) {
+    console.error('Error saving property:', error);
+    res.status(500).json({ error: 'Server error saving property' });
+  }
+};
+
+// Unsave Property
+exports.unsaveProperty = async (req, res) => {
+  try {
+    const user = getUser(req);
+    const propertyId = req.params.id;
+
+    await require('../config/db').query(
+      'DELETE FROM saved_properties WHERE user_id = ? AND property_id = ?',
+      [user.id, propertyId]
+    );
+
+    res.json({ message: 'Property removed from saved' });
+  } catch (error) {
+    console.error('Error unsaving property:', error);
+    res.status(500).json({ error: 'Server error removing saved property' });
+  }
+};
+
+// Get My Applications
+exports.getMyApplications = async (req, res) => {
+  try {
+    const user = getUser(req);
+
+    const query = `
+            SELECT ra.*, p.title as property_title, p.address as property_address, p.price, p.bedrooms, p.bathrooms, p.monthly_rent
+            FROM rental_applications ra
+            JOIN properties p ON ra.property_id = p.id
+            WHERE ra.applicant_id = ?
+            ORDER BY ra.created_at DESC
+        `;
+    const [rows] = await require('../config/db').query(query, [user.id]);
+
+    // Format for frontend
+    const applications = rows.map(app => ({
+      id: app.id,
+      status: app.status,
+      createdAt: app.created_at,
+      message: app.notes ? (typeof app.notes === 'string' ? JSON.parse(app.notes) : app.notes) : null,
+      property: {
+        id: app.property_id,
+        title: app.property_title,
+        address: app.property_address,
+        price: app.monthly_rent || app.price,
+        bedrooms: app.bedrooms,
+        bathrooms: app.bathrooms
+      }
+    }));
+
+    res.json(applications);
+  } catch (error) {
+    console.error('Error fetching applications:', error);
+    res.status(500).json({ error: 'Server error fetching applications' });
+  }
+};

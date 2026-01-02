@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Helper function to get auth headers
 function getAuthHeaders() {
@@ -677,6 +677,45 @@ export const propertiesAPI = {
       throw new Error('Failed to fetch property');
     }
 
+    return response.json();
+  },
+
+  getSavedProperties: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/saved-properties`, {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch saved properties');
+    return response.json();
+  },
+
+  saveProperty: async (propertyId) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/saved-properties`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ propertyId })
+    });
+
+    if (!response.ok) throw new Error('Failed to save property');
+    return response.json();
+  },
+
+  unsaveProperty: async (propertyId) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/saved-properties/${propertyId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) throw new Error('Failed to remove saved property');
+    return response.json();
+  },
+
+  getMyApplications: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/applications`, {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch applications');
     return response.json();
   }
 };

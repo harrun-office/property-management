@@ -1,14 +1,83 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import RoleBasedNavbar from '../../RoleBasedNavbar';
+import { useAuth } from '../../../context/AuthContext';
+import VendorSidebar from './VendorSidebar';
 
 const VendorLayout = () => {
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+    const { user, logout } = useAuth();
+
     return (
-        <div className="min-h-screen bg-[var(--ui-bg-page)] text-[var(--ui-text-primary)] flex flex-col">
-            <RoleBasedNavbar />
-            <main className="flex-grow">
-                <Outlet />
-            </main>
+        <div className="min-h-screen bg-[var(--ui-bg-page)] flex">
+            {/* Sidebar */}
+            <VendorSidebar
+                mobileOpen={mobileOpen}
+                setMobileOpen={setMobileOpen}
+                setIsSidebarHovered={setIsSidebarHovered}
+            />
+
+            {/* Main Wrapper - Dynamic margin based on sidebar hover */}
+            <div className={`flex-1 min-w-0 flex flex-col transition-[margin] duration-300 ease-in-out ${isSidebarHovered ? 'lg:ml-64' : 'lg:ml-20'}`}>
+
+                {/* Header */}
+                <header className="h-16 bg-[var(--ui-bg-surface)] border-b border-[var(--ui-border-default)] flex items-center justify-between px-6 sticky top-0 z-20">
+                    <div className="flex items-center gap-4">
+                        {/* Mobile Toggle */}
+                        <button
+                            onClick={() => setMobileOpen(true)}
+                            className="lg:hidden p-2 -ml-2 text-[var(--ui-text-secondary)] hover:text-[var(--ui-text-primary)]"
+                        >
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+
+                        {/* Title / Role Indicator */}
+                        <div className="flex items-center gap-4 group relative cursor-pointer">
+                            <div className="relative w-10 h-10">
+                                {/* Base morphing container */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-accent)] via-[var(--brand-secondary)] to-[var(--brand-accent-dark)] rounded-xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 overflow-hidden">
+                                    {/* Icon */}
+                                    <svg className="w-6 h-6 text-white transition-all duration-300 group-hover:scale-110 relative z-10 drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-bold text-lg leading-tight text-[var(--ui-text-primary)] group-hover:text-[var(--brand-accent)] transition-colors duration-300">
+                                    PropManage
+                                </span>
+                                <span className="text-[10px] text-[var(--ui-text-muted)] font-medium uppercase tracking-wider flex items-center gap-1">
+                                    Vendor Portal <span className="w-1 h-1 rounded-full bg-[var(--ui-border-default)]"></span> v1.0
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Side: Profile & Logout */}
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:flex flex-col items-end">
+                            <span className="text-sm font-medium text-[var(--ui-text-primary)]">{user?.name || 'Vendor'}</span>
+                            <span className="text-xs text-[var(--ui-text-muted)]">{user?.email}</span>
+                        </div>
+                        <button
+                            onClick={logout}
+                            className="p-2 text-[var(--ui-text-muted)] hover:text-[var(--ui-error)] hover:bg-[var(--ui-error)]/10 rounded-full transition-colors"
+                            title="Logout"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </button>
+                    </div>
+                </header>
+
+                {/* Page Content */}
+                <main className="flex-1 p-6 overflow-x-hidden">
+                    <Outlet />
+                </main>
+            </div>
         </div>
     );
 };

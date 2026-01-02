@@ -24,7 +24,7 @@ function Register() {
 
   const validateField = (name, value) => {
     let error = '';
-
+    
     switch (name) {
       case 'name':
         if (!value.trim()) {
@@ -80,7 +80,7 @@ function Register() {
       default:
         break;
     }
-
+    
     return error;
   };
 
@@ -90,12 +90,12 @@ function Register() {
       ...formData,
       [name]: value
     });
-
+    
     // Clear top error when user starts typing
     if (error) {
       setError('');
     }
-
+    
     // Validate on change if field has been touched
     if (touched[name]) {
       const error = validateField(name, value);
@@ -104,7 +104,7 @@ function Register() {
         [name]: error
       });
     }
-
+    
     // Special handling for confirmPassword - validate against current password
     if (name === 'password' && touched.confirmPassword && formData.confirmPassword) {
       const confirmError = validateField('confirmPassword', formData.confirmPassword);
@@ -121,7 +121,7 @@ function Register() {
       ...touched,
       [name]: true
     });
-
+    
     const error = validateField(name, value);
     setErrors({
       ...errors,
@@ -132,14 +132,14 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+    
     // Mark all fields as touched
     const allTouched = Object.keys(formData).reduce((acc, key) => {
       acc[key] = true;
       return acc;
     }, {});
     setTouched(allTouched);
-
+    
     // Validate all fields
     const newErrors = {};
     Object.keys(formData).forEach(key => {
@@ -150,9 +150,9 @@ function Register() {
         }
       }
     });
-
+    
     setErrors(newErrors);
-
+    
     // Check if there are any errors
     if (Object.keys(newErrors).length > 0) {
       // Only show generic error if there are validation errors
@@ -192,16 +192,16 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-porcelain px-4 py-6">
+    <div className="min-h-screen flex items-center justify-center bg-porcelain px-4 py-8">
       <div className="max-w-md w-full">
-        <Card variant="elevated" padding="md">
+        <Card variant="elevated" padding="lg">
           <Card.Header>
             <h2 className="text-3xl font-bold text-center text-charcoal mb-2">Create Your Free Account</h2>
             <Card.Description className="text-center">
               Not sure which role to choose? <Link to="/how-it-works" className="text-obsidian-500 font-semibold hover:text-brass-500 transition-colors">See how it works</Link>
             </Card.Description>
           </Card.Header>
-
+          
           {error && (
             <Card variant="outlined" padding="md" className="mb-4 border-error bg-error/5">
               <div className="flex items-start">
@@ -214,7 +214,7 @@ function Register() {
           )}
 
           <Card.Body>
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <Input
                 label="Full Name"
                 type="text"
@@ -251,25 +251,6 @@ function Register() {
                 required
               />
 
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">
-                  Role <span className="text-error">*</span> <span className="text-architectural text-xs">(Choose based on what you want to do)</span>
-                </label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  required
-                  className="w-full p-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-obsidian focus:border-obsidian bg-porcelain"
-                >
-                  <option value="tenant">Tenant - Looking for a property to rent</option>
-                  <option value="property_owner">Property Owner - Want to list and manage properties</option>
-                </select>
-                <p className="mt-2 text-xs text-eucalyptus">
-                  {formData.role === 'tenant' && '✓ Search properties, contact owners, save favorites'}
-                  {formData.role === 'property_owner' && '✓ List properties, manage tenants, track income (no commission fees!)'}
-                </p>
-              </div>
 
               <Input
                 label="Password"
@@ -296,7 +277,25 @@ function Register() {
                 required
               />
 
-
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1.5">
+                  Role <span className="text-error-500">*</span> <span className="text-architectural text-xs">(Choose based on what you want to do)</span>
+                </label>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-[var(--ui-border-default)] rounded-lg focus:ring-2 focus:ring-[var(--ui-focus)] focus:border-[var(--ui-action-primary)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] transition-all"
+                >
+                  <option value="tenant">Tenant - Looking for a property to rent</option>
+                  <option value="property_owner">Property Owner - Want to list and manage properties</option>
+                </select>
+                <p className="mt-2 text-xs text-eucalyptus-600">
+                  {formData.role === 'tenant' && '✓ Search properties, contact owners, save favorites'}
+                  {formData.role === 'property_owner' && '✓ List properties, manage tenants, track income (no commission fees!)'}
+                </p>
+              </div>
 
               <Button
                 type="submit"

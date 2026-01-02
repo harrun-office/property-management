@@ -1,38 +1,46 @@
 const express = require('express');
 const router = express.Router();
 const tenantController = require('../controllers/tenant.controller');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, requireTenant } = require('../middleware/auth');
 
 // Dashboard
-router.get('/dashboard', authenticate, tenantController.getDashboard);
+router.get('/dashboard', authenticate, requireTenant, tenantController.getDashboard);
 
 // Payments
-router.get('/payments', authenticate, tenantController.getPayments);
-router.get('/payments/upcoming', authenticate, tenantController.getUpcomingPayments);
-router.get('/payments/:id', authenticate, tenantController.getPaymentById);
+router.get('/payments', authenticate, requireTenant, tenantController.getPayments);
+router.get('/payments/upcoming', authenticate, requireTenant, tenantController.getUpcomingPayments);
+router.get('/payments/:id', authenticate, requireTenant, tenantController.getPaymentById);
 
 // Messages
-router.get('/messages', authenticate, tenantController.getMessages);
-router.get('/messages/:id', authenticate, tenantController.getMessageById);
-router.post('/messages', authenticate, tenantController.sendMessage);
-router.put('/messages/:id/read', authenticate, tenantController.markMessageRead);
+router.get('/messages', authenticate, requireTenant, tenantController.getMessages);
+router.get('/messages/:id', authenticate, requireTenant, tenantController.getMessageById);
+router.post('/messages', authenticate, requireTenant, tenantController.sendMessage);
+router.put('/messages/:id/read', authenticate, requireTenant, tenantController.markMessageRead);
 
 // Maintenance
-router.get('/maintenance', authenticate, tenantController.getMaintenance);
-router.post('/maintenance', authenticate, tenantController.createMaintenance);
-router.get('/maintenance/:id', authenticate, tenantController.getMaintenanceById);
-router.put('/maintenance/:id', authenticate, tenantController.updateMaintenance);
+router.get('/maintenance', authenticate, requireTenant, tenantController.getMaintenance);
+router.post('/maintenance', authenticate, requireTenant, tenantController.createMaintenance);
+router.get('/maintenance/:id', authenticate, requireTenant, tenantController.getMaintenanceById);
+router.put('/maintenance/:id', authenticate, requireTenant, tenantController.updateMaintenance);
 
 // Current Property & Lease
-router.get('/current-property', authenticate, tenantController.getCurrentProperty);
-router.get('/lease', authenticate, tenantController.getLease);
+router.get('/current-property', authenticate, requireTenant, tenantController.getCurrentProperty);
+router.get('/lease', authenticate, requireTenant, tenantController.getLease);
 
 // Documents
-router.get('/documents', authenticate, tenantController.getDocuments);
+router.get('/documents', authenticate, requireTenant, tenantController.getDocuments);
 
 // Profile
-router.get('/profile', authenticate, tenantController.getProfile);
-router.put('/profile', authenticate, tenantController.updateProfile);
+router.get('/profile', authenticate, requireTenant, tenantController.getProfile);
+router.put('/profile', authenticate, requireTenant, tenantController.updateProfile);
+
+// Saved Properties
+router.get('/saved-properties', authenticate, requireTenant, tenantController.getSavedProperties);
+router.post('/saved-properties', authenticate, requireTenant, tenantController.saveProperty);
+router.delete('/saved-properties/:id', authenticate, requireTenant, tenantController.unsaveProperty);
+
+// Applications
+router.get('/applications', authenticate, requireTenant, tenantController.getMyApplications);
 
 module.exports = router;
 

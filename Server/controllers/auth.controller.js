@@ -1,9 +1,9 @@
 const bcrypt = require('bcryptjs');
-const data = require('../data/mockData');
+// const data = require('../data/mockData'); // Deprecated
+const User = require('../models/user.model');
+const Tenant = require('../models/tenant.model');
 const { generateToken, generateInvitationToken, validateInvitationToken, createAuditLog } = require('../middleware/auth');
 const { getIpAddress } = require('../utils/helpers');
-
-const { users } = data;
 
 exports.login = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = users.find(u => u.email === email);
+    const user = await User.findByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -28,6 +28,14 @@ exports.login = async (req, res) => {
     }
 
     const token = generateToken(user.id, user.role);
+
+    let hasActiveTenancy = false;
+    if (user.role === 'tenant') {
+      const activeTenancy = await Tenant.findActiveTenancy(user.id);
+      hasActiveTenancy = !!activeTenancy;
+    }
+
+    // Audit log can be async, don't block
     createAuditLog(user.id, 'login', 'user', user.id, {}, getIpAddress(req));
 
     res.json({
@@ -38,10 +46,13 @@ exports.login = async (req, res) => {
         email: user.email,
         name: user.name,
         role: user.role,
-        status: user.status
+        status: user.status,
+        hasActiveTenancy,
+        permissions: (typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions) || {}
       }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: 'Server error during login' });
   }
 };
@@ -61,7 +72,7 @@ exports.register = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = users.find(u => u.email === email);
+    const existingUser = await User.findByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
@@ -74,37 +85,29 @@ exports.register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
-    const newUser = {
-      id: data.nextUserId,
+    // Permissions Logic
+    const permissions = role === 'tenant' ? {
+      viewProperties: true,
+      applyForProperties: true,
+      viewApplications: true
+    } : role === 'property_owner' ? {
+      createProperties: true,
+      manageOwnProperties: true,
+      viewOwnProperties: true
+    } : {
+      viewProperties: true
+    };
+
+    const newUserObj = {
       email,
       password: hashedPassword,
       name,
       role,
-      mobileNumber: mobileNumber || null,
       status: 'active',
-      invitedBy: null,
-      invitationToken: null,
-      invitationExpires: null,
-      assignedProperties: [],
-      permissions: role === 'tenant' ? {
-        viewProperties: true,
-        applyForProperties: true,
-        viewApplications: true
-      } : role === 'property_owner' ? {
-        createProperties: true,
-        manageOwnProperties: true,
-        viewOwnProperties: true
-      } : {
-        viewProperties: true
-      },
-      twoFactorEnabled: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      permissions
     };
 
-    users.push(newUser);
-    data.nextUserId = data.nextUserId + 1;
+    const newUser = await User.create(newUserObj);
 
     const token = generateToken(newUser.id, newUser.role);
     createAuditLog(newUser.id, 'register', 'user', newUser.id, { email, role }, getIpAddress(req));
@@ -117,73 +120,25 @@ exports.register = async (req, res) => {
         email: newUser.email,
         name: newUser.name,
         role: newUser.role,
-        status: newUser.status
+        status: newUser.status,
+        permissions: newUser.permissions
       }
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server error during registration' });
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Server error during registration', details: error.message, sqlMessage: error.sqlMessage });
   }
 };
 
+// ... Invitation logic requires DB schema for invitations (currently separate or tokens)
+// For now, retaining basic structure but invites need DB table or User field update
 exports.validateInvitation = (req, res) => {
-  try {
-    const { token } = req.params;
-    const user = validateInvitationToken(token);
-
-    if (!user) {
-      return res.status(404).json({ error: 'Invalid or expired invitation token' });
-    }
-
-    res.json({
-      valid: true,
-      email: user.email,
-      name: user.name,
-      role: user.role
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Server error validating invitation' });
-  }
+  // TODO: implement DB-based invitation lookup
+  res.status(501).json({ error: 'Invitation logic pending DB migration' });
 };
 
 exports.acceptInvitation = async (req, res) => {
-  try {
-    const { token, password } = req.body;
-
-    if (!token || !password) {
-      return res.status(400).json({ error: 'Token and password are required' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
-
-    const user = validateInvitationToken(token);
-    if (!user) {
-      return res.status(404).json({ error: 'Invalid or expired invitation token' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    user.password = hashedPassword;
-    user.invitationToken = null;
-    user.invitationExpires = null;
-    user.status = 'active';
-    user.updatedAt = new Date().toISOString();
-
-    const authToken = generateToken(user.id, user.role);
-    createAuditLog(user.id, 'accept_invitation', 'user', user.id, {}, getIpAddress(req));
-
-    res.json({
-      message: 'Invitation accepted successfully',
-      token: authToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Server error accepting invitation' });
-  }
+  // TODO: implement DB-based invitation acceptance
+  res.status(501).json({ error: 'Invitation logic pending DB migration' });
 };
 

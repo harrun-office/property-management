@@ -7,7 +7,7 @@ import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 
 function Login() {
-
+  const [role, setRole] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -17,11 +17,24 @@ function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Map display names to role values
+  const roleMap = {
+    'admin': 'super_admin',
+    'property_manager': 'property_manager',
+    'property_owner': 'property_owner',
+    'tenant': 'tenant',
+    'vendor': 'vendor'
+  };
 
+  const getRoleDisplayName = (roleValue) => {
+    const roleEntries = Object.entries(roleMap);
+    const entry = roleEntries.find(([_, value]) => value === roleValue);
+    return entry ? entry[0].replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : roleValue;
+  };
 
   const validateField = (name, value) => {
     let error = '';
-
+    
     switch (name) {
       case 'email':
         if (!value.trim()) {
@@ -37,20 +50,27 @@ function Login() {
           error = 'Password cannot be empty';
         }
         break;
+      case 'role':
+        if (!value) {
+          error = 'Please select your role';
+        }
+        break;
       default:
         break;
     }
-
+    
     return error;
   };
 
   const handleChange = (field, value) => {
-    if (field === 'email') {
+    if (field === 'role') {
+      setRole(value);
+    } else if (field === 'email') {
       setEmail(value);
     } else if (field === 'password') {
       setPassword(value);
     }
-
+    
     // Validate on change if field has been touched
     if (touched[field]) {
       const error = validateField(field, value);
@@ -66,7 +86,7 @@ function Login() {
       ...touched,
       [field]: true
     });
-
+    
     const error = validateField(field, value);
     setErrors({
       ...errors,
@@ -77,22 +97,22 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+    
     // Mark all fields as touched
-    setTouched({ email: true, password: true });
-
+    setTouched({ role: true, email: true, password: true });
+    
     // Validate all fields
     const newErrors = {
+      role: validateField('role', role),
       email: validateField('email', email),
       password: validateField('password', password)
     };
-
+    
     setErrors(newErrors);
-
+    
     // Check if there are any errors
     if (Object.values(newErrors).some(err => err)) {
       setError('Please fix the errors in the form');
-      setLoading(false);
       return;
     }
 
@@ -100,12 +120,17 @@ function Login() {
 
     try {
       const response = await authAPI.login(email, password);
-
-      // Role is now inferred from backend response
-
+      
+      // Check if user's role matches selected role
+      const expectedRole = roleMap[role];
+      if (response.user.role !== expectedRole) {
+        setError(`Invalid role. Please select ${getRoleDisplayName(response.user.role)} or use the correct credentials.`);
+        setLoading(false);
+        return;
+      }
 
       login(response.user, response.token);
-
+      
       // Redirect based on role
       if (response.user.role === 'super_admin') {
         navigate('/admin/dashboard');
@@ -128,16 +153,16 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-porcelain px-4 py-6">
+    <div className="min-h-screen flex items-center justify-center bg-porcelain px-4 py-12">
       <div className="max-w-md w-full">
-        <Card variant="elevated" padding="md">
+        <Card variant="elevated" padding="lg">
           <Card.Header>
             <h2 className="text-3xl font-bold text-center text-charcoal mb-2">Login</h2>
             <Card.Description className="text-center">
               Sign in to your account to continue
             </Card.Description>
           </Card.Header>
-
+          
           {error && (
             <Card variant="outlined" padding="md" className="mb-4 border-error bg-error/5">
               <p className="text-error font-medium">{error}</p>
@@ -145,8 +170,31 @@ function Login() {
           )}
 
           <Card.Body>
-            <form onSubmit={handleSubmit} className="space-y-3">
-
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1.5">
+                  Role <span className="text-error-500">*</span>
+                </label>
+                <select
+                  value={role}
+                  onChange={(e) => handleChange('role', e.target.value)}
+                  onBlur={(e) => handleBlur('role', e.target.value)}
+                  required
+                  className={`w-full px-4 py-2.5 border border-[var(--ui-border-default)] rounded-lg focus:ring-2 focus:ring-[var(--ui-focus)] focus:border-[var(--ui-action-primary)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] transition-all ${
+                    errors.role ? 'border-error-500' : 'border-stone-300'
+                  }`}
+                >
+                  <option value="">Select your role</option>
+                  <option value="admin">Admin</option>
+                  <option value="property_manager">Property Manager</option>
+                  <option value="property_owner">Property Owner</option>
+                  <option value="tenant">Tenant</option>
+                  <option value="vendor">Vendor</option>
+                </select>
+                {errors.role && touched.role && (
+                  <p className="mt-1.5 text-sm text-error-500">{errors.role}</p>
+                )}
+              </div>
 
               <Input
                 label="Email"

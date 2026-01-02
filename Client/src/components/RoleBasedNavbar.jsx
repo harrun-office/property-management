@@ -739,7 +739,7 @@ function RoleBasedNavbar() {
                     <NavLink to="/owner/messages" className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>Messages</NavLink>
                   </>
                 )}
-                {isTenant && (
+                {isTenant && hasActiveProperty && (
                   <>
                     <NavLink to="/tenant/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Dashboard</NavLink>
                     <NavLink to="/tenant/payments" className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Payments</NavLink>
@@ -748,10 +748,15 @@ function RoleBasedNavbar() {
                     <NavLink to="/tenant/lease" className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Lease</NavLink>
                     <NavLink to="/tenant/documents" className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>Documents</NavLink>
                     <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>Profile</NavLink>
-                    {!hasActiveProperty && (
-                      <NavLink to="/tenant/saved" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.45s' }}>Saved</NavLink>
-                    )}
-                    <NavLink to="/tenant/applications" className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>Applications</NavLink>
+                  </>
+                )}
+                {isTenant && !hasActiveProperty && (
+                  <>
+                    <NavLink to="/" icon={<HomeIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Home</NavLink>
+                    <NavLink to="/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Properties</NavLink>
+                    <NavLink to="/tenant/saved" className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Saved</NavLink>
+                    <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Profile</NavLink>
+                    <NavLink to="/tenant/applications" className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Applications</NavLink>
                   </>
                 )}
               </>
