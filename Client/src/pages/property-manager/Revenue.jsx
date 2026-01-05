@@ -74,7 +74,7 @@ function Revenue() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <MetricCard
                 title="Total Revenue"
-                value={`$${revenue.totalRevenue.toLocaleString()}`}
+                value={`$${(revenue.totalRevenue || 0).toLocaleString()}`}
                 variant="success"
                 icon={
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,7 +84,7 @@ function Revenue() {
               />
               <MetricCard
                 title="Payments Received"
-                value={revenue.paymentCount.toString()}
+                value={(revenue.paymentCount || 0).toString()}
                 variant="default"
                 icon={
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +94,7 @@ function Revenue() {
               />
               <MetricCard
                 title="Average per Payment"
-                value={`$${revenue.paymentCount > 0 ? Math.round(revenue.totalRevenue / revenue.paymentCount) : 0}`}
+                value={`$${revenue.paymentCount > 0 ? Math.round((revenue.totalRevenue || 0) / revenue.paymentCount) : 0}`}
                 variant="default"
                 icon={
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

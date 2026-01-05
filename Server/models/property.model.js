@@ -35,14 +35,22 @@ Property.findById = async (id) => {
 
             // Fetch assigned managers (M:N - currently schema supports this, though mock used assigned_manager_id column)
             // We will check both for backward compatibility or future features
+            // Fetch assigned managers (M:N - currently schema supports this, though mock used assigned_manager_id column)
+            // We will check both for backward compatibility or future features
+            /* 
             const [managers] = await sql.query(`
         SELECT pm.manager_id
         FROM property_managers pm
         WHERE pm.property_id = ?
       `, [id]);
+            */
+            const managers = []; // Default to empty array if table not present
 
             property.assignedVendors = vendors;
             property.assignedManagers = managers.map(m => m.manager_id);
+            if (property.assigned_manager_id) {
+                property.assignedManagers.push(property.assigned_manager_id);
+            }
 
             // Map DB columns to API camelCase expectation if needed, or keeping snake_case for internal
             // For now, let's normalize to camelCase to match legacy mock structure for easier controller compat
@@ -66,6 +74,11 @@ Property.findById = async (id) => {
                 assignedManagerId: property.assigned_manager_id,
                 assignedVendors: property.assignedVendors,
                 assignedManagers: property.assignedManagers,
+                images: [
+                    'http://localhost:5000/properties/apartment_view.svg',
+                    'http://localhost:5000/properties/loft_view.svg',
+                    'http://localhost:5000/properties/house_view.svg'
+                ],
                 createdAt: property.created_at,
                 updatedAt: property.updated_at
             };
@@ -79,7 +92,13 @@ Property.findById = async (id) => {
 Property.findAll = async () => {
     // Simple findAll
     const [rows] = await sql.query('SELECT * FROM properties');
-    return rows;
+    return rows.map(row => ({
+        ...row,
+        images: [
+            'http://localhost:5000/properties/apartment_view.svg',
+            'http://localhost:5000/properties/loft_view.svg'
+        ]
+    }));
 };
 
 Property.findAllWithFilters = async (filters = {}, limit = 20, offset = 0) => {
@@ -151,6 +170,10 @@ Property.findAllWithFilters = async (filters = {}, limit = 20, offset = 0) => {
             ownerEmail: row.owner_email,
             tenantId: row.tenant_id,
             monthlyRent: row.price, // Assuming price is monthly rent
+            images: [
+                'http://localhost:5000/properties/house_view.svg',
+                'http://localhost:5000/properties/loft_view.svg'
+            ],
             createdAt: row.created_at,
             updatedAt: row.updated_at
         }));
@@ -216,7 +239,11 @@ Property.findByOwner = async (ownerId) => {
 
         return rows.map(row => ({
             ...row,
-            activeTenants: row.active_tenants
+            activeTenants: row.active_tenants,
+            images: [
+                'http://localhost:5000/properties/apartment_view.svg',
+                'http://localhost:5000/properties/house_view.svg'
+            ]
         }));
     } catch (err) {
         throw err;

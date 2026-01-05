@@ -1,9 +1,10 @@
 // ===========================================
 // PROPERTY MANAGEMENT SYSTEM - MAIN SERVER
-// Multi-User Real-Time Application
+// Multi-User Real-Time Application (Restart Trigger v15)
 // ===========================================
 
 const http = require('http');
+const express = require('express');
 const app = require('./config/server');
 const WebSocketService = require('./services/websocket.service');
 
@@ -20,8 +21,12 @@ const tenantRoutes = require('./routes/tenant.routes');
 const port = process.env.PORT || 5000;
 const wsPort = process.env.WEBSOCKET_PORT || 5001;
 
+const path = require('path');
+
 // Mount API routes
 app.use('/api/auth', authRoutes);
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from public directory
 app.use('/api/invitations', invitationRoutes);
 app.use('/api', publicRoutes);
 app.use('/api/admin', adminRoutes);
@@ -61,6 +66,12 @@ async function startServer() {
         const initDB = require('./config/init');
         await initDB();
         console.log('✅ Database initialized');
+
+        // RUN SCHEMA FIX
+        const fixSchema = require('./fix_schema');
+        await fixSchema();
+
+
 
         // Create HTTP server
         const server = http.createServer(app);

@@ -32,16 +32,17 @@ const Input = forwardRef(({
   size = 'md',
   variant = 'default',
   className = '',
+  onIconClick,
   ...props
 }, ref) => {
-  const baseStyles = 'w-full rounded-lg border transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-0 shadow-xs focus:shadow-soft hover:shadow-soft';
+  const baseStyles = 'w-full rounded-lg border transition-all duration-300 ease-out focus:outline-none focus:ring-4 focus:ring-offset-0 shadow-sm focus:shadow-md';
 
   const variants = {
-    default: 'border-[var(--ui-border-default)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--brand-accent)] focus:ring-[var(--brand-accent)]/20 hover:border-[var(--ui-border-strong)]',
-    error: 'border-[var(--ui-error)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-error)] focus:ring-[var(--ui-error)]/20 shadow-soft',
-    success: 'border-[var(--ui-success)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-success)] focus:ring-[var(--ui-success)]/20 shadow-soft',
+    default: 'border-[var(--ui-border-default)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--brand-secondary)] focus:ring-[var(--brand-secondary)]/20 hover:border-[var(--brand-secondary)]/50',
+    error: 'border-[var(--ui-error)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-error)] focus:ring-[var(--ui-error)]/15 shadow-sm',
+    success: 'border-[var(--ui-success)] bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:border-[var(--ui-success)] focus:ring-[var(--ui-success)]/15 shadow-sm',
   };
-  
+
   const sizes = {
     sm: 'px-3 py-2 text-sm',
     md: 'px-4 py-2.5 text-base',
@@ -66,7 +67,13 @@ const Input = forwardRef(({
   `.trim().replace(/\s+/g, ' ');
 
   const iconElement = icon && (
-    <div className={`absolute ${iconPosition === 'left' ? 'left-3' : 'right-3'} top-1/2 transform -translate-y-1/2 text-[var(--ui-text-muted)] ${iconSizes[size]} transition-colors duration-200`}>
+    <div
+      className={`absolute ${iconPosition === 'left' ? 'left-3' : 'right-3'} top-1/2 transform -translate-y-1/2 text-gray-500 bg-transparent ${iconSizes[size]} transition-colors duration-200 ${onIconClick ? 'cursor-pointer hover:text-[var(--ui-text-primary)]' : ''}`}
+      onClick={onIconClick}
+      role={onIconClick ? "button" : undefined}
+      tabIndex={onIconClick ? 0 : undefined}
+      style={{ backgroundColor: 'transparent', border: 'none', color: '#6b7280' }}
+    >
       {icon}
     </div>
   );

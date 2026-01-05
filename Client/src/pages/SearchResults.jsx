@@ -27,8 +27,9 @@ function SearchResults() {
     setLoading(true);
     setError('');
     try {
-      const data = await propertiesAPI.search?.(searchTerm) || await propertiesAPI.getAll({ search: searchTerm });
-      setProperties(data);
+      const rawData = await propertiesAPI.search?.(searchTerm) || await propertiesAPI.getAll({ search: searchTerm });
+      const data = (rawData && rawData.properties) ? rawData.properties : rawData;
+      setProperties(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message || 'Search failed');
     } finally {

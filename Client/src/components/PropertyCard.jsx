@@ -14,8 +14,15 @@ function PropertyCard({ property, noLink = false }) {
     <Card variant="elevated" padding="none" hover className="overflow-hidden transition-all duration-300 group">
       <div className="relative h-56 overflow-hidden bg-stone-200">
         <img
-          src={property.images && property.images.length > 0 ? property.images[0] : 'https://images.unsplash.com/photo-1560185008-b033106af5d6'}
+          src={property.images && property.images.length > 0 ? property.images[0] : 'https://placehold.co/400x300?text=No+Image'}
           alt={property.title}
+          onError={(e) => {
+            console.error('Image load error for:', property.title, e.target.src);
+            e.target.onerror = null;
+            if (e.target.src !== 'https://placehold.co/400x300?text=Fallback') {
+              e.target.src = 'https://placehold.co/400x300?text=Fallback';
+            }
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute top-4 right-4">

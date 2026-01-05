@@ -1,8 +1,9 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/Navbar';
+import RoleBasedNavbar from './components/RoleBasedNavbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 
 // Public pages
 import Landing from './pages/Landing';
@@ -23,6 +24,8 @@ import HelpCenter from './pages/HelpCenter';
 // Super Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import PropertyActivity from './pages/admin/PropertyActivity';
+
+import ManagerLayout from './components/property-manager/layout/ManagerLayout'; // Import Layout
 
 // Property Manager pages
 import PropertyManagerDashboard from './pages/property-manager/PropertyManagerDashboard';
@@ -70,13 +73,28 @@ import Analytics from './pages/owner/Analytics';
 import Maintenance from './pages/owner/Maintenance';
 import Settings from './pages/owner/Settings';
 
+import OwnerLayout from './components/owner/layout/OwnerLayout'; // Import Owner Layout
+
+// ... imports remain the same ...
+
 function App() {
+  const location = useLocation();
+  const hideLayoutRoutes = ['/login', '/register'];
+  const isManagerRoute = location.pathname.startsWith('/property-manager');
+  const isOwnerRoute = location.pathname.startsWith('/owner'); // Identify owner routes
+
+  // Hide global layout for auth pages, manager pages, AND owner pages
+  const showLayout = !hideLayoutRoutes.includes(location.pathname) && !isManagerRoute && !isOwnerRoute;
+
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-[var(--ui-bg-page)] text-[var(--ui-text-primary)] flex flex-col">
-        <Navbar />
-        <main className="flex-grow">
-            <Routes>
+      <div className={`bg-[var(--ui-bg-page)] text-[var(--ui-text-primary)] flex flex-col ${!showLayout ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
+        <ScrollToTop />
+        {showLayout && <RoleBasedNavbar />}
+        <main className="flex-grow flex flex-col">
+          <Routes>
+            {/* ... other routes remain the same ... */}
+
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/properties" element={<BrowseProperties />} />
@@ -112,77 +130,23 @@ function App() {
 
             {/* Property Manager Routes */}
             <Route
-              path="/property-manager/dashboard"
+              path="/property-manager"
               element={
                 <ProtectedRoute requirePropertyManager>
-                  <PropertyManagerDashboard />
+                  <ManagerLayout />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/property-manager/properties"
-              element={
-                <ProtectedRoute requirePropertyManager>
-                  <ManageProperties />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/property-manager/vendors"
-              element={
-                <ProtectedRoute requirePropertyManager>
-                  <ManageVendors />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/property-manager/tasks"
-              element={
-                <ProtectedRoute requirePropertyManager>
-                  <TaskManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/property-manager/reports"
-              element={
-                <ProtectedRoute requirePropertyManager>
-                  <Reports />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/property-manager/subscriptions"
-              element={
-                <ProtectedRoute requirePropertyManager>
-                  <ManagerSubscriptions />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/property-manager/subscriptions/:id"
-              element={
-                <ProtectedRoute requirePropertyManager>
-                  <Onboarding />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/property-manager/onboarding/:id"
-              element={
-                <ProtectedRoute requirePropertyManager>
-                  <Onboarding />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/property-manager/revenue"
-              element={
-                <ProtectedRoute requirePropertyManager>
-                  <Revenue />
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route path="dashboard" element={<PropertyManagerDashboard />} />
+              <Route path="properties" element={<ManageProperties />} />
+              <Route path="vendors" element={<ManageVendors />} />
+              <Route path="tasks" element={<TaskManagement />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="subscriptions" element={<ManagerSubscriptions />} />
+              <Route path="subscriptions/:id" element={<Onboarding />} />
+              <Route path="onboarding/:id" element={<Onboarding />} />
+              <Route path="revenue" element={<Revenue />} />
+            </Route>
 
             {/* Vendor Routes */}
             <Route
@@ -292,7 +256,7 @@ function App() {
               }
             />
 
-            {/* Notifications (All authenticated users) */}
+            {/* Notifications */}
             <Route
               path="/notifications"
               element={
@@ -302,147 +266,38 @@ function App() {
               }
             />
 
-            {/* Property Owner Routes */}
+            {/* Property Owner Routes - Nested under Owner Layout */}
             <Route
-              path="/owner/dashboard"
+              path="/owner"
               element={
                 <ProtectedRoute requirePropertyOwner>
-                  <OwnerDashboard />
+                  <OwnerLayout />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/owner/properties"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <MyProperties />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/properties/new"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <PostProperty />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/properties/:id/edit"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <EditProperty />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/applications"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <Applications />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/tenants"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <Tenants />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/messages"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/payments"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <Payments />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/managers"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <ManagerMarketplace />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/subscriptions"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <MySubscriptions />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/subscriptions/:id"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <SubscriptionDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/subscriptions/:id/payment"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <SubscriptionPayment />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/subscriptions/:id/agreement"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <ServiceAgreement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/reports"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <OwnerReports />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/analytics"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <Analytics />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/maintenance"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <Maintenance />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/owner/settings"
-              element={
-                <ProtectedRoute requirePropertyOwner>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+            >
+              <Route path="dashboard" element={<OwnerDashboard />} />
+              <Route path="properties" element={<MyProperties />} />
+              <Route path="properties/new" element={<PostProperty />} />
+              <Route path="properties/:id/edit" element={<EditProperty />} />
+              <Route path="applications" element={<Applications />} />
+              <Route path="tenants" element={<Tenants />} />
+              <Route path="messages" element={<Messages />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="managers" element={<ManagerMarketplace />} />
+              <Route path="subscriptions" element={<MySubscriptions />} />
+              <Route path="subscriptions/:id" element={<SubscriptionDetails />} />
+              <Route path="subscriptions/:id/payment" element={<SubscriptionPayment />} />
+              <Route path="subscriptions/:id/agreement" element={<ServiceAgreement />} />
+              <Route path="reports" element={<OwnerReports />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="maintenance" element={<Maintenance />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+
+          </Routes>
+        </main>
+        {showLayout && <Footer />}
+      </div>
     </AuthProvider>
   );
 }

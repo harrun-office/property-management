@@ -379,14 +379,14 @@ function RoleBasedNavbar() {
       <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-[var(--brand-accent)] via-[var(--brand-secondary)] to-[var(--brand-tertiary)] transform scale-x-0 hover:scale-x-100 transition-transform duration-700 origin-left"></div>
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Enhanced Main Navigation Bar */}
-        <div className="flex items-center justify-between px-6 md:px-10 py-5">
+        <div className="flex items-center justify-between px-6 md:px-10 py-3">
           {/* Ultra-Enhanced Logo with Morphing Effects */}
           <Link
             to="/"
             className="flex items-center space-x-4 text-2xl font-black text-[var(--ui-text-primary)] hover:text-[var(--brand-accent)] transition-all duration-300 group hover:scale-105 relative z-10"
             aria-label="PropManage Home"
           >
-            <div className="relative w-11 h-11">
+            <div className="relative w-9 h-9">
               {/* Base morphing container */}
               <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-accent)] via-[var(--brand-secondary)] to-[var(--brand-accent-dark)] rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 overflow-hidden">
 
@@ -428,16 +428,16 @@ function RoleBasedNavbar() {
                   value={searchQuery}
                   onChange={handleSearchInput}
                   placeholder="Search properties, locations, features..."
-                  className="w-full px-5 py-3 pl-12 pr-12 rounded-2xl bg-gradient-to-r from-[var(--ui-bg-muted)] to-[var(--ui-bg-surface)] border border-[var(--ui-border-default)]/60 text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]/30 focus:border-[var(--brand-accent)] transition-all duration-300 hover:shadow-md focus:shadow-lg"
+                  className="w-full px-5 py-2 pl-12 pr-12 rounded-2xl bg-gradient-to-r from-[var(--ui-bg-muted)] to-[var(--ui-bg-surface)] border border-[var(--ui-border-default)]/60 text-[var(--ui-text-primary)] placeholder-[var(--ui-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]/30 focus:border-[var(--brand-accent)] transition-all duration-300 hover:shadow-md focus:shadow-lg"
                   onFocus={() => searchQuery && setShowSearchDropdown(true)}
                   onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
                 />
-                <div className="absolute left-4 top-3.5 text-[var(--ui-text-muted)] group-focus-within:text-[var(--brand-accent)] transition-colors duration-200">
+                <div className="absolute left-4 top-2.5 text-[var(--ui-text-muted)] group-focus-within:text-[var(--brand-accent)] transition-colors duration-200">
                   <SearchIcon />
                 </div>
                 <button
                   type="submit"
-                  className="absolute right-3 top-3 p-1.5 text-[var(--ui-text-muted)] hover:text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/10 rounded-xl transition-all duration-200 active:scale-95"
+                  className="absolute right-3 top-2 p-1.5 text-[var(--ui-text-muted)] hover:text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/10 rounded-xl transition-all duration-200 active:scale-95"
                   aria-label="Search"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -445,7 +445,7 @@ function RoleBasedNavbar() {
                   </svg>
                 </button>
                 {/* AI-powered search indicator */}
-                <div className="absolute right-12 top-3.5 text-[var(--brand-accent)]/60 animate-pulse">
+                <div className="absolute right-12 top-2.5 text-[var(--brand-accent)]/60 animate-pulse">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
@@ -704,7 +704,7 @@ function RoleBasedNavbar() {
         </div>
 
         {/* Ultra-Enhanced Navigation Bar - Main Links with Staggered Animations */}
-        <div className="hidden md:flex items-center justify-center px-6 md:px-12 py-4 border-b border-[var(--ui-border-default)]/30">
+        <div className="hidden md:flex items-center justify-center px-6 md:px-12 py-2 border-b border-[var(--ui-border-default)]/30">
           <nav className="flex items-center justify-center space-x-1 text-[var(--ui-text-secondary)] font-medium text-sm" role="navigation" aria-label="Main navigation">
             {isAuthenticated ? (
               <>

@@ -667,7 +667,7 @@ exports.getMyApplications = async (req, res) => {
 
     const query = `
             SELECT ra.*, p.title as property_title, p.address as property_address, p.price, p.bedrooms, p.bathrooms, p.monthly_rent
-            FROM rental_applications ra
+            FROM applications ra
             JOIN properties p ON ra.property_id = p.id
             WHERE ra.applicant_id = ?
             ORDER BY ra.created_at DESC

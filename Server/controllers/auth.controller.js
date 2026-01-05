@@ -8,22 +8,42 @@ const { getIpAddress } = require('../utils/helpers');
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login Attempt for:', email); // Debug log
+    console.log('Password provided:', password ? 'YES' : 'NO'); // Debug log
+    console.log('Login Attempt for:', email); // Debug log
+    console.log('Password provided:', password ? 'YES' : 'NO'); // Debug log
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = await User.findByEmail(email);
+    // Sanitize input
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
+    console.log('Processing Login:', cleanEmail);
+
+    const user = await User.findByEmail(cleanEmail);
+    console.log('User found in DB:', user ? 'YES' : 'NO'); // Debug
+
     if (!user) {
+      console.log('❌ Login failed: User not found in DB');
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    console.log(`User ID: ${user.id}, Status: ${user.status}, Role: ${user.role}`); // Debug
+
     if (user.status !== 'active') {
+      console.log('❌ Login failed: Account inactive');
       return res.status(401).json({ error: 'Account is not active' });
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await bcrypt.compare(cleanPassword, user.password);
+    console.log('Password Match Result:', isValidPassword); // Debug
+
     if (!isValidPassword) {
+      console.log('❌ Login failed: Password mismatch');
+      console.log('Stored Hash:', user.password); // Debug - checking hash format
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 

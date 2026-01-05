@@ -44,10 +44,12 @@ const UserManagement = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [managersData, propertiesData] = await Promise.all([
+            const [managersData, propertiesResponse] = await Promise.all([
                 adminAPI.getPropertyManagers(),
                 propertiesAPI.getAll().catch(() => [])
             ]);
+            const propertiesData = (propertiesResponse && propertiesResponse.properties) ? propertiesResponse.properties : propertiesResponse;
+
             setManagers(Array.isArray(managersData) ? managersData : []);
             setProperties(Array.isArray(propertiesData) ? propertiesData : []);
             if (!Array.isArray(managersData)) console.warn('Expected array for managers, got:', managersData);

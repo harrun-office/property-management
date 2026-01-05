@@ -31,7 +31,7 @@ function BrowseProperties() {
     state: '',
     zipCode: '',
     sortBy: 'price',
-    
+
     // Advanced Filters
     minMonthlyRent: '',
     maxMonthlyRent: '',
@@ -81,7 +81,15 @@ function BrowseProperties() {
     setError('');
     try {
       const data = await propertiesAPI.getAll(filters);
-      setProperties(data);
+      // Handle both array (legacy/mock) and object (paginated) responses
+      if (Array.isArray(data)) {
+        setProperties(data);
+      } else if (data && data.properties && Array.isArray(data.properties)) {
+        setProperties(data.properties);
+      } else {
+        console.error("Unexpected API response format:", data);
+        setProperties([]);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -91,7 +99,7 @@ function BrowseProperties() {
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (type === 'checkbox') {
       if (name === 'amenities' || name === 'utilities') {
         setFilters(prev => ({
@@ -174,7 +182,7 @@ function BrowseProperties() {
               {showAdvancedFilters ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
             </Button>
           </div>
-          
+
           {/* Location Search */}
           <div className="mb-4">
             <Input
@@ -434,7 +442,7 @@ function BrowseProperties() {
         {showAdvancedFilters && (
           <Card variant="elevated" padding="lg" className="mb-8">
             <Card.Title className="mb-4">Advanced Filters</Card.Title>
-            
+
             {/* Rental Details */}
             <div className="mb-6">
               <h3 className="text-lg font-medium text-charcoal mb-3">Rental Details</h3>

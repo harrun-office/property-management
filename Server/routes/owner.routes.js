@@ -57,9 +57,9 @@ router.post('/maintenance/:id/notes', authenticate, requirePropertyOwner, ownerC
 
 // Manager Subscriptions
 router.get('/managers/available', authenticate, requirePropertyOwner, ownerController.getAvailableManagers);
-router.get('/managers/:id', authenticate, requirePropertyOwner, ownerController.getManagerById);
 router.get('/managers/subscriptions', authenticate, requirePropertyOwner, ownerController.getMySubscriptions);
 router.post('/managers/subscribe', authenticate, requirePropertyOwner, ownerController.subscribeToManager);
+router.get('/managers/:id', authenticate, requirePropertyOwner, ownerController.getManagerById);
 router.put('/managers/subscription/:id', authenticate, requirePropertyOwner, ownerController.updateSubscription);
 router.delete('/managers/subscription/:id', authenticate, requirePropertyOwner, ownerController.cancelSubscription);
 router.get('/managers/subscription/:id/payments', authenticate, requirePropertyOwner, ownerController.getSubscriptionPayments);

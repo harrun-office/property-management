@@ -15,11 +15,13 @@ router.get('/reports', authenticate, requirePropertyManager, propertyManagerCont
 
 // Manager Subscriptions
 router.get('/subscriptions', authenticate, requirePropertyManager, propertyManagerController.getMySubscriptions);
+router.get('/subscriptions/revenue', authenticate, requirePropertyManager, propertyManagerController.getSubscriptionRevenue);
+router.get('/subscriptions/reviews', authenticate, requirePropertyManager, propertyManagerController.getOwnerReviews);
+
+// Dynamic routes last
 router.get('/subscriptions/:id', authenticate, requirePropertyManager, propertyManagerController.getSubscriptionDetails);
 router.post('/subscriptions/:id/contact', authenticate, requirePropertyManager, propertyManagerController.initiateContact);
 router.post('/subscriptions/:id/upload-property', authenticate, requirePropertyManager, propertyManagerController.uploadPropertyDetails);
-router.get('/subscriptions/revenue', authenticate, requirePropertyManager, propertyManagerController.getSubscriptionRevenue);
-router.get('/subscriptions/reviews', authenticate, requirePropertyManager, propertyManagerController.getOwnerReviews);
 
 module.exports = router;
 

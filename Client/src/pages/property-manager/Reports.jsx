@@ -67,7 +67,7 @@ function Reports() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <MetricCard
               title="Total Properties"
-              value={reports.totalProperties.toString()}
+              value={(reports.totalProperties || 0).toString()}
               variant="primary"
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@ function Reports() {
 
             <MetricCard
               title="Total Tasks"
-              value={reports.totalTasks.toString()}
+              value={(reports.totalTasks || 0).toString()}
               variant="default"
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,8 +89,8 @@ function Reports() {
 
             <MetricCard
               title="Completed Tasks"
-              value={reports.completedTasks.toString()}
-              subtitle={`${reports.totalTasks > 0 ? Math.round((reports.completedTasks / reports.totalTasks) * 100) : 0}% completion rate`}
+              value={(reports.completedTasks || 0).toString()}
+              subtitle={`${reports.totalTasks > 0 ? Math.round(((reports.completedTasks || 0) / reports.totalTasks) * 100) : 0}% completion rate`}
               variant="success"
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@ function Reports() {
 
             <MetricCard
               title="Pending Tasks"
-              value={reports.pendingTasks.toString()}
+              value={(reports.pendingTasks || 0).toString()}
               variant="accent"
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@ function Reports() {
 
             <MetricCard
               title="In Progress Tasks"
-              value={reports.inProgressTasks.toString()}
+              value={(reports.inProgressTasks || 0).toString()}
               variant="default"
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
