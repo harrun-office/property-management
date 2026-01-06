@@ -121,6 +121,85 @@ async function fixSchema() {
             console.log('✅ maintenance_requests table verified/created.');
         }
 
+        // 7. audit_logs
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                user_id INT,
+                action VARCHAR(255),
+                resource_type VARCHAR(100),
+                resource_id VARCHAR(255),
+                details JSON,
+                ip_address VARCHAR(45),
+                user_agent VARCHAR(255),
+                hash VARCHAR(255),
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('✅ audit_logs table verified/created.');
+
+        // 8. vendor_tasks
+        await pool.query(`
+             CREATE TABLE IF NOT EXISTS vendor_tasks (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                assigned_vendor_id INT,
+                created_by INT,
+                status ENUM('OPEN', 'IN_PROGRESS', 'COMPLETED', 'CLOSED', 'QUOTATION_SUBMITTED', 'AWAITING_APPROVAL') DEFAULT 'OPEN',
+                title VARCHAR(255),
+                description TEXT,
+                attachments JSON,
+                quotation_amount DECIMAL(10, 2),
+                auto_approved BOOLEAN DEFAULT FALSE,
+                completed_date TIMESTAMP NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (assigned_vendor_id) REFERENCES vendor_profiles(id) ON DELETE SET NULL
+             )
+        `);
+        console.log('✅ vendor_tasks table verified/created.');
+
+        // Patch vendor_tasks if missing columns (for existing tables)
+        try {
+            const [vtCols] = await pool.query("SHOW COLUMNS FROM vendor_tasks LIKE 'attachments'");
+            if (vtCols.length === 0) {
+                console.log('⚠️ attachments column missing in vendor_tasks. Adding it...');
+                await pool.query("ALTER TABLE vendor_tasks ADD COLUMN attachments JSON");
+            }
+            const [qaCols] = await pool.query("SHOW COLUMNS FROM vendor_tasks LIKE 'quotation_amount'");
+            if (qaCols.length === 0) {
+                console.log('⚠️ quotation_amount column missing in vendor_tasks. Adding it...');
+                await pool.query("ALTER TABLE vendor_tasks ADD COLUMN quotation_amount DECIMAL(10, 2)");
+            }
+            const [aaCols] = await pool.query("SHOW COLUMNS FROM vendor_tasks LIKE 'auto_approved'");
+            if (aaCols.length === 0) {
+                console.log('⚠️ auto_approved column missing in vendor_tasks. Adding it...');
+                await pool.query("ALTER TABLE vendor_tasks ADD COLUMN auto_approved BOOLEAN DEFAULT FALSE");
+            }
+            // Update ENUM if needed - (Complex in MySQL, skipping for now unless strictly needed, assuming new install or accepting error on strict enum)
+        } catch (e) {
+            console.log('⚠️ Error patching vendor_tasks:', e.message);
+        }
+
+        // 9. tenants (Lease Info)
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS tenants (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                user_id INT NOT NULL,
+                property_id INT NOT NULL,
+                lease_start_date DATE,
+                lease_end_date DATE,
+                monthly_rent DECIMAL(10, 2),
+                security_deposit DECIMAL(10, 2),
+                status ENUM('active', 'inactive', 'pending') DEFAULT 'active',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE
+            )
+        `);
+        console.log('✅ tenants table verified/created.');
+
+
     } catch (error) {
         console.error('❌ Schema Fix Failed:', error);
         // Don't kill the server, just log

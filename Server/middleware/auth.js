@@ -225,7 +225,7 @@ const createAuditLog = async (userId, action, resourceType, resourceId, details 
     const previousHash = lastLog.length > 0 ? lastLog[0].hash : 'GENESIS_HASH';
 
     // 2. Calculate New Hash
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const dataToHash = `${previousHash}|${userId}|${action}|${resourceType}|${resourceId}|${JSON.stringify(details)}|${timestamp}`;
     const hash = crypto.createHash('sha256').update(dataToHash).digest('hex');
 

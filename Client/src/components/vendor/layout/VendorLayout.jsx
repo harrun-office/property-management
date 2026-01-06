@@ -9,7 +9,7 @@ const VendorLayout = () => {
     const { user, logout } = useAuth();
 
     return (
-        <div className="min-h-screen bg-[var(--ui-bg-page)] flex">
+        <div className="h-screen overflow-hidden bg-[var(--ui-bg-page)] flex">
             {/* Sidebar */}
             <VendorSidebar
                 mobileOpen={mobileOpen}
@@ -18,10 +18,10 @@ const VendorLayout = () => {
             />
 
             {/* Main Wrapper - Dynamic margin based on sidebar hover */}
-            <div className={`flex-1 min-w-0 flex flex-col transition-[margin] duration-300 ease-in-out ${isSidebarHovered ? 'lg:ml-64' : 'lg:ml-20'}`}>
+            <div className={`flex-1 min-w-0 flex flex-col h-full transition-[margin] duration-300 ease-in-out ${isSidebarHovered ? 'lg:ml-64' : 'lg:ml-20'}`}>
 
                 {/* Header */}
-                <header className="h-16 bg-[var(--ui-bg-surface)] border-b border-[var(--ui-border-default)] flex items-center justify-between px-6 sticky top-0 z-20">
+                <header className="h-16 bg-[var(--ui-bg-surface)] border-b border-[var(--ui-border-default)] flex items-center justify-between px-6 sticky top-0 z-20 shrink-0">
                     <div className="flex items-center gap-4">
                         {/* Mobile Toggle */}
                         <button

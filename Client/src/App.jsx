@@ -24,8 +24,17 @@ import HelpCenter from './pages/HelpCenter';
 // Super Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import PropertyActivity from './pages/admin/PropertyActivity';
+import UserManagement from './pages/admin/UserManagement';
+import VendorManagement from './pages/admin/VendorManagement';
+import RevenueHiring from './pages/admin/RevenueHiring';
+import AdminSettings from './pages/admin/AdminSettings';
 
-import ManagerLayout from './components/property-manager/layout/ManagerLayout'; // Import Layout
+// Import Layouts
+import ManagerLayout from './components/property-manager/layout/ManagerLayout';
+import OwnerLayout from './components/owner/layout/OwnerLayout';
+import AdminLayout from './components/admin/layout/AdminLayout';
+import VendorLayout from './components/vendor/layout/VendorLayout';
+import TenantLayout from './components/tenant/layout/TenantLayout';
 
 // Property Manager pages
 import PropertyManagerDashboard from './pages/property-manager/PropertyManagerDashboard';
@@ -73,18 +82,17 @@ import Analytics from './pages/owner/Analytics';
 import Maintenance from './pages/owner/Maintenance';
 import Settings from './pages/owner/Settings';
 
-import OwnerLayout from './components/owner/layout/OwnerLayout'; // Import Owner Layout
-
-// ... imports remain the same ...
-
 function App() {
   const location = useLocation();
   const hideLayoutRoutes = ['/login', '/register'];
   const isManagerRoute = location.pathname.startsWith('/property-manager');
-  const isOwnerRoute = location.pathname.startsWith('/owner'); // Identify owner routes
+  const isOwnerRoute = location.pathname.startsWith('/owner');
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isVendorRoute = location.pathname.startsWith('/vendor');
+  const isTenantRoute = location.pathname.startsWith('/tenant');
 
-  // Hide global layout for auth pages, manager pages, AND owner pages
-  const showLayout = !hideLayoutRoutes.includes(location.pathname) && !isManagerRoute && !isOwnerRoute;
+  // Hide global layout for auth pages, manager pages, owner pages, admin pages, vendor pages, AND tenant pages
+  const showLayout = !hideLayoutRoutes.includes(location.pathname) && !isManagerRoute && !isOwnerRoute && !isAdminRoute && !isVendorRoute && !isTenantRoute;
 
   return (
     <AuthProvider>
@@ -93,8 +101,6 @@ function App() {
         {showLayout && <RoleBasedNavbar />}
         <main className="flex-grow flex flex-col">
           <Routes>
-            {/* ... other routes remain the same ... */}
-
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/properties" element={<BrowseProperties />} />
@@ -112,21 +118,20 @@ function App() {
 
             {/* Super Admin Routes */}
             <Route
-              path="/admin/dashboard"
+              path="/admin"
               element={
                 <ProtectedRoute requireSuperAdmin>
-                  <AdminDashboard />
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/admin/property-activity"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <PropertyActivity />
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="property-activity" element={<PropertyActivity />} />
+              <Route path="credentials/managers" element={<UserManagement />} />
+              <Route path="credentials/vendors" element={<VendorManagement />} />
+              <Route path="revenue" element={<RevenueHiring />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
 
             {/* Property Manager Routes */}
             <Route
@@ -150,111 +155,38 @@ function App() {
 
             {/* Vendor Routes */}
             <Route
-              path="/vendor/dashboard"
+              path="/vendor"
               element={
                 <ProtectedRoute requireVendor>
-                  <VendorDashboard />
+                  <VendorLayout />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/vendor/tasks"
-              element={
-                <ProtectedRoute requireVendor>
-                  <MyTasks />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/vendor/properties"
-              element={
-                <ProtectedRoute requireVendor>
-                  <PropertyAccess />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/vendor/profile"
-              element={
-                <ProtectedRoute requireVendor>
-                  <MyProfile />
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route path="dashboard" element={<VendorDashboard />} />
+              <Route path="tasks" element={<MyTasks />} />
+              <Route path="properties" element={<PropertyAccess />} />
+              <Route path="profile" element={<MyProfile />} />
+            </Route>
 
             {/* Tenant Routes */}
             <Route
-              path="/tenant/dashboard"
+              path="/tenant"
               element={
                 <ProtectedRoute>
-                  <TenantDashboard />
+                  <TenantLayout />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/tenant/payments"
-              element={
-                <ProtectedRoute>
-                  <TenantPayments />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tenant/messages"
-              element={
-                <ProtectedRoute>
-                  <TenantMessages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tenant/maintenance"
-              element={
-                <ProtectedRoute>
-                  <TenantMaintenance />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tenant/lease"
-              element={
-                <ProtectedRoute>
-                  <TenantLease />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tenant/documents"
-              element={
-                <ProtectedRoute>
-                  <TenantDocuments />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tenant/profile"
-              element={
-                <ProtectedRoute>
-                  <TenantProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tenant/saved"
-              element={
-                <ProtectedRoute>
-                  <SavedProperties />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tenant/applications"
-              element={
-                <ProtectedRoute>
-                  <TenantApplications />
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route path="dashboard" element={<TenantDashboard />} />
+              <Route path="payments" element={<TenantPayments />} />
+              <Route path="messages" element={<TenantMessages />} />
+              <Route path="maintenance" element={<TenantMaintenance />} />
+              <Route path="lease" element={<TenantLease />} />
+              <Route path="documents" element={<TenantDocuments />} />
+              <Route path="profile" element={<TenantProfile />} />
+              <Route path="saved" element={<SavedProperties />} />
+              <Route path="applications" element={<TenantApplications />} />
+            </Route>
 
             {/* Notifications */}
             <Route
@@ -266,7 +198,7 @@ function App() {
               }
             />
 
-            {/* Property Owner Routes - Nested under Owner Layout */}
+            {/* Property Owner Routes */}
             <Route
               path="/owner"
               element={
