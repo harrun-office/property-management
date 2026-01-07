@@ -7,7 +7,7 @@ exports.getAllProperties = async (req, res) => {
       minPrice,
       maxPrice,
       bedrooms,
-      status = 'LISTED',
+      status = 'active',
       location,
       page = 1,
       limit = 20
@@ -65,7 +65,7 @@ exports.getPropertyById = async (req, res) => {
     }
 
     // Only return listed properties for public access
-    if (property.status !== 'LISTED') {
+    if (property.status !== 'active') {
       return res.status(404).json({ error: 'Property not available' });
     }
 

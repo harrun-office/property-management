@@ -108,7 +108,11 @@ function Login() {
       } else if (response.user.role === 'vendor') {
         navigate('/vendor/dashboard');
       } else if (response.user.role === 'tenant') {
-        navigate('/tenant/dashboard');
+        if (response.user.hasActiveTenancy) {
+          navigate('/tenant/dashboard');
+        } else {
+          navigate('/');
+        }
       } else if (response.user.role === 'property_owner') {
         navigate('/owner/dashboard');
       } else {

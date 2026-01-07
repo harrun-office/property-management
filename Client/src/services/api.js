@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+export const BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = `${BASE_URL}/api`;
 
 // Helper function to get auth headers
 function getAuthHeaders() {
@@ -811,6 +812,8 @@ export const ownerAPI = {
     return response.json();
   },
 
+
+
   getApplications: async () => {
     const response = await fetch(`${API_BASE_URL}/owner/applications`, {
       headers: getAuthHeaders()
@@ -1291,6 +1294,28 @@ export const ownerAPI = {
     }
 
     return response.json();
+  },
+
+  uploadImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: token })
+        // Content-Type is automatically set with boundary for FormData
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload image');
+    }
+
+    return response.json();
   }
 };
 
@@ -1529,6 +1554,21 @@ export const tenantAPI = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update profile');
+    }
+
+    return response.json();
+  },
+
+  createApplication: async (data) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/applications`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to submit application');
     }
 
     return response.json();

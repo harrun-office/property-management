@@ -37,7 +37,7 @@ const Button = ({
   ...props
 }) => {
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transform';
-  
+
   const variants = {
     primary: 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-dark)] focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-[var(--brand-accent-dark)] shadow-soft hover:shadow-medium hover:-translate-y-0.5',
     secondary: 'bg-[var(--ui-bg-surface)] text-[var(--ui-text-primary)] hover:bg-[var(--ui-bg-muted)] focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-[var(--ui-bg-secondary)] border border-[var(--ui-border-default)] shadow-xs hover:shadow-soft',
@@ -45,10 +45,10 @@ const Button = ({
     success: 'bg-[var(--ui-success)] text-white hover:bg-[var(--ui-success)]/90 focus:ring-[var(--ui-success)]/20 focus:ring-offset-2 active:bg-[var(--ui-success)]/95 shadow-soft hover:shadow-medium',
     danger: 'bg-[var(--ui-error)] text-white hover:bg-[var(--ui-error)]/90 focus:ring-[var(--ui-error)]/20 focus:ring-offset-2 active:bg-[var(--ui-error)]/95 shadow-soft hover:shadow-medium',
     outline: 'bg-transparent border-2 border-[var(--brand-accent)] text-[var(--brand-accent)] hover:bg-[var(--brand-accent)] hover:text-white focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-[var(--brand-accent)] active:text-white shadow-xs hover:shadow-soft',
-    ghost: 'bg-transparent text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/5 focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-[var(--brand-accent)]/10 shadow-none hover:shadow-xs',
+    ghost: 'bg-transparent text-[var(--brand-accent)] hover:bg-stone-100 focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 active:bg-stone-200 shadow-none hover:shadow-xs',
     link: 'bg-transparent text-[var(--brand-accent)] hover:text-[var(--brand-accent-dark)] underline-offset-4 hover:underline focus:ring-[var(--brand-accent)]/20 focus:ring-offset-2 p-0 shadow-none',
   };
-  
+
   const sizes = {
     xs: 'px-2.5 py-1.5 text-xs',
     sm: 'px-3 py-2 text-sm',
@@ -56,7 +56,7 @@ const Button = ({
     lg: 'px-6 py-3 text-lg',
     xl: 'px-8 py-4 text-xl',
   };
-  
+
   const iconSizes = {
     xs: 'w-3 h-3',
     sm: 'w-4 h-4',

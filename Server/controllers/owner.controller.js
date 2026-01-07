@@ -170,7 +170,7 @@ exports.createProperty = async (req, res) => {
 
     const query = `INSERT INTO properties (
         owner_id, title, description, price, address, property_type, status, 
-        bedrooms, bathrooms, area_sqft, images, amenities, pet_policy, utilities, year_built,
+        bedrooms, bathrooms, square_feet, images, amenities, pet_policy, utilities, year_built,
         parking_spaces, lease_terms, monthly_rent, security_deposit, available_date, created_at, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
 
@@ -224,7 +224,7 @@ exports.updateProperty = async (req, res) => {
         else if (field === 'monthlyRent') dbFieldName = 'monthly_rent';
         else if (field === 'securityDeposit') dbFieldName = 'security_deposit';
         else if (field === 'availableDate') dbFieldName = 'available_date';
-        else if (field === 'area') dbFieldName = 'area_sqft';
+        else if (field === 'area') dbFieldName = 'square_feet';
         else if (field === 'petPolicy') dbFieldName = 'pet_policy';
         else if (field === 'images' || field === 'amenities' || field === 'utilities') {
           updateFields[dbFieldName] = JSON.stringify(req.body[field]);

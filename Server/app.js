@@ -17,6 +17,7 @@ const propertyManagerRoutes = require('./routes/propertyManager.routes');
 const vendorRoutes = require('./routes/vendor.routes');
 const ownerRoutes = require('./routes/owner.routes');
 const tenantRoutes = require('./routes/tenant.routes');
+const uploadRoutes = require('./routes/upload.routes');
 
 const port = process.env.PORT || 5000;
 const wsPort = process.env.WEBSOCKET_PORT || 5001;
@@ -34,6 +35,7 @@ app.use('/api/property-manager', propertyManagerRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/owner', ownerRoutes);
 app.use('/api/tenant', tenantRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

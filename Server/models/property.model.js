@@ -74,11 +74,7 @@ Property.findById = async (id) => {
                 assignedManagerId: property.assigned_manager_id,
                 assignedVendors: property.assignedVendors,
                 assignedManagers: property.assignedManagers,
-                images: [
-                    'http://localhost:5000/properties/apartment_view.svg',
-                    'http://localhost:5000/properties/loft_view.svg',
-                    'http://localhost:5000/properties/house_view.svg'
-                ],
+                images: (typeof property.images === 'string') ? JSON.parse(property.images) : (property.images || []),
                 createdAt: property.created_at,
                 updatedAt: property.updated_at
             };
@@ -94,10 +90,7 @@ Property.findAll = async () => {
     const [rows] = await sql.query('SELECT * FROM properties');
     return rows.map(row => ({
         ...row,
-        images: [
-            'http://localhost:5000/properties/apartment_view.svg',
-            'http://localhost:5000/properties/loft_view.svg'
-        ]
+        images: (typeof row.images === 'string') ? JSON.parse(row.images) : (row.images || [])
     }));
 };
 
@@ -170,10 +163,7 @@ Property.findAllWithFilters = async (filters = {}, limit = 20, offset = 0) => {
             ownerEmail: row.owner_email,
             tenantId: row.tenant_id,
             monthlyRent: row.price, // Assuming price is monthly rent
-            images: [
-                'http://localhost:5000/properties/house_view.svg',
-                'http://localhost:5000/properties/loft_view.svg'
-            ],
+            images: (typeof row.images === 'string') ? JSON.parse(row.images) : (row.images || []),
             createdAt: row.created_at,
             updatedAt: row.updated_at
         }));
@@ -240,10 +230,7 @@ Property.findByOwner = async (ownerId) => {
         return rows.map(row => ({
             ...row,
             activeTenants: row.active_tenants,
-            images: [
-                'http://localhost:5000/properties/apartment_view.svg',
-                'http://localhost:5000/properties/house_view.svg'
-            ]
+            images: (typeof row.images === 'string') ? JSON.parse(row.images) : (row.images || [])
         }));
     } catch (err) {
         throw err;

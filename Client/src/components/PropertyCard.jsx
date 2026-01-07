@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { BASE_URL } from '../services/api';
 import Card from './ui/Card';
 
 function PropertyCard({ property, noLink = false }) {
@@ -14,7 +15,9 @@ function PropertyCard({ property, noLink = false }) {
     <Card variant="elevated" padding="none" hover className="overflow-hidden transition-all duration-300 group">
       <div className="relative h-56 overflow-hidden bg-stone-200">
         <img
-          src={property.images && property.images.length > 0 ? property.images[0] : 'https://placehold.co/400x300?text=No+Image'}
+          src={property.images && property.images.length > 0
+            ? (property.images[0].startsWith('http') ? property.images[0] : `${BASE_URL}${property.images[0]}`)
+            : 'https://placehold.co/400x300?text=No+Image'}
           alt={property.title}
           onError={(e) => {
             console.error('Image load error for:', property.title, e.target.src);

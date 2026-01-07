@@ -467,6 +467,35 @@ exports.unsaveProperty = async (req, res) => {
   }
 };
 
+exports.createApplication = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { propertyId, notes } = req.body;
+
+    if (!propertyId) return res.status(400).json({ error: 'Property ID required' });
+
+    // Check if already applied
+    const [existing] = await sql.query(
+      "SELECT id FROM applications WHERE applicant_id = ? AND property_id = ?",
+      [userId, propertyId]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'You have already applied for this property' });
+    }
+
+    await sql.query(
+      "INSERT INTO applications (property_id, applicant_id, status, notes, created_at) VALUES (?, ?, 'pending', ?, NOW())",
+      [propertyId, userId, JSON.stringify(notes || ''),]
+    );
+
+    res.status(201).json({ message: 'Application submitted successfully' });
+  } catch (error) {
+    console.error('Error creating application:', error);
+    res.status(500).json({ error: 'Server error submitting application' });
+  }
+};
+
 exports.getMyApplications = async (req, res) => {
   try {
     const user = getUser(req);

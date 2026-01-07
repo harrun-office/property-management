@@ -2,11 +2,26 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import TenantSidebar from './TenantSidebar';
+import RoleBasedNavbar from '../../RoleBasedNavbar';
+import Footer from '../../Footer';
 
 const TenantLayout = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isSidebarHovered, setIsSidebarHovered] = useState(false);
     const { user, logout } = useAuth();
+
+    // If tenant has no active property, show public layout structure
+    if (user?.role === 'tenant' && !user.hasActiveTenancy) {
+        return (
+            <div className="h-full overflow-y-auto bg-[var(--ui-bg-page)] flex flex-col">
+                <RoleBasedNavbar />
+                <main className="flex-grow">
+                    <Outlet />
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div className="h-screen overflow-hidden bg-[var(--ui-bg-page)] flex">

@@ -41,6 +41,7 @@ router.delete('/saved-properties/:id', authenticate, requireTenant, tenantContro
 
 // Applications
 router.get('/applications', authenticate, requireTenant, tenantController.getMyApplications);
+router.post('/applications', authenticate, requireTenant, tenantController.createApplication);
 
 module.exports = router;
 

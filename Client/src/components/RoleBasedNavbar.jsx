@@ -15,7 +15,7 @@ function RoleBasedNavbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationMenuOpen, setNotificationMenuOpen] = useState(false);
-  const [hasActiveProperty, setHasActiveProperty] = useState(false);
+  const [hasActiveProperty, setHasActiveProperty] = useState(user?.hasActiveTenancy || false);
   const [recentPages, setRecentPages] = useState([]);
   const [smartSuggestion, setSmartSuggestion] = useState(null);
   const [searchSuggestions, setSearchSuggestions] = useState([]);

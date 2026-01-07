@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { propertiesAPI } from '../services/api';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { propertiesAPI, tenantAPI, BASE_URL } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Skeleton from '../components/ui/Skeleton';
@@ -38,6 +39,45 @@ function PropertyDetails() {
     }).format(price);
   };
 
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [applying, setApplying] = useState(false);
+  const [applicationSuccess, setApplicationSuccess] = useState(false);
+
+  const handleApply = async () => {
+    if (!user) {
+      navigate('/register');
+      return;
+    }
+
+    if (user.role !== 'tenant') {
+      alert('Only tenants can apply for properties. Please register as a tenant.');
+      return;
+    }
+
+    if (confirm('Are you sure you want to apply for this property?')) {
+      setApplying(true);
+      try {
+        await tenantAPI.createApplication({ propertyId: property.id });
+        setApplicationSuccess(true);
+        alert('Application submitted successfully!');
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setApplying(false);
+      }
+    }
+  };
+
+  const handleContact = () => {
+    if (!user) {
+      navigate('/register');
+      return;
+    }
+    // Placeholder for contact functionality
+    alert('Contact feature coming soon!');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-porcelain py-8 px-4">
@@ -56,7 +96,7 @@ function PropertyDetails() {
           <ErrorDisplay
             message={error || 'Property not found'}
             action={
-              <Link to="/">
+              <Link to="/properties">
                 <Button variant="primary">Go back to listings</Button>
               </Link>
             }
@@ -66,13 +106,15 @@ function PropertyDetails() {
     );
   }
 
-  const images = property.images && property.images.length > 0 ? property.images : ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c'];
+  const images = property.images && property.images.length > 0
+    ? property.images.map(img => img.startsWith('http') ? img : `${BASE_URL}${img}`)
+    : ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c'];
 
   return (
     <div className="min-h-screen bg-porcelain py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        <Link to="/" className="mb-4 inline-block">
-          <Button variant="ghost" icon={
+        <Link to="/properties" className="mb-4 inline-block">
+          <Button variant="secondary" className="mb-6" icon={
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -118,9 +160,8 @@ function PropertyDetails() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-obsidian' : 'bg-porcelain/50'
-                      }`}
+                      className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex ? 'bg-obsidian' : 'bg-porcelain/50'
+                        }`}
                       aria-label={`Go to image ${index + 1}`}
                     />
                   ))}
@@ -131,13 +172,25 @@ function PropertyDetails() {
 
           {/* Property Details */}
           <Card.Body className="p-8">
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
               <div>
                 <h1 className="text-3xl font-bold text-charcoal mb-2">{property.title}</h1>
                 <p className="text-architectural">{property.address}</p>
               </div>
-              <div className="text-right">
+              <div className="flex flex-col items-end gap-3">
                 <p className="text-3xl font-bold text-obsidian-500">{formatPrice(property.price)}</p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="primary"
+                    onClick={handleApply}
+                    disabled={applying || applicationSuccess}
+                  >
+                    {applicationSuccess ? 'Applied' : (applying ? 'Applying...' : 'Apply Now')}
+                  </Button>
+                  <Button variant="secondary" onClick={handleContact}>
+                    Contact Owner
+                  </Button>
+                </div>
               </div>
             </div>
 
