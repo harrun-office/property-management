@@ -12,11 +12,12 @@ import EmptyState from '../components/ui/EmptyState';
 
 function BrowseProperties() {
   const navigate = useNavigate();
-  const { isTenant } = useAuth();
+  const { isTenant, isAuthenticated } = useAuth();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [savedIds, setSavedIds] = useState(new Set());
   const [filters, setFilters] = useState({
     // Basic Filters
     propertyType: '',
@@ -96,6 +97,23 @@ function BrowseProperties() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const loadSaved = async () => {
+      try {
+        if (isAuthenticated && isTenant) {
+          const saved = await propertiesAPI.getSavedProperties();
+          const ids = new Set(saved.map(p => p.id));
+          setSavedIds(ids);
+        } else {
+          setSavedIds(new Set());
+        }
+      } catch (e) {
+        // Silent failure
+      }
+    };
+    loadSaved();
+  }, [isAuthenticated, isTenant]);
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -681,7 +699,7 @@ function BrowseProperties() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
+                <PropertyCard key={property.id} property={property} isSaved={savedIds.has(property.id)} />
               ))}
             </div>
           </>
@@ -692,4 +710,3 @@ function BrowseProperties() {
 }
 
 export default BrowseProperties;
-

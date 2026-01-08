@@ -99,7 +99,7 @@ function App() {
       <div className={`bg-[var(--ui-bg-page)] text-[var(--ui-text-primary)] flex flex-col ${!showLayout ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
         <ScrollToTop />
         {showLayout && <RoleBasedNavbar />}
-        <main className="flex-grow flex flex-col">
+        <main className="flex-grow flex flex-col min-h-0">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />

@@ -76,7 +76,7 @@ function SavedProperties() {
   }
 
   return (
-    <div className="min-h-screen bg-porcelain py-8 px-4">
+    <div className="min-h-full bg-porcelain py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>

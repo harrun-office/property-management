@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import Card from '../components/ui/Card';
@@ -16,6 +16,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const validateField = (name, value) => {
     let error = '';
@@ -100,23 +101,29 @@ function Login() {
 
       login(response.user, response.token);
 
-      // Redirect based on role
-      if (response.user.role === 'super_admin') {
-        navigate('/admin/dashboard');
-      } else if (response.user.role === 'property_manager') {
-        navigate('/property-manager/dashboard');
-      } else if (response.user.role === 'vendor') {
-        navigate('/vendor/dashboard');
-      } else if (response.user.role === 'tenant') {
-        if (response.user.hasActiveTenancy) {
-          navigate('/tenant/dashboard');
+      const params = new URLSearchParams(location.search);
+      const returnTo = params.get('returnTo');
+      if (returnTo) {
+        navigate(returnTo, { replace: true });
+      } else {
+        // Redirect based on role
+        if (response.user.role === 'super_admin') {
+          navigate('/admin/dashboard');
+        } else if (response.user.role === 'property_manager') {
+          navigate('/property-manager/dashboard');
+        } else if (response.user.role === 'vendor') {
+          navigate('/vendor/dashboard');
+        } else if (response.user.role === 'tenant') {
+          if (response.user.hasActiveTenancy) {
+            navigate('/tenant/dashboard');
+          } else {
+            navigate('/');
+          }
+        } else if (response.user.role === 'property_owner') {
+          navigate('/owner/dashboard');
         } else {
           navigate('/');
         }
-      } else if (response.user.role === 'property_owner') {
-        navigate('/owner/dashboard');
-      } else {
-        navigate('/');
       }
     } catch (err) {
       setError(err.message);

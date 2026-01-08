@@ -237,11 +237,11 @@ function RoleBasedNavbar() {
     const active = isActive(to);
     const baseClasses = mobile
       ? `group relative block py-3 px-4 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden ${active
-        ? 'bg-gradient-to-r from-[var(--brand-accent)]/15 via-[var(--brand-accent)]/10 to-[var(--brand-accent)]/15 text-[var(--brand-accent)] border-l-4 border-[var(--brand-accent)] shadow-md shadow-[var(--brand-accent)]/20'
+        ? 'bg-gradient-to-r from-[var(--brand-accent)]/25 via-[var(--brand-accent)]/15 to-[var(--brand-accent)]/25 text-[var(--brand-accent)] border-l-4 border-[var(--brand-accent)] shadow-md shadow-[var(--brand-accent)]/25 font-semibold'
         : 'text-[var(--ui-text-secondary)] hover:text-[var(--brand-accent)] hover:bg-gradient-to-r hover:from-[var(--ui-bg-muted)] hover:to-[var(--ui-bg-surface)] hover:shadow-sm'
       }`
       : `group relative px-4 py-3 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden ${active
-        ? 'text-[var(--brand-accent)] bg-gradient-to-r from-[var(--brand-accent)]/10 via-[var(--brand-accent)]/5 to-[var(--brand-accent)]/10 shadow-lg shadow-[var(--brand-accent)]/15 border border-[var(--brand-accent)]/20'
+        ? 'text-[var(--brand-accent)] bg-gradient-to-r from-[var(--brand-accent)]/20 via-[var(--brand-accent)]/10 to-[var(--brand-accent)]/20 shadow-lg shadow-[var(--brand-accent)]/20 border border-[var(--brand-accent)]/30 font-semibold'
         : 'text-[var(--ui-text-secondary)] hover:text-[var(--brand-accent)] hover:bg-gradient-to-r hover:from-[var(--ui-bg-muted)] hover:to-[var(--ui-bg-surface)] hover:shadow-md'
       }`;
 
@@ -272,7 +272,7 @@ function RoleBasedNavbar() {
               <div className="absolute inset-0 bg-[var(--brand-accent)]/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100 blur-sm"></div>
             </span>
           )}
-          <span className={`font-medium transition-all duration-300 relative ${active ? 'text-[var(--brand-accent)] font-semibold' : 'group-hover:font-medium'
+          <span className={`font-medium transition-all duration-300 relative ${active ? 'text-[var(--brand-accent)] font-bold' : 'group-hover:font-medium'
             }`}>
             {children}
             {/* Text underline effect */}
@@ -750,12 +750,12 @@ function RoleBasedNavbar() {
                     <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>Profile</NavLink>
                   </>
                 )}
-                {isTenant && !hasActiveProperty && (
+                {((isTenant && !hasActiveProperty) || location.pathname.startsWith('/tenant/')) && (
                   <>
                     <NavLink to="/" icon={<HomeIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Home</NavLink>
                     <NavLink to="/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Properties</NavLink>
                     <NavLink to="/tenant/saved" className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Saved</NavLink>
-                    <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Profile</NavLink>
+                    {!hasActiveProperty && <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Profile</NavLink>}
                     <NavLink to="/tenant/applications" className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Applications</NavLink>
                   </>
                 )}

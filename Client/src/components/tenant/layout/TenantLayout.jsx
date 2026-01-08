@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import TenantSidebar from './TenantSidebar';
 import RoleBasedNavbar from '../../RoleBasedNavbar';
@@ -9,9 +9,13 @@ const TenantLayout = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isSidebarHovered, setIsSidebarHovered] = useState(false);
     const { user, logout } = useAuth();
+    const location = useLocation();
 
-    // If tenant has no active property, show public layout structure
-    if (user?.role === 'tenant' && !user.hasActiveTenancy) {
+    const publicTenantPaths = ['/tenant/saved', '/tenant/applications', '/tenant/profile'];
+    const isPublicTenantPage = publicTenantPaths.some(path => location.pathname.startsWith(path));
+
+    // If tenant has no active property OR is on a public-style page, show public layout structure
+    if (user?.role === 'tenant' && (!user.hasActiveTenancy || isPublicTenantPage)) {
         return (
             <div className="h-full overflow-y-auto bg-[var(--ui-bg-page)] flex flex-col">
                 <RoleBasedNavbar />
@@ -24,7 +28,7 @@ const TenantLayout = () => {
     }
 
     return (
-        <div className="h-screen overflow-hidden bg-[var(--ui-bg-page)] flex">
+        <div className="h-full w-full overflow-hidden bg-[var(--ui-bg-page)] flex">
             {/* Sidebar */}
             <TenantSidebar
                 mobileOpen={mobileOpen}
@@ -89,7 +93,7 @@ const TenantLayout = () => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
+                <main className="flex-1 min-h-0 overflow-y-auto p-6 scroll-smooth">
                     <Outlet />
                 </main>
             </div>

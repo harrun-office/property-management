@@ -83,7 +83,7 @@ function TenantProfile() {
     try {
       // Verify current password by attempting login
       await authAPI.login(user.email, passwordData.currentPassword);
-      
+
       // If login successful, update password (this would typically be a separate endpoint)
       // For now, we'll show a message
       setSuccess('Password change feature will be available soon. Please contact support.');
@@ -111,7 +111,7 @@ function TenantProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-porcelain py-8 px-4">
+    <div className="min-h-full bg-porcelain py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-charcoal mb-2">Profile Settings</h1>

@@ -1,8 +1,44 @@
-import { Link } from 'react-router-dom';
-import { BASE_URL } from '../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { BASE_URL, propertiesAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 import Card from './ui/Card';
 
-function PropertyCard({ property, noLink = false }) {
+function PropertyCard({ property, noLink = false, isSaved = false }) {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isTenant } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(!!isSaved);
+
+  const handleSave = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!isAuthenticated) {
+      navigate(`/login?returnTo=${encodeURIComponent(`/properties/${property.id}?autoSave=1`)}`);
+      return;
+    }
+    if (!isTenant) {
+      alert('Only tenants can save properties to wishlist.');
+      return;
+    }
+    try {
+      setSaving(true);
+      if (saved) {
+        await propertiesAPI.unsaveProperty(property.id);
+        setSaved(false);
+      } else {
+        await propertiesAPI.saveProperty(property.id);
+        setSaved(true);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to save property');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -28,6 +64,19 @@ function PropertyCard({ property, noLink = false }) {
           }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
+        <div className="absolute top-4 left-4 flex items-center gap-2">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            aria-label={saved ? 'Saved to wishlist' : 'Save to wishlist'}
+            className={`p-2 rounded-full shadow-md bg-white/90 backdrop-blur-sm hover:bg-white transition-colors ${saving ? 'opacity-70 cursor-not-allowed' : ''}`}
+            title={saved ? 'Saved' : 'Save'}
+          >
+            <svg className={`w-5 h-5 ${saved ? 'text-brass-500' : 'text-architectural'}`} fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+            </svg>
+          </button>
+        </div>
         <div className="absolute top-4 right-4">
           <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-charcoal capitalize shadow-md">
             {property.propertyType}

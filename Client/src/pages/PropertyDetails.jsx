@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { propertiesAPI, tenantAPI, BASE_URL } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/ui/Card';
@@ -39,14 +39,17 @@ function PropertyDetails() {
     }).format(price);
   };
 
-  const { user } = useAuth();
+  const { user, isAuthenticated, isTenant } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [applying, setApplying] = useState(false);
   const [applicationSuccess, setApplicationSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const handleApply = async () => {
     if (!user) {
-      navigate('/register');
+      navigate('/login');
       return;
     }
 
@@ -71,12 +74,68 @@ function PropertyDetails() {
 
   const handleContact = () => {
     if (!user) {
-      navigate('/register');
+      navigate('/login');
       return;
     }
     // Placeholder for contact functionality
     alert('Contact feature coming soon!');
   };
+
+  const handleSave = async () => {
+    if (!user) {
+      navigate(`/login?returnTo=${encodeURIComponent(`${location.pathname}?autoSave=1`)}`);
+      return;
+    }
+    if (user.role !== 'tenant') {
+      alert('Only tenants can save properties to wishlist.');
+      return;
+    }
+    try {
+      setSaving(true);
+      if (saved) {
+        await propertiesAPI.unsaveProperty(property.id);
+        setSaved(false);
+      } else {
+        await propertiesAPI.saveProperty(property.id);
+        setSaved(true);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to save property');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    const hydrateSaved = async () => {
+      try {
+        if (isAuthenticated && isTenant && property?.id) {
+          const savedList = await propertiesAPI.getSavedProperties();
+          const isAlreadySaved = savedList.some(p => p.id === property.id);
+          setSaved(isAlreadySaved);
+        }
+      } catch (e) {
+      }
+    };
+    hydrateSaved();
+  }, [isAuthenticated, isTenant, property]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const autoSave = params.get('autoSave');
+    if (autoSave && isAuthenticated && isTenant && property && !saved && !saving) {
+      (async () => {
+        try {
+          setSaving(true);
+          await propertiesAPI.saveProperty(property.id);
+          setSaved(true);
+        } catch (e) {
+        } finally {
+          setSaving(false);
+        }
+      })();
+    }
+  }, [location.search, isAuthenticated, isTenant, property, saved, saving]);
 
   if (loading) {
     return (
@@ -187,6 +246,18 @@ function PropertyDetails() {
                   >
                     {applicationSuccess ? 'Applied' : (applying ? 'Applying...' : 'Apply Now')}
                   </Button>
+                  <Button
+                    variant={saved ? 'success' : 'secondary'}
+                    onClick={handleSave}
+                    disabled={saving}
+                    icon={
+                      <svg className="w-5 h-5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                      </svg>
+                    }
+                  >
+                    {saved ? 'Saved' : (saving ? 'Saving...' : 'Save')}
+                  </Button>
                   <Button variant="secondary" onClick={handleContact}>
                     Contact Owner
                   </Button>
@@ -230,4 +301,3 @@ function PropertyDetails() {
 }
 
 export default PropertyDetails;
-
