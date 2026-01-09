@@ -1624,3 +1624,56 @@ exports.updatePropertyStatus = async (req, res) => {
   }
 };
 
+// Get Payment Notifications
+exports.getPaymentNotifications = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const [rows] = await sql.query(`
+      SELECT n.*, p.amount, p.due_date, prop.title as property_title, t.name as tenant_name
+      FROM notifications n
+      JOIN payments p ON n.entity_id = p.id
+      LEFT JOIN properties prop ON p.property_id = prop.id
+      LEFT JOIN tenants ten ON p.tenant_id = ten.user_id
+      LEFT JOIN users t ON ten.user_id = t.id
+      WHERE n.user_id = ? AND n.type = 'payment' AND n.is_read = FALSE
+      ORDER BY n.created_at DESC
+    `, [userId]);
+
+    const notifications = rows.map(row => ({
+      id: row.id,
+      type: row.type,
+      title: row.title,
+      message: row.message,
+      amount: row.amount,
+      dueDate: row.due_date,
+      property: row.property_title,
+      tenant: row.tenant_name,
+      createdAt: row.created_at,
+      isRead: row.is_read
+    }));
+
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error fetching payment notifications:', error);
+    res.status(500).json({ error: 'Server error fetching notifications' });
+  }
+};
+
+// Mark Notification as Read
+exports.markNotificationRead = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const notificationId = req.params.id;
+
+    await sql.query(
+      "UPDATE notifications SET is_read = TRUE, read_at = NOW() WHERE id = ? AND user_id = ?",
+      [notificationId, userId]
+    );
+
+    res.json({ message: 'Notification marked as read' });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+

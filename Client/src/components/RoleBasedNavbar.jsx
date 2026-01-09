@@ -372,7 +372,7 @@ function RoleBasedNavbar() {
   );
 
   return (
-    <nav className="bg-gradient-to-r from-[var(--ui-bg-surface)]/98 via-[var(--ui-bg-surface)]/95 to-[var(--ui-bg-surface)]/98 backdrop-blur-xl shadow-soft sticky top-0 z-50 border-b border-[var(--ui-border-default)]/60 transition-all duration-300 relative overflow-hidden animate-fade-in" style={{ animationDuration: '0.6s' }}>
+    <nav className="bg-gradient-to-r from-[var(--ui-bg-surface)]/98 via-[var(--ui-bg-surface)]/95 to-[var(--ui-bg-surface)]/98 backdrop-blur-xl shadow-soft sticky top-0 z-50 border-b border-[var(--ui-border-default)]/60 transition-all duration-300">
       {/* Enhanced animated background overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-overlay-primary)]/20 via-transparent to-[var(--color-overlay-secondary)]/20 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
       {/* Subtle animated accent line */}
@@ -739,25 +739,27 @@ function RoleBasedNavbar() {
                     <NavLink to="/owner/messages" className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>Messages</NavLink>
                   </>
                 )}
-                {isTenant && hasActiveProperty && (
-                  <>
-                    <NavLink to="/tenant/dashboard" icon={<DashboardIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Dashboard</NavLink>
-                    <NavLink to="/tenant/payments" className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Payments</NavLink>
-                    <NavLink to="/tenant/messages" className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Messages</NavLink>
-                    <NavLink to="/tenant/maintenance" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Maintenance</NavLink>
-                    <NavLink to="/tenant/lease" className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Lease</NavLink>
-                    <NavLink to="/tenant/documents" className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>Documents</NavLink>
-                    <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>Profile</NavLink>
-                  </>
-                )}
-                {((isTenant && !hasActiveProperty) || location.pathname.startsWith('/tenant/')) && (
-                  <>
-                    <NavLink to="/" icon={<HomeIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Home</NavLink>
-                    <NavLink to="/properties" icon={<PropertiesIcon />} className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>Properties</NavLink>
-                    <NavLink to="/tenant/saved" className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Saved</NavLink>
-                    {!hasActiveProperty && <NavLink to="/tenant/profile" className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>Profile</NavLink>}
-                    <NavLink to="/tenant/applications" className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Applications</NavLink>
-                  </>
+                {/* Tenant Navigation (Guaranteed Render) */}
+                {isTenant && (
+                  hasActiveProperty ? (
+                    <>
+                      <NavLink to="/tenant/dashboard" icon={<DashboardIcon />}>Dashboard</NavLink>
+                      <NavLink to="/tenant/payments">Payments</NavLink>
+                      <NavLink to="/tenant/messages">Messages</NavLink>
+                      <NavLink to="/tenant/maintenance">Maintenance</NavLink>
+                      <NavLink to="/tenant/lease">Lease</NavLink>
+                      <NavLink to="/tenant/documents">Documents</NavLink>
+                      <NavLink to="/tenant/profile">Profile</NavLink>
+                    </>
+                  ) : (
+                    <>
+                      <NavLink to="/" icon={<HomeIcon />}>Home</NavLink>
+                      <NavLink to="/properties" icon={<PropertiesIcon />}>Properties</NavLink>
+                      <NavLink to="/tenant/saved">Saved</NavLink>
+                      <NavLink to="/tenant/profile">Profile</NavLink>
+                      <NavLink to="/tenant/applications">Applications</NavLink>
+                    </>
+                  )
                 )}
               </>
             ) : (
@@ -882,19 +884,25 @@ function RoleBasedNavbar() {
                 </>
               )}
               {isTenant && (
-                <>
-                  <NavLink to="/tenant/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
-                  <NavLink to="/tenant/payments" mobile>Payments</NavLink>
-                  <NavLink to="/tenant/messages" mobile>Messages</NavLink>
-                  <NavLink to="/tenant/maintenance" mobile>Maintenance</NavLink>
-                  <NavLink to="/tenant/lease" mobile>Lease</NavLink>
-                  <NavLink to="/tenant/documents" mobile>Documents</NavLink>
-                  <NavLink to="/tenant/profile" mobile>Profile</NavLink>
-                  {!hasActiveProperty && (
+                hasActiveProperty ? (
+                  <>
+                    <NavLink to="/tenant/dashboard" mobile icon={<DashboardIcon />}>Dashboard</NavLink>
+                    <NavLink to="/tenant/payments" mobile>Payments</NavLink>
+                    <NavLink to="/tenant/messages" mobile>Messages</NavLink>
+                    <NavLink to="/tenant/maintenance" mobile>Maintenance</NavLink>
+                    <NavLink to="/tenant/lease" mobile>Lease</NavLink>
+                    <NavLink to="/tenant/documents" mobile>Documents</NavLink>
+                    <NavLink to="/tenant/profile" mobile>Profile</NavLink>
+                  </>
+                ) : (
+                  <>
+                    <NavLink to="/" mobile icon={<HomeIcon />}>Home</NavLink>
+                    <NavLink to="/properties" mobile icon={<PropertiesIcon />}>Properties</NavLink>
                     <NavLink to="/tenant/saved" mobile icon={<PropertiesIcon />}>Saved Properties</NavLink>
-                  )}
-                  <NavLink to="/tenant/applications" mobile>Applications</NavLink>
-                </>
+                    <NavLink to="/tenant/profile" mobile>Profile</NavLink>
+                    <NavLink to="/tenant/applications" mobile>Applications</NavLink>
+                  </>
+                )
               )}
               <div className="pt-6 mt-6 border-t border-[var(--ui-border-default)]/50">
                 {/* Enhanced User Info */}

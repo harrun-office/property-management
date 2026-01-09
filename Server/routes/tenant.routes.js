@@ -10,6 +10,9 @@ router.get('/dashboard', authenticate, requireTenant, tenantController.getDashbo
 router.get('/payments', authenticate, requireTenant, tenantController.getPayments);
 router.get('/payments/upcoming', authenticate, requireTenant, tenantController.getUpcomingPayments);
 router.get('/payments/:id', authenticate, requireTenant, tenantController.getPaymentById);
+router.post('/payments/:id/process', authenticate, requireTenant, tenantController.processPayment);
+router.get('/payments/:paymentId/bill', authenticate, requireTenant, tenantController.getBill);
+router.get('/payment-history', authenticate, requireTenant, tenantController.getPaymentHistory);
 
 // Messages
 router.get('/messages', authenticate, requireTenant, tenantController.getMessages);

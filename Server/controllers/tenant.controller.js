@@ -530,3 +530,172 @@ exports.getMyApplications = async (req, res) => {
     res.status(500).json({ error: 'Server error fetching applications' });
   }
 };
+
+// Process Payment
+exports.processPayment = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      paymentId,
+      amount,
+      paymentMethod,
+      transactionId,
+      billNumber
+    } = req.body;
+
+    // Validate required fields
+    if (!paymentId || !amount || !paymentMethod) {
+      return res.status(400).json({ error: 'Missing required payment fields' });
+    }
+
+    // Verify payment belongs to user and is pending
+    const [paymentRows] = await sql.query(
+      "SELECT p.*, prop.owner_id, u.name as owner_name, u.email as owner_email FROM payments p JOIN properties prop ON p.property_id = prop.id JOIN users u ON prop.owner_id = u.id WHERE p.id = ? AND p.tenant_id = ? AND p.status = 'pending'",
+      [paymentId, userId]
+    );
+
+    if (paymentRows.length === 0) {
+      return res.status(404).json({ error: 'Payment not found or already processed' });
+    }
+
+    const payment = paymentRows[0];
+
+    // Generate bill number if not provided
+    const finalBillNumber = billNumber || `BILL-${Date.now()}`;
+
+    // Generate transaction ID if not provided
+    const finalTransactionId = transactionId || `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Simulate payment processing delay (2-3 seconds)
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Update payment status to 'paid'
+    await sql.query(
+      "UPDATE payments SET status = 'paid', paid_date = CURDATE(), payment_method = ?, transaction_id = ?, status_changed_at = NOW(), status_changed_by = ? WHERE id = ?",
+      [paymentMethod, finalTransactionId, userId, paymentId]
+    );
+
+    // Create bill record
+    const billData = {
+      billNumber: finalBillNumber,
+      paymentId: paymentId,
+      amount: amount,
+      property: {
+        id: payment.property_id,
+        title: payment.title || 'Property'
+      },
+      tenantId: userId,
+      ownerId: payment.owner_id,
+      paymentMethod: paymentMethod,
+      transactionId: finalTransactionId,
+      processedAt: new Date().toISOString()
+    };
+
+    await sql.query(
+      "INSERT INTO bills (bill_number, payment_id, tenant_id, owner_id, amount, payment_method, transaction_id, bill_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [finalBillNumber, paymentId, userId, payment.owner_id, amount, paymentMethod, finalTransactionId, JSON.stringify(billData)]
+    );
+
+    // Create payment history record
+    await sql.query(
+      "INSERT INTO payment_history (tenant_id, payment_id, action, details) VALUES (?, ?, 'payment_completed', ?)",
+      [userId, paymentId, JSON.stringify({
+        amount,
+        paymentMethod,
+        transactionId: finalTransactionId,
+        billNumber: finalBillNumber,
+        propertyId: payment.property_id
+      })]
+    );
+
+    // Create notification for owner
+    await sql.query(
+      "INSERT INTO notifications (user_id, type, title, message, entity_type, entity_id, priority) VALUES (?, 'payment', 'Payment Received', ?, 'payment', ?, 'normal')",
+      [payment.owner_id, `Received payment of $${amount} from tenant for property payment`, paymentId]
+    );
+
+    // Create audit log
+    createAuditLog(userId, 'process_payment', 'payment', paymentId, {
+      amount,
+      paymentMethod,
+      transactionId: finalTransactionId,
+      billNumber: finalBillNumber
+    }, getIpAddress(req));
+
+    // Send success response
+    res.json({
+      success: true,
+      billNumber: finalBillNumber,
+      transactionId: finalTransactionId,
+      amount,
+      message: 'Payment processed successfully',
+      ownerNotified: true,
+      billData
+    });
+
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.status(500).json({ error: 'Payment processing failed. Please try again.' });
+  }
+};
+
+// Get Payment History
+exports.getPaymentHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const [rows] = await sql.query(`
+      SELECT ph.*, p.amount, p.due_date, p.paid_date, prop.title as property_title, prop.address as property_address
+      FROM payment_history ph
+      JOIN payments p ON ph.payment_id = p.id
+      LEFT JOIN properties prop ON p.property_id = prop.id
+      WHERE ph.tenant_id = ?
+      ORDER BY ph.created_at DESC
+    `, [userId]);
+
+    const history = rows.map(record => ({
+      id: record.id,
+      paymentId: record.payment_id,
+      action: record.action,
+      amount: record.amount,
+      dueDate: record.due_date,
+      paidDate: record.paid_date,
+      property: record.property_title ? {
+        title: record.property_title,
+        address: record.property_address
+      } : null,
+      details: record.details,
+      createdAt: record.created_at
+    }));
+
+    res.json(history);
+  } catch (error) {
+    console.error('Error fetching payment history:', error);
+    res.status(500).json({ error: 'Server error fetching payment history' });
+  }
+};
+
+// Get Bill by Payment ID
+exports.getBill = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const paymentId = req.params.paymentId;
+
+    const [rows] = await sql.query(
+      "SELECT * FROM bills WHERE payment_id = ? AND tenant_id = ?",
+      [paymentId, userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Bill not found' });
+    }
+
+    const bill = rows[0];
+    res.json({
+      ...bill,
+      billData: JSON.parse(bill.bill_data || '{}')
+    });
+  } catch (error) {
+    console.error('Error fetching bill:', error);
+    res.status(500).json({ error: 'Server error fetching bill' });
+  }
+};

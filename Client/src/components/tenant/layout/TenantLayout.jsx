@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { tenantAPI } from '../../../services/api';
 import TenantSidebar from './TenantSidebar';
 import RoleBasedNavbar from '../../RoleBasedNavbar';
 import Footer from '../../Footer';
 
-const TenantLayout = () => {
+function TenantLayout() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isSidebarHovered, setIsSidebarHovered] = useState(false);
     const { user, logout } = useAuth();
     const location = useLocation();
+    const [hasActiveTenancy, setHasActiveTenancy] = useState(user?.hasActiveTenancy || false);
 
-    const publicTenantPaths = ['/tenant/saved', '/tenant/applications', '/tenant/profile'];
-    const isPublicTenantPage = publicTenantPaths.some(path => location.pathname.startsWith(path));
+    useEffect(() => {
+        if (user?.role?.trim().toLowerCase() === 'tenant') {
+            tenantAPI.getDashboard()
+                .then(data => {
+                    setHasActiveTenancy(!!data.currentProperty);
+                })
+                .catch(() => {
+                    setHasActiveTenancy(false);
+                });
+        }
+    }, [user]);
 
-    // If tenant has no active property OR is on a public-style page, show public layout structure
-    if (user?.role === 'tenant' && (!user.hasActiveTenancy || isPublicTenantPage)) {
+    // If tenant has no active property, show public layout structure
+    if (user?.role?.trim().toLowerCase() === 'tenant' && !hasActiveTenancy) {
         return (
             <div className="h-full overflow-y-auto bg-[var(--ui-bg-page)] flex flex-col">
                 <RoleBasedNavbar />
@@ -28,12 +39,12 @@ const TenantLayout = () => {
     }
 
     return (
-        <div className="h-full w-full overflow-hidden bg-[var(--ui-bg-page)] flex">
-            {/* Sidebar */}
+        <div className="flex h-screen overflow-hidden bg-[var(--ui-bg-page)]">
             <TenantSidebar
-                mobileOpen={mobileOpen}
-                setMobileOpen={setMobileOpen}
-                setIsSidebarHovered={setIsSidebarHovered}
+                isOpen={mobileOpen}
+                onClose={() => setMobileOpen(false)}
+                isHovered={isSidebarHovered}
+                onHoverChange={setIsSidebarHovered}
             />
 
             {/* Main Wrapper - Dynamic margin based on sidebar hover */}

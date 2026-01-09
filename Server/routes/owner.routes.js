@@ -63,6 +63,10 @@ router.get('/managers/:id', authenticate, requirePropertyOwner, ownerController.
 router.put('/managers/subscription/:id', authenticate, requirePropertyOwner, ownerController.updateSubscription);
 router.delete('/managers/subscription/:id', authenticate, requirePropertyOwner, ownerController.cancelSubscription);
 router.get('/managers/subscription/:id/payments', authenticate, requirePropertyOwner, ownerController.getSubscriptionPayments);
+
+// Notifications
+router.get('/notifications/payments', authenticate, requirePropertyOwner, ownerController.getPaymentNotifications);
+router.put('/notifications/:id/read', authenticate, requirePropertyOwner, ownerController.markNotificationRead);
 router.post('/managers/subscription/:id/pay', authenticate, requirePropertyOwner, ownerController.paySubscription);
 router.get('/managers/subscription/:id/agreement', authenticate, requirePropertyOwner, ownerController.getServiceAgreement);
 router.post('/managers/subscription/:id/review', authenticate, requirePropertyOwner, ownerController.submitManagerReview);

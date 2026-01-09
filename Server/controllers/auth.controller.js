@@ -24,6 +24,7 @@ exports.login = async (req, res) => {
     console.log('Processing Login:', cleanEmail);
 
     const user = await User.findByEmail(cleanEmail);
+    console.log('DEBUG: User.findByEmail result RAW:', JSON.stringify(user, null, 2));
     console.log('User found in DB:', user ? 'YES' : 'NO'); // Debug
 
     if (!user) {

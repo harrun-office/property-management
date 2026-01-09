@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://localhost:5000';
+export const BASE_URL = 'http://localhost:5005';
 const API_BASE_URL = `${BASE_URL}/api`;
 
 // Helper function to get auth headers
@@ -1373,6 +1373,50 @@ export const tenantAPI = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch payment');
+    }
+
+    return response.json();
+  },
+
+  processPayment: async (paymentData) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/payments/${paymentData.paymentId}/process`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(paymentData)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Payment processing failed');
+    }
+
+    return response.json();
+  },
+
+  getPaymentHistory: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/payment-history`, {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch payment history');
+    }
+
+    return response.json();
+  },
+
+  getBill: async (paymentId) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/payments/${paymentId}/bill`, {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch bill');
     }
 
     return response.json();

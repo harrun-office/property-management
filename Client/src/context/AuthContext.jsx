@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
-    
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
@@ -39,11 +39,11 @@ export function AuthProvider({ children }) {
     login,
     logout,
     isAuthenticated: !!user,
-    isSuperAdmin: user?.role === 'super_admin',
-    isPropertyManager: user?.role === 'property_manager',
-    isVendor: user?.role === 'vendor',
-    isTenant: user?.role === 'tenant',
-    isPropertyOwner: user?.role === 'property_owner',
+    isSuperAdmin: user?.role?.trim().toLowerCase() === 'super_admin',
+    isPropertyManager: user?.role?.trim().toLowerCase() === 'property_manager',
+    isVendor: user?.role?.trim().toLowerCase() === 'vendor',
+    isTenant: user?.role?.trim().toLowerCase() === 'tenant',
+    isPropertyOwner: user?.role?.trim().toLowerCase() === 'property_owner',
     hasRole: (role) => user?.role === role,
     hasPermission: (permission) => {
       if (!user) return false;

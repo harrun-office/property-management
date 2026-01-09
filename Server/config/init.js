@@ -230,6 +230,40 @@ CREATE TABLE IF NOT EXISTS payments (
     INDEX idx_payment_tenant (tenant_id)
 ) ENGINE=InnoDB;
 
+-- 8. BILLS TABLE (For payment receipts)
+CREATE TABLE IF NOT EXISTS bills (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    bill_number VARCHAR(50) UNIQUE NOT NULL,
+    payment_id INT NOT NULL,
+    tenant_id INT NOT NULL,
+    owner_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_method VARCHAR(50),
+    transaction_id VARCHAR(100),
+    bill_data JSON, -- Store complete bill details
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE CASCADE,
+    FOREIGN KEY (tenant_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_bill_tenant (tenant_id),
+    INDEX idx_bill_owner (owner_id),
+    INDEX idx_bill_payment (payment_id)
+) ENGINE=InnoDB;
+
+-- 8.1 PAYMENT HISTORY TABLE (For tracking payment lifecycle)
+CREATE TABLE IF NOT EXISTS payment_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id INT NOT NULL,
+    payment_id INT NOT NULL,
+    action VARCHAR(50) NOT NULL, -- 'payment_completed', 'payment_failed', etc.
+    details JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE CASCADE,
+    INDEX idx_payment_history_tenant (tenant_id),
+    INDEX idx_payment_history_payment (payment_id)
+) ENGINE=InnoDB;
+
 -- 9. AUDIT EVENTS TABLE
 CREATE TABLE IF NOT EXISTS audit_events (
     id INT AUTO_INCREMENT PRIMARY KEY,

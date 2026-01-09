@@ -22,6 +22,12 @@ function TenantPayments() {
     endDate: ''
   });
 
+  // Payment processing state
+  const [processingPayment, setProcessingPayment] = useState(null);
+  const [paymentModal, setPaymentModal] = useState({ isOpen: false, payment: null });
+  const [paymentSuccess, setPaymentSuccess] = useState(null);
+  const [paymentHistory, setPaymentHistory] = useState([]);
+
   useEffect(() => {
     loadPayments();
   }, [filters.status, filters.startDate, filters.endDate]);
@@ -30,16 +36,61 @@ function TenantPayments() {
     setLoading(true);
     setError('');
     try {
-      const [allPayments, upcoming] = await Promise.all([
+      const [allPayments, upcoming, history] = await Promise.all([
         tenantAPI.getPayments(filters),
-        tenantAPI.getUpcomingPayments()
+        tenantAPI.getUpcomingPayments(),
+        tenantAPI.getPaymentHistory()
       ]);
       setPayments(allPayments);
       setUpcomingPayments(upcoming);
+      setPaymentHistory(history);
     } catch (err) {
       setError(err.message || 'Failed to load payments');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Payment processing functions
+  const handlePayNow = async (payment) => {
+    setProcessingPayment(payment.id);
+    setPaymentModal({ isOpen: true, payment });
+  };
+
+  const processPayment = async (paymentData) => {
+    try {
+      setProcessingPayment(paymentModal.payment.id);
+
+      // Generate bill number and transaction ID
+      const billNumber = `BILL-${Date.now()}`;
+      const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const paymentPayload = {
+        paymentId: paymentModal.payment.id,
+        amount: paymentModal.payment.amount,
+        paymentMethod: paymentData.method,
+        transactionId,
+        billNumber
+      };
+
+      const result = await tenantAPI.processPayment(paymentPayload);
+
+      // Show success message
+      setPaymentSuccess({
+        billNumber: result.billNumber,
+        transactionId: result.transactionId,
+        amount: paymentModal.payment.amount,
+        property: paymentModal.payment.property?.title
+      });
+
+      // Close modal and reload payments
+      setPaymentModal({ isOpen: false, payment: null });
+      loadPayments(); // Refresh the payments list
+
+    } catch (error) {
+      setError('Payment processing failed. Please try again.');
+    } finally {
+      setProcessingPayment(null);
     }
   };
 
@@ -136,9 +187,21 @@ function TenantPayments() {
                         {payment.property?.title} - Due {new Date(payment.dueDate).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(payment.status)}`}>
-                      {payment.status}
-                    </span>
+                    <div className="flex gap-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(payment.status)}`}>
+                        {payment.status}
+                      </span>
+                      {payment.status === 'pending' && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handlePayNow(payment)}
+                          disabled={processingPayment === payment.id}
+                        >
+                          {processingPayment === payment.id ? 'Processing...' : 'Pay Now'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -301,6 +364,131 @@ function TenantPayments() {
                   Download Receipt
                 </Button>
               )}
+            </div>
+          )}
+        </Modal>
+
+        {/* Payment Processing Modal */}
+        <Modal
+          isOpen={paymentModal.isOpen}
+          onClose={() => setPaymentModal({ isOpen: false, payment: null })}
+          title="Complete Payment"
+          size="md"
+        >
+          {paymentModal.payment && (
+            <div className="space-y-6">
+              {/* Bill Preview */}
+              <div className="bg-stone-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-charcoal mb-3">Bill Details</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-architectural">Property:</span>
+                    <span className="text-charcoal">{paymentModal.payment.property?.title}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-architectural">Amount:</span>
+                    <span className="text-charcoal font-semibold">${paymentModal.payment.amount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-architectural">Due Date:</span>
+                    <span className="text-charcoal">{new Date(paymentModal.payment.dueDate).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Method Selection */}
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Payment Method</label>
+                <select
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
+                  defaultValue="credit_card"
+                >
+                  <option value="credit_card">Credit Card</option>
+                  <option value="debit_card">Debit Card</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="digital_wallet">Digital Wallet</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setPaymentModal({ isOpen: false, payment: null })}
+                  fullWidth
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onWidth
+                  onClick={() => processPayment({ method: 'credit_card' })}
+                  loading={processingPayment === paymentModal.payment.id}
+                  fullWidth
+                >
+                  Pay Now
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        {/* Payment Success Modal */}
+        <Modal
+          isOpen={!!paymentSuccess}
+          onClose={() => setPaymentSuccess(null)}
+          title="Payment Successful!"
+          size="md"
+        >
+          {paymentSuccess && (
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-eucalyptus-100 rounded-full flex items-center justify-center mx-auto">
+                <svg className="w-8 h-8 text-eucalyptus-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-charcoal mb-2">Payment Completed Successfully</h3>
+                <div className="bg-stone-50 p-4 rounded-lg text-sm space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-architectural">Bill Number:</span>
+                    <span className="text-charcoal font-mono">{paymentSuccess.billNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-architectural">Transaction ID:</span>
+                    <span className="text-charcoal font-mono">{paymentSuccess.transactionId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-architectural">Amount Paid:</span>
+                    <span className="text-charcoal font-semibold">${paymentSuccess.amount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-architectural">Property:</span>
+                    <span className="text-charcoal">{paymentSuccess.property}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setPaymentSuccess(null)}
+                  fullWidth
+                >
+                  Close
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    // Download receipt functionality can be added later
+                    alert('Receipt download feature coming soon');
+                    setPaymentSuccess(null);
+                  }}
+                  fullWidth
+                >
+                  Download Receipt
+                </Button>
+              </div>
             </div>
           )}
         </Modal>
