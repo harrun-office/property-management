@@ -1,35 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
 import Card from '../ui/Card';
-
-const mockUserGrowth = [
-    { name: 'Jan', users: 400, active: 240 },
-    { name: 'Feb', users: 3000, active: 1398 },
-    { name: 'Mar', users: 2000, active: 9800 },
-    { name: 'Apr', users: 2780, active: 3908 },
-    { name: 'May', users: 1890, active: 4800 },
-    { name: 'Jun', users: 2390, active: 3800 },
-    { name: 'Jul', users: 3490, active: 4300 },
-];
-
-const mockTaskCompletion = [
-    { name: 'Mon', completed: 12, pending: 4 },
-    { name: 'Tue', completed: 19, pending: 8 },
-    { name: 'Wed', completed: 15, pending: 2 },
-    { name: 'Thu', completed: 22, pending: 10 },
-    { name: 'Fri', completed: 28, pending: 15 },
-    { name: 'Sat', completed: 10, pending: 1 },
-    { name: 'Sun', completed: 5, pending: 0 },
-];
-
-const mockRevenue = [
-    { name: 'Week 1', value: 4000 },
-    { name: 'Week 2', value: 3000 },
-    { name: 'Week 3', value: 2000 },
-    { name: 'Week 4', value: 2780 },
-];
+import { adminAPI } from '../../services/api';
 
 const ChartCard = ({ title, children, action }) => (
     <Card variant="default" className="h-full">
@@ -43,11 +17,59 @@ const ChartCard = ({ title, children, action }) => (
     </Card>
 );
 
-export const UserGrowthChart = ({ data = mockUserGrowth }) => {
+export const UserGrowthChart = ({ data }) => {
+    const [chartData, setChartData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // For now, show a message that real data will be available once system has usage history
+                // In a real implementation, this would fetch user growth data from the API
+                setChartData([]);
+                setError('User growth data will be available once the system has been in use for several months.');
+            } catch (err) {
+                setError('Failed to load user growth data');
+                console.error('Error fetching user growth data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <ChartCard title="User Growth">
+                <div className="flex items-center justify-center h-full">
+                    <div className="text-[var(--ui-text-muted)]">Loading...</div>
+                </div>
+            </ChartCard>
+        );
+    }
+
+    if (error || chartData.length === 0) {
+        return (
+            <ChartCard title="User Growth">
+                <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-[var(--ui-text-muted)]">
+                        <div className="text-sm mb-2">📊</div>
+                        <div className="text-xs">
+                            {error || 'No user growth data available yet'}
+                        </div>
+                    </div>
+                </div>
+            </ChartCard>
+        );
+    }
+
     return (
         <ChartCard title="User Growth">
             <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data}>
+                <AreaChart data={chartData}>
                     <defs>
                         <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="var(--ui-action-primary)" stopOpacity={0.3} />
@@ -88,11 +110,68 @@ export const UserGrowthChart = ({ data = mockUserGrowth }) => {
     );
 };
 
-export const TaskCompletionChart = ({ data = mockTaskCompletion }) => {
+export const TaskCompletionChart = ({ data }) => {
+    const [chartData, setChartData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // For now, we'll fetch vendor performance data and transform it
+                // In a full implementation, we'd have a dedicated endpoint for task completion metrics
+                const vendorsData = await adminAPI.getVendorsPerformance();
+
+                // Transform the data into chart format
+                // This is a simplified transformation - real implementation would aggregate by day/week
+                const transformedData = vendorsData.map((vendor, index) => ({
+                    name: vendor.name.substring(0, 3), // Short name for display
+                    completed: vendor.completedTasks || 0,
+                    pending: vendor.pendingTasks || 0
+                }));
+
+                setChartData(transformedData);
+            } catch (err) {
+                setError('Failed to load task performance data');
+                console.error('Error fetching task performance data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <ChartCard title="Task Performance">
+                <div className="flex items-center justify-center h-full">
+                    <div className="text-[var(--ui-text-muted)]">Loading...</div>
+                </div>
+            </ChartCard>
+        );
+    }
+
+    if (error || chartData.length === 0) {
+        return (
+            <ChartCard title="Task Performance">
+                <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-[var(--ui-text-muted)]">
+                        <div className="text-sm mb-2">📈</div>
+                        <div className="text-xs">
+                            {error || 'No task performance data available'}
+                        </div>
+                    </div>
+                </div>
+            </ChartCard>
+        );
+    }
+
     return (
         <ChartCard title="Task Performance">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data}>
+                <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--ui-border-default)" />
                     <XAxis
                         dataKey="name"
@@ -131,19 +210,96 @@ export const TaskCompletionChart = ({ data = mockTaskCompletion }) => {
     );
 };
 
-export const RevenueChart = ({ data = mockRevenue }) => {
+export const RevenueChart = ({ data }) => {
+    const [chartData, setChartData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [timeRange, setTimeRange] = useState('This Month');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // Revenue data would come from a dedicated analytics endpoint
+                // For now, show placeholder until revenue tracking is implemented
+                setChartData([]);
+                setError('Revenue tracking will be available once payment processing is implemented.');
+            } catch (err) {
+                setError('Failed to load revenue data');
+                console.error('Error fetching revenue data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [timeRange]);
+
+    if (loading) {
+        return (
+            <ChartCard
+                title="Revenue Trend"
+                action={
+                    <select
+                        className="text-xs border rounded p-1 bg-[var(--ui-bg-surface)] text-[var(--ui-text-secondary)]"
+                        value={timeRange}
+                        onChange={(e) => setTimeRange(e.target.value)}
+                    >
+                        <option>This Month</option>
+                        <option>Last Month</option>
+                    </select>
+                }
+            >
+                <div className="flex items-center justify-center h-full">
+                    <div className="text-[var(--ui-text-muted)]">Loading...</div>
+                </div>
+            </ChartCard>
+        );
+    }
+
+    if (error || chartData.length === 0) {
+        return (
+            <ChartCard
+                title="Revenue Trend"
+                action={
+                    <select
+                        className="text-xs border rounded p-1 bg-[var(--ui-bg-surface)] text-[var(--ui-text-secondary)]"
+                        value={timeRange}
+                        onChange={(e) => setTimeRange(e.target.value)}
+                    >
+                        <option>This Month</option>
+                        <option>Last Month</option>
+                    </select>
+                }
+            >
+                <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-[var(--ui-text-muted)]">
+                        <div className="text-sm mb-2">💰</div>
+                        <div className="text-xs">
+                            {error || 'Revenue data will be available once payment processing is active'}
+                        </div>
+                    </div>
+                </div>
+            </ChartCard>
+        );
+    }
+
     return (
         <ChartCard
             title="Revenue Trend"
             action={
-                <select className="text-xs border rounded p-1 bg-[var(--ui-bg-surface)] text-[var(--ui-text-secondary)]">
+                <select
+                    className="text-xs border rounded p-1 bg-[var(--ui-bg-surface)] text-[var(--ui-text-secondary)]"
+                    value={timeRange}
+                    onChange={(e) => setTimeRange(e.target.value)}
+                >
                     <option>This Month</option>
                     <option>Last Month</option>
                 </select>
             }
         >
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--ui-border-default)" />
                     <XAxis
                         dataKey="name"
@@ -155,7 +311,7 @@ export const RevenueChart = ({ data = mockRevenue }) => {
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: 'var(--ui-text-muted)', fontSize: 12 }}
-                        unit="$"
+                        unit="₹"
                     />
                     <Tooltip
                         contentStyle={{

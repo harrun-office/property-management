@@ -1,5 +1,4 @@
 const bcrypt = require('bcryptjs');
-// const data = require('../data/mockData'); // Deprecated
 const User = require('../models/user.model');
 const Tenant = require('../models/tenant.model');
 const { generateToken, generateInvitationToken, validateInvitationToken, createAuditLog } = require('../middleware/auth');
@@ -125,6 +124,7 @@ exports.register = async (req, res) => {
       name,
       role,
       status: 'active',
+      mobileNumber,
       permissions
     };
 

@@ -3,12 +3,7 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 
 const ActionCenter = ({ pendingItems = [], loading = false }) => {
-    // Mock data if none provided (for development/fallback)
-    const items = pendingItems.length > 0 ? pendingItems : [
-        { id: 1, type: 'approval', title: 'New Vendor Application', time: '2 hours ago', severity: 'high' },
-        { id: 2, type: 'alert', title: 'Payment Gateway Connection Lost', time: '15 mins ago', severity: 'critical' },
-        { id: 3, type: 'review', title: 'Property Manager License Expiring', time: '1 day ago', severity: 'medium' },
-    ];
+    const items = pendingItems;
 
     const getSeverityColor = (severity) => {
         switch (severity) {

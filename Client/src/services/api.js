@@ -892,6 +892,21 @@ export const ownerAPI = {
     return response.json();
   },
 
+  endTenancy: async (tenantId, reason, notes) => {
+    const response = await fetch(`${API_BASE_URL}/owner/tenants/${tenantId}/end-tenancy`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ reason, notes })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to end tenancy');
+    }
+
+    return response.json();
+  },
+
   getMessages: async () => {
     const response = await fetch(`${API_BASE_URL}/owner/messages`, {
       headers: getAuthHeaders()
@@ -1329,6 +1344,33 @@ export const tenantAPI = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch dashboard');
+    }
+
+    return response.json();
+  },
+
+  getPendingApplications: async () => {
+    const response = await fetch(`${API_BASE_URL}/tenant/applications/pending-payment`, {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch pending applications');
+    }
+
+    return response.json();
+  },
+
+  paySecurityDeposit: async (applicationId) => {
+    const response = await fetch(`${API_BASE_URL}/tenant/applications/${applicationId}/pay-security-deposit`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to process security deposit payment');
     }
 
     return response.json();

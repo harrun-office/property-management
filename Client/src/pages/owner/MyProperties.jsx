@@ -29,9 +29,24 @@ function MyProperties() {
     setLoading(true);
     setError('');
     try {
+      console.log('🔍 Loading properties with filters:', filters);
       const data = await ownerAPI.getProperties(filters);
-      setProperties(data);
+      console.log('📊 Properties received:', data);
+      console.log('📊 Properties count:', data?.length || 0);
+      console.log('📊 Properties array:', Array.isArray(data) ? 'Yes' : 'No');
+
+      // Force temporary display for debugging
+      if (data && data.length > 0) {
+        console.log('🏠 First property:', {
+          id: data[0].id,
+          title: data[0].title,
+          status: data[0].status
+        });
+      }
+
+      setProperties(data || []);
     } catch (err) {
+      console.error('❌ Error loading properties:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -45,12 +60,29 @@ function MyProperties() {
     });
   };
 
-  const handleStatusChange = async (propertyId, newStatus) => {
+  const handleStatusChange = async (propertyId, newStatus, property) => {
+    // If changing to inactive and property has a tenant, show confirmation
+    if (newStatus === 'inactive' && property?.tenant) {
+      const confirmed = window.confirm(
+        `⚠️ This property has a current tenant (${property.tenant.name}).\n\n` +
+        `Setting it to "Inactive" will:\n` +
+        `• Terminate the current tenancy\n` +
+        `• Remove the tenant from this property\n` +
+        `• Allow the tenant to search for other properties\n\n` +
+        `Are you sure you want to continue?`
+      );
+
+      if (!confirmed) return;
+    }
+
     try {
       await ownerAPI.updatePropertyStatus(propertyId, newStatus);
       loadProperties();
+      if (newStatus === 'inactive' && property?.tenant) {
+        alert('Property set to inactive. The tenant has been removed and can now search for other properties.');
+      }
     } catch (err) {
-      alert(err.message);
+      alert('Error updating property status: ' + err.message);
     }
   };
 
@@ -110,7 +142,17 @@ function MyProperties() {
 
         {/* Filters */}
         <Card variant="elevated" padding="lg" className="mb-8">
-          <Card.Title className="mb-4">Filters</Card.Title>
+          <Card.Title className="mb-4 flex items-center justify-between">
+            <span>Filters</span>
+            {(filters.status || filters.propertyType || filters.search) && (
+              <button
+                onClick={() => setFilters({ status: '', propertyType: '', search: '' })}
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Clear all filters
+              </button>
+            )}
+          </Card.Title>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1">Status</label>
@@ -121,10 +163,9 @@ function MyProperties() {
                 className="w-full p-3 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
               >
                 <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="rented">Rented</option>
-                <option value="maintenance">Maintenance</option>
+                <option value="active">Active (Listed for rent)</option>
+                <option value="inactive">Inactive (Not available)</option>
+                <option value="maintenance">Maintenance (Under repair)</option>
               </select>
             </div>
             <div>
@@ -152,16 +193,62 @@ function MyProperties() {
           </div>
         </Card>
 
+        {/* Active Filters Display */}
+        {(filters.status || filters.propertyType || filters.search) && (
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-blue-800">
+                <strong>Active Filters:</strong>
+                {filters.status && <span className="ml-2">Status: {filters.status === 'active' ? 'Active (Listed)' : filters.status === 'inactive' ? 'Inactive' : filters.status === 'maintenance' ? 'Maintenance' : filters.status}</span>}
+                {filters.propertyType && <span className="ml-2">Type: {filters.propertyType}</span>}
+                {filters.search && <span className="ml-2">Search: "{filters.search}"</span>}
+              </div>
+              <button
+                onClick={() => setFilters({ status: '', propertyType: '', search: '' })}
+                className="text-sm text-blue-600 hover:text-blue-800 underline hover:no-underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          </div>
+        )}
+
         {error && <ErrorDisplay message={error} onRetry={loadProperties} className="mb-6" />}
+
+        {/* Debug Info */}
+        {!loading && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h3 className="font-semibold text-yellow-800 mb-2">🔍 Debug Info:</h3>
+            <div className="text-sm text-yellow-700 space-y-1">
+              <div>Loading: {loading ? 'Yes' : 'No'}</div>
+              <div>Error: {error || 'None'}</div>
+              <div>Properties in state: {properties?.length || 0}</div>
+              <div>Filters: {JSON.stringify(filters)}</div>
+              {properties && properties.length > 0 && (
+                <div>First property: {properties[0].title} (ID: {properties[0].id}, Status: {properties[0].status})</div>
+              )}
+            </div>
+          </div>
+        )}
 
         {properties.length === 0 && !loading && (
           <EmptyState
-            title="No properties yet"
-            description="You haven't posted any properties yet. Get started by posting your first property."
+            title={filters.status || filters.propertyType || filters.search ? "No properties match your filters" : "No properties yet"}
+            description={
+              filters.status || filters.propertyType || filters.search
+                ? "Try adjusting your filters to see more properties, or clear all filters to view everything."
+                : "You haven't posted any properties yet. Get started by posting your first property."
+            }
             action={
-              <Link to="/owner/properties/new">
-                <Button variant="primary">Post Your First Property</Button>
-              </Link>
+              filters.status || filters.propertyType || filters.search ? (
+                <Button variant="primary" onClick={() => setFilters({ status: '', propertyType: '', search: '' })}>
+                  Clear Filters
+                </Button>
+              ) : (
+                <Link to="/owner/properties/new">
+                  <Button variant="primary">Post Your First Property</Button>
+                </Link>
+              )
             }
             icon={
               <svg className="w-16 h-16 text-architectural" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,6 +264,24 @@ function MyProperties() {
               <Card key={property.id} variant="elevated" padding="none" className="overflow-hidden">
                 <PropertyCard property={property} noLink={true} />
                 <Card.Body className="p-4 border-t border-stone-200 space-y-3">
+                  {/* Tenant Information for Rented Properties */}
+                  {property.tenant && (
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <h4 className="font-semibold text-charcoal mb-2 flex items-center gap-2">
+                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Current Tenant
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div><span className="font-medium">Name:</span> {property.tenant.name}</div>
+                        <div><span className="font-medium">Email:</span> {property.tenant.email}</div>
+                        <div><span className="font-medium">Phone:</span> {property.tenant.phone || 'N/A'}</div>
+                        <div><span className="font-medium">Lease:</span> {new Date(property.tenant.leaseStartDate).toLocaleDateString()} - {new Date(property.tenant.leaseEndDate).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Quick Stats */}
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-4">
@@ -196,12 +301,11 @@ function MyProperties() {
                   <div className="flex items-center justify-between">
                     <select
                       value={property.status}
-                      onChange={(e) => handleStatusChange(property.id, e.target.value)}
+                      onChange={(e) => handleStatusChange(property.id, e.target.value, property)}
                       className="px-3 py-1.5 text-sm border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
                     >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
-                      <option value="rented">Rented</option>
                       <option value="maintenance">Maintenance</option>
                     </select>
                   </div>

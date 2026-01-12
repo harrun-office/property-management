@@ -22,6 +22,7 @@ router.post('/applications/:id/notes', authenticate, requirePropertyOwner, owner
 // Tenants
 router.get('/tenants', authenticate, requirePropertyOwner, ownerController.getTenants);
 router.get('/tenants/:id', authenticate, requirePropertyOwner, ownerController.getTenantById);
+router.post('/tenants/:tenantId/end-tenancy', authenticate, requirePropertyOwner, ownerController.endTenancy);
 
 // Messages
 router.get('/messages', authenticate, requirePropertyOwner, ownerController.getMessages);

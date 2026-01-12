@@ -95,7 +95,7 @@ function SubscriptionPayment() {
                 <Card key={payment.id} variant="filled" padding="md">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-semibold text-charcoal">${payment.amount}</p>
+                      <p className="font-semibold text-charcoal">₹{payment.amount}</p>
                       <p className="text-sm text-architectural">
                         Due: {new Date(payment.dueDate).toLocaleDateString()}
                       </p>
@@ -135,7 +135,7 @@ function SubscriptionPayment() {
                 <Card key={payment.id} variant="filled" padding="md">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-semibold text-charcoal">${payment.amount}</p>
+                      <p className="font-semibold text-charcoal">₹{payment.amount}</p>
                       <p className="text-sm text-architectural">
                         Paid: {new Date(payment.paidDate).toLocaleDateString()}
                       </p>

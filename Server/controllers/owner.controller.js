@@ -117,11 +117,17 @@ exports.getProperties = async (req, res) => {
     const user = getUser(req);
     const { status, propertyType, search } = req.query;
 
+    console.log('🔍 Owner getProperties called:', { userId: user.id, status, propertyType, search });
+
     let query = `
         SELECT p.*,
             (SELECT COUNT(*) FROM applications a WHERE a.property_id = p.id) as inquiries,
-            (SELECT COUNT(*) FROM applications a WHERE a.property_id = p.id AND a.status = 'pending') as pendingApplications
+            (SELECT COUNT(*) FROM applications a WHERE a.property_id = p.id AND a.status = 'pending') as pendingApplications,
+            t.id as tenant_id, t.status as tenancy_status, t.lease_start_date, t.lease_end_date, t.monthly_rent,
+            u.name as tenant_name, u.email as tenant_email, u.mobile_number as tenant_phone
         FROM properties p
+        LEFT JOIN tenants t ON p.tenant_id = t.user_id AND t.status = 'active'
+        LEFT JOIN users u ON t.user_id = u.id
         WHERE p.owner_id = ?
     `;
     const params = [user.id];
@@ -138,13 +144,33 @@ exports.getProperties = async (req, res) => {
 
     const [rows] = await sql.query(query, params);
 
+    console.log('📊 Query executed:', query);
+    console.log('📊 Query params:', params);
+    console.log('📊 Raw results count:', rows.length);
+    console.log('📊 First result sample:', rows[0] ? {
+      id: rows[0].id,
+      title: rows[0].title,
+      status: rows[0].status,
+      owner_id: rows[0].owner_id
+    } : 'No results');
+
     // Parse JSON fields
     const properties = rows.map(p => ({
       ...p,
       images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
       amenities: typeof p.amenities === 'string' ? JSON.parse(p.amenities) : p.amenities,
       utilities: typeof p.utilities === 'string' ? JSON.parse(p.utilities) : p.utilities,
-      monthlyRent: p.price // Alias for frontend
+      monthlyRent: p.price, // Alias for frontend
+      tenant: p.tenant_id ? {
+        id: p.tenant_id,
+        name: p.tenant_name,
+        email: p.tenant_email,
+        phone: p.tenant_phone,
+        tenancyStatus: p.tenancy_status,
+        leaseStartDate: p.lease_start_date,
+        leaseEndDate: p.lease_end_date,
+        monthlyRent: p.monthly_rent
+      } : null
     }));
 
     res.json(properties);
@@ -161,7 +187,7 @@ exports.createProperty = async (req, res) => {
     const {
       title, description, price, address, bedrooms, bathrooms, area,
       propertyType, images, amenities, petPolicy, utilities, yearBuilt,
-      parking, leaseTerms, monthlyRent, securityDeposit, availableDate
+      parking, leaseTerms, securityDeposit, availableDate
     } = req.body;
 
     if (!title || !description || !address || !price) {
@@ -175,11 +201,11 @@ exports.createProperty = async (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
 
     const [result] = await sql.query(query, [
-      user.id, title, description, price, address, propertyType || 'apartment', 'active',
+      user.id, title, description, price, address, propertyType || 'apartment', 'inactive',
       bedrooms || 0, bathrooms || 0, area || 0,
       JSON.stringify(images || []), JSON.stringify(amenities || []),
       petPolicy || 'not_allowed', JSON.stringify(utilities || []), yearBuilt || null,
-      parking || 0, leaseTerms || '12 months', monthlyRent ? parseFloat(monthlyRent) : null,
+      parking || 0, leaseTerms || '12 months', price ? parseFloat(price) : null, // Use price as monthly_rent for rental properties
       securityDeposit ? parseFloat(securityDeposit) : null, availableDate || null
     ]);
 
@@ -291,7 +317,7 @@ exports.getApplications = async (req, res) => {
     const [apps] = await sql.query(`
         SELECT a.*, 
                p.title as property_title, p.address as property_address,
-               u.name as applicant_name, u.email as applicant_email
+               u.name as applicant_name, u.email as applicant_email, u.mobile_number as applicant_phone
         FROM applications a
         JOIN properties p ON a.property_id = p.id
         LEFT JOIN users u ON a.applicant_id = u.id
@@ -302,7 +328,13 @@ exports.getApplications = async (req, res) => {
     const applicationsWithDetails = apps.map(app => ({
       ...app,
       property: { id: app.property_id, title: app.property_title, address: app.property_address },
-      applicant: app.applicant_id ? { id: app.applicant_id, name: app.applicant_name, email: app.applicant_email } : null,
+      applicant: app.applicant_id ? {
+        id: app.applicant_id,
+        name: app.applicant_name,
+        email: app.applicant_email,
+        phone: app.applicant_phone
+      } : null,
+      applicationDate: app.created_at,
       notes: typeof app.notes === 'string' ? JSON.parse(app.notes || '[]') : app.notes
     }));
 
@@ -343,6 +375,7 @@ exports.getApplicationById = async (req, res) => {
         email: app.applicant_email,
         phone: app.applicant_phone
       } : null,
+      applicationDate: app.created_at,
       notes: typeof app.notes === 'string' ? JSON.parse(app.notes || '[]') : app.notes
     });
   } catch (error) {
@@ -376,27 +409,33 @@ exports.updateApplication = async (req, res) => {
 
     if (status) {
       if (status === 'approved') {
-        // Transaction-like logic
-        // 1. Update application
-        await sql.query("UPDATE applications SET status = 'approved', updated_at = NOW() WHERE id = ?", [applicationId]);
+        // New flow: Approve application but require security deposit payment
+        await sql.query("UPDATE applications SET status = 'approved_pending_payment', updated_at = NOW() WHERE id = ?", [applicationId]);
 
-        // 2. Update property status and tenant_id (Wait, schema stores tenant_id? Or tenants table?)
-        // We moved to 'tenants' table. Property 'tenant_id' might be older design, but let's keep consistency.
-        // Actually, best practice is to insert into 'tenants' table which stores the lease.
-
-        // Check if property is already rented?
-        // Assuming simplified flow: Approving application creates lease.
-
-        // Create Tenant Record
+        // Send notification to tenant about security deposit payment
         await sql.query(`
-                INSERT INTO tenants (user_id, property_id, lease_start_date, lease_end_date, monthly_rent, status, created_at)
-                VALUES (?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR), ?, 'active', NOW())
-            `, [app.applicant_id, app.property_id, app.price]);
+          INSERT INTO notifications (user_id, title, message, type, entity_type, entity_id, priority, created_by)
+          VALUES (?, ?, ?, 'payment', 'application', ?, 'high', ?)
+        `, [
+          app.applicant_id,
+          'Security Deposit Payment Required',
+          `Your application for "${app.property_title}" has been approved! Please pay the security deposit of ₹${app.security_deposit || 'N/A'} to complete your tenancy.`,
+          applicationId,
+          user.id
+        ]);
 
-        // Update property status
-        await sql.query("UPDATE properties SET status = 'rented', tenant_id = ? WHERE id = ?", [app.applicant_id, app.property_id]);
+        createAuditLog(user.id, 'approve_application', 'application', applicationId, { status: 'approved_pending_payment' }, getIpAddress(req));
 
-        // Reject other pending applications for this property? Optional.
+        // Reject other pending applications for this property
+        await sql.query(`
+          UPDATE applications SET status = 'rejected', updated_at = NOW()
+          WHERE property_id = ? AND id != ? AND status = 'pending'
+        `, [app.property_id, applicationId]);
+
+      } else if (status === 'rejected') {
+        // Delete rejected applications to keep database clean
+        await sql.query("DELETE FROM applications WHERE id = ?", [applicationId]);
+        createAuditLog(user.id, 'reject_application', 'application', applicationId, { reason: notes || 'Rejected by owner' }, getIpAddress(req));
       } else {
         await sql.query("UPDATE applications SET status = ?, updated_at = NOW() WHERE id = ?", [status, applicationId]);
       }
@@ -482,6 +521,70 @@ exports.getTenants = async (req, res) => {
   } catch (error) {
     console.error('Get Tenants Error:', error);
     res.status(500).json({ error: 'Server error fetching tenants' });
+  }
+};
+
+// End Tenancy (Remove Tenant)
+exports.endTenancy = async (req, res) => {
+  try {
+    const user = getUser(req);
+    const { tenantId } = req.params;
+    const { reason, notes } = req.body;
+
+    // First, verify the tenant belongs to the owner
+    const [tenants] = await sql.query(`
+      SELECT t.*, p.title as property_title, p.address as property_address
+      FROM tenants t
+      JOIN properties p ON t.property_id = p.id
+      WHERE t.id = ? AND p.owner_id = ?
+    `, [tenantId, user.id]);
+
+    if (tenants.length === 0) {
+      return res.status(404).json({ error: 'Tenant not found or access denied' });
+    }
+
+    const tenant = tenants[0];
+
+    // Update tenant status to terminated
+    await sql.query(`
+      UPDATE tenants
+      SET status = 'terminated', terminated_at = NOW(), termination_reason = ?, notes = ?
+      WHERE id = ?
+    `, [reason || 'Owner terminated', notes || '', tenantId]);
+
+    // Update property status back to active (available for rent)
+    await sql.query(`
+      UPDATE properties
+      SET status = 'active', tenant_id = NULL, updated_at = NOW()
+      WHERE id = ?
+    `, [tenant.property_id]);
+
+    // Send notification to tenant about termination
+    await sql.query(`
+      INSERT INTO notifications (user_id, title, message, type, entity_type, entity_id, priority, created_by)
+      VALUES (?, ?, ?, 'warning', 'tenancy', ?, 'high', ?)
+    `, [
+      tenant.user_id,
+      'Tenancy Terminated',
+      `Your tenancy for "${tenant.property_title}" has been terminated by the property owner. Reason: ${reason || 'Not specified'}.`,
+      tenantId,
+      user.id
+    ]);
+
+    createAuditLog(user.id, 'end_tenancy', 'tenant', tenantId, {
+      property_id: tenant.property_id,
+      reason: reason || 'Owner terminated',
+      notes
+    }, getIpAddress(req));
+
+    res.json({
+      success: true,
+      message: 'Tenancy ended successfully. Property is now available for new tenants.'
+    });
+
+  } catch (error) {
+    console.error('End Tenancy Error:', error);
+    res.status(500).json({ error: 'Server error ending tenancy' });
   }
 };
 
@@ -1602,22 +1705,79 @@ exports.updatePropertyStatus = async (req, res) => {
   try {
     const user = getUser(req);
     const propertyId = parseInt(req.params.id);
-    const property = await Property.findById(propertyId);
+
+    // Get property and verify ownership
+    const [properties] = await sql.query('SELECT * FROM properties WHERE id = ?', [propertyId]);
+    const property = properties[0];
 
     if (!property) return res.status(404).json({ error: 'Property not found' });
     if (property.owner_id !== user.id) return res.status(403).json({ error: 'Access denied' });
 
     const { status } = req.body;
-    const validStatuses = ['active', 'rented', 'maintenance', 'inactive', 'archived'];
+    const validStatuses = ['active', 'inactive', 'maintenance'];
     if (!status || !validStatuses.includes(status)) {
       return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+    }
+
+    // If changing to inactive and property has a tenant, end the tenancy
+    if (status === 'inactive' && property.tenant_id) {
+      // Get tenant information
+      const [tenants] = await sql.query(`
+        SELECT t.*, u.name as tenant_name, u.email as tenant_email
+        FROM tenants t
+        JOIN users u ON t.user_id = u.id
+        WHERE t.user_id = ? AND t.property_id = ?
+      `, [property.tenant_id, propertyId]);
+
+      if (tenants.length > 0) {
+        const tenant = tenants[0];
+
+        // Update tenant status to terminated
+        await sql.query(`
+          UPDATE tenants
+          SET status = 'terminated', terminated_at = NOW(), termination_reason = ?, notes = ?
+          WHERE user_id = ? AND property_id = ?
+        `, ['Property set to inactive by owner', 'Owner deactivated property', tenant.user_id, propertyId]);
+
+        // Update property to remove tenant
+        await sql.query('UPDATE properties SET tenant_id = NULL WHERE id = ?', [propertyId]);
+
+        // Send notification to tenant
+        await sql.query(`
+          INSERT INTO notifications (user_id, title, message, type, entity_type, entity_id, priority, created_by)
+          VALUES (?, ?, ?, 'warning', 'tenancy', ?, 'high', ?)
+        `, [
+          tenant.user_id,
+          'Tenancy Terminated - Property Deactivated',
+          `Your tenancy for "${property.title}" has been terminated because the property has been deactivated by the owner. You can now search for and apply to other available properties.`,
+          tenant.id,
+          user.id
+        ]);
+
+        // Audit log for tenant removal
+        createAuditLog(user.id, 'terminate_tenancy_inactive_property', 'tenant', tenant.id, {
+          property_id: propertyId,
+          reason: 'Property set to inactive'
+        }, getIpAddress(req));
+      }
     }
 
     await sql.query('UPDATE properties SET status = ?, updated_at = NOW() WHERE id = ?', [status, propertyId]);
     createAuditLog(user.id, 'update_property_status', 'property', propertyId, { oldStatus: property.status, newStatus: status }, getIpAddress(req));
 
-    const updatedProperty = await Property.findById(propertyId);
-    res.json(updatedProperty);
+    // Get updated property
+    const [updatedRows] = await sql.query('SELECT * FROM properties WHERE id = ?', [propertyId]);
+    const updatedProperty = updatedRows[0];
+
+    // Parse JSON fields
+    const parsedProperty = {
+      ...updatedProperty,
+      images: typeof updatedProperty.images === 'string' ? JSON.parse(updatedProperty.images) : updatedProperty.images,
+      amenities: typeof updatedProperty.amenities === 'string' ? JSON.parse(updatedProperty.amenities) : updatedProperty.amenities,
+      utilities: typeof updatedProperty.utilities === 'string' ? JSON.parse(updatedProperty.utilities) : updatedProperty.utilities
+    };
+
+    res.json(parsedProperty);
   } catch (error) {
     console.error("Error updating property status:", error);
     res.status(500).json({ error: 'Server error updating property status' });

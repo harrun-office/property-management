@@ -1,7 +1,0 @@
-Script started direct at 2026-01-05T05:46:43.550Z
-Connecting to DB...
-Connected!
-Property Count: 0
-Inserting seed property...
-Inserted.
-Done.

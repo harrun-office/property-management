@@ -1,7 +1,15 @@
-// Mock data structure for hierarchical RBAC system
-// This will be replaced with database later
+// ===========================================
+// MIGRATE MOCK DATA TO MYSQL DATABASE
+// One-time migration script to move all mock data into MySQL
+// Run: node scripts/migrate_mock_data.js
+// ===========================================
 
-const data = {
+const mysql = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
+require('dotenv').config({ path: '../.env' });
+
+// Mock data structure (embedded for migration)
+const mockData = {
   users: [
     // Super Admin
     {
@@ -175,7 +183,7 @@ const data = {
       bathrooms: 2,
       area: 1200,
       propertyType: 'apartment',
-      ownerId: 7, // Property Owner
+      ownerId: 7,
       assignedManagerId: 2,
       assignedVendors: [
         { vendorId: 4, permissionScope: 'task-based' },
@@ -183,7 +191,7 @@ const data = {
       ],
       status: 'rented',
       views: 0,
-      tenantId: 6, // John Tenant
+      tenantId: 6,
       monthlyRent: 1200,
       createdAt: new Date('2024-01-15').toISOString(),
       updatedAt: new Date('2024-01-15').toISOString()
@@ -203,7 +211,7 @@ const data = {
       bathrooms: 3,
       area: 2500,
       propertyType: 'house',
-      ownerId: 7, // Property Owner
+      ownerId: 7,
       assignedManagerId: 2,
       assignedVendors: [
         { vendorId: 4, permissionScope: 'task-based' }
@@ -229,7 +237,7 @@ const data = {
       bathrooms: 1,
       area: 500,
       propertyType: 'apartment',
-      ownerId: 7, // Property Owner
+      ownerId: 7,
       assignedManagerId: 2,
       assignedVendors: [
         { vendorId: 5, permissionScope: 'task-based' }
@@ -254,7 +262,7 @@ const data = {
       bathrooms: 2,
       area: 3000,
       propertyType: 'commercial',
-      ownerId: 7, // Property Owner
+      ownerId: 7,
       assignedManagerId: 3,
       assignedVendors: [],
       status: 'active',
@@ -277,7 +285,7 @@ const data = {
       bathrooms: 3,
       area: 3200,
       propertyType: 'house',
-      ownerId: 7, // Property Owner
+      ownerId: 7,
       assignedManagerId: 3,
       assignedVendors: [],
       status: 'active',
@@ -395,385 +403,228 @@ const data = {
       ],
       createdAt: new Date('2024-02-12').toISOString(),
       updatedAt: new Date('2024-02-12').toISOString()
-    },
-    {
-      id: 3,
-      propertyId: 2,
-      assignedVendorId: 4,
-      assignedBy: 2,
-      title: 'Pool Maintenance Check',
-      description: 'Monthly pool maintenance including cleaning, chemical balance, and equipment check.',
-      priority: 'medium',
-      status: 'pending',
-      dueDate: new Date('2024-02-25').toISOString(),
-      completedDate: null,
-      attachments: [],
-      createdAt: new Date('2024-02-15').toISOString(),
-      updatedAt: new Date('2024-02-15').toISOString()
-    },
-    {
-      id: 4,
-      propertyId: 3,
-      assignedVendorId: 5,
-      assignedBy: 2,
-      title: 'Electrical Safety Inspection',
-      description: 'Annual electrical safety inspection for the studio apartment.',
-      priority: 'high',
-      status: 'pending',
-      dueDate: new Date('2024-02-18').toISOString(),
-      completedDate: null,
-      attachments: [],
-      createdAt: new Date('2024-02-16').toISOString(),
-      updatedAt: new Date('2024-02-16').toISOString()
     }
-  ],
-
-  auditLogs: [
-    {
-      id: 1,
-      userId: 1,
-      action: 'create_property_manager',
-      resourceType: 'user',
-      resourceId: 2,
-      details: { email: 'manager1@propmanage.com', name: 'Sarah Property Manager' },
-      timestamp: new Date('2024-01-10').toISOString(),
-      ipAddress: '192.168.1.100'
-    },
-    {
-      id: 2,
-      userId: 1,
-      action: 'assign_properties',
-      resourceType: 'property',
-      resourceId: 1,
-      details: { propertyManagerId: 2, propertyIds: [1, 2, 3] },
-      timestamp: new Date('2024-01-10').toISOString(),
-      ipAddress: '192.168.1.100'
-    },
-    {
-      id: 3,
-      userId: 2,
-      action: 'create_vendor',
-      resourceType: 'vendor',
-      resourceId: 1,
-      details: { email: 'plumber@vendor.com', companyName: 'QuickFix Plumbing' },
-      timestamp: new Date('2024-01-20').toISOString(),
-      ipAddress: '192.168.1.101'
-    },
-    {
-      id: 4,
-      userId: 2,
-      action: 'assign_vendor_to_property',
-      resourceType: 'property',
-      resourceId: 1,
-      details: { vendorId: 4, propertyId: 1, permissionScope: 'task-based' },
-      timestamp: new Date('2024-01-20').toISOString(),
-      ipAddress: '192.168.1.101'
-    },
-    {
-      id: 5,
-      userId: 2,
-      action: 'create_task',
-      resourceType: 'task',
-      resourceId: 1,
-      details: { propertyId: 1, vendorId: 4, title: 'Fix Leaky Faucet in Kitchen' },
-      timestamp: new Date('2024-02-10').toISOString(),
-      ipAddress: '192.168.1.101'
-    },
-    {
-      id: 6,
-      userId: 4,
-      action: 'update_task_status',
-      resourceType: 'task',
-      resourceId: 1,
-      details: { oldStatus: 'in_progress', newStatus: 'completed' },
-      timestamp: new Date('2024-02-14').toISOString(),
-      ipAddress: '192.168.1.102'
-    },
-    {
-      id: 7,
-      userId: 4,
-      action: 'upload_file',
-      resourceType: 'task',
-      resourceId: 1,
-      details: { fileType: 'invoice', fileName: 'inv-001.pdf' },
-      timestamp: new Date('2024-02-14').toISOString(),
-      ipAddress: '192.168.1.102'
-    }
-  ],
-
-  // Owner-specific data models
-  applications: [],
-  tenants: [],
-  messages: [
-    {
-      id: 1,
-      propertyId: 1,
-      tenantId: 6,
-      senderId: 6,
-      recipientId: 5,
-      subject: 'Question about property',
-      message: 'Hi, I have a question about the property. When can I schedule a viewing?',
-      read: false,
-      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 2,
-      propertyId: 1,
-      tenantId: 6,
-      senderId: 5,
-      recipientId: 6,
-      subject: 'Re: Question about property',
-      message: 'You can schedule a viewing anytime this week. Let me know your preferred time.',
-      read: false,
-      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ],
-  viewingRequests: [],
-  payments: [
-    {
-      id: 1,
-      propertyId: 1,
-      tenantId: 6,
-      amount: 1200,
-      dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'pending',
-      type: 'rent',
-      createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 2,
-      propertyId: 1,
-      tenantId: 6,
-      amount: 1200,
-      dueDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-      paidDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'paid',
-      type: 'rent',
-      createdAt: new Date(Date.now() - 55 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 3,
-      propertyId: 1,
-      tenantId: 6,
-      amount: 1200,
-      dueDate: new Date(Date.now() - 55 * 24 * 60 * 60 * 1000).toISOString(),
-      paidDate: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'paid',
-      type: 'rent',
-      createdAt: new Date(Date.now() - 85 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ],
-  maintenanceRequests: [
-    {
-      id: 1,
-      propertyId: 1,
-      tenantId: 6,
-      title: 'Kitchen faucet leaking',
-      description: 'The kitchen faucet has been leaking for the past few days. Water is dripping continuously.',
-      priority: 'medium',
-      status: 'open',
-      photos: [],
-      notes: [],
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 2,
-      propertyId: 1,
-      tenantId: 6,
-      title: 'AC not working',
-      description: 'The air conditioning unit stopped working yesterday. No cool air coming out.',
-      priority: 'high',
-      status: 'in_progress',
-      photos: [],
-      notes: [
-        {
-          note: 'Technician scheduled for tomorrow',
-          addedBy: 5,
-          addedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ],
-      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ],
-  ownerSettings: [],
-
-  // ID counters
-  nextUserId: 8,
-  nextPropertyId: 6,
-  nextVendorId: 3,
-  nextTaskId: 5,
-  nextAuditLogId: 8,
-  nextApplicationId: 1,
-  nextTenantId: 1,
-  nextMessageId: 3,
-  nextViewingRequestId: 1,
-  nextPaymentId: 4,
-  nextMaintenanceRequestId: 3,
-
-  // Subscription Service Data Models
-  subscriptionPlans: [
-    {
-      id: 1,
-      name: 'Basic Management',
-      description: 'Essential property management services',
-      price: 50, // per property per month
-      features: ['rent_collection', 'maintenance_coordination', 'documentation', 'tenant_communication'],
-      maxProperties: 5,
-      isActive: true,
-      createdAt: new Date('2024-01-01').toISOString()
-    },
-    {
-      id: 2,
-      name: 'Professional Management',
-      description: 'Comprehensive property management with advanced features',
-      price: 100,
-      features: ['all_basic', 'marketing', 'legal_docs', 'financial_reports', 'property_inspections', 'emergency_response'],
-      maxProperties: 20,
-      isActive: true,
-      createdAt: new Date('2024-01-01').toISOString()
-    },
-    {
-      id: 3,
-      name: 'Enterprise Management',
-      description: 'Full-service management for large portfolios',
-      price: 150,
-      features: ['all_professional', 'dedicated_manager', 'priority_support', 'custom_reporting', 'tax_preparation'],
-      maxProperties: -1, // unlimited
-      isActive: true,
-      createdAt: new Date('2024-01-01').toISOString()
-    }
-  ],
-
-  managerProfiles: [
-    {
-      id: 1,
-      managerId: 2, // Sarah Property Manager
-      bio: 'Experienced property manager with 10+ years in real estate management. Specializing in residential and commercial properties.',
-      experience: 10,
-      specialties: ['residential', 'commercial', 'luxury'],
-      responseTime: '2 hours',
-      propertiesManaged: 45,
-      averageRating: 4.8,
-      totalReviews: 24,
-      location: 'New York, NY',
-      languages: ['English', 'Spanish'],
-      certifications: ['CPM', 'Real Estate License'],
-      createdAt: new Date('2024-01-10').toISOString()
-    },
-    {
-      id: 2,
-      managerId: 3, // Mike Property Manager
-      bio: 'Dedicated property management professional focused on tenant satisfaction and property maintenance.',
-      experience: 7,
-      specialties: ['residential', 'apartments'],
-      responseTime: '4 hours',
-      propertiesManaged: 28,
-      averageRating: 4.6,
-      totalReviews: 18,
-      location: 'Los Angeles, CA',
-      languages: ['English'],
-      certifications: ['Real Estate License'],
-      createdAt: new Date('2024-01-15').toISOString()
-    }
-  ],
-
-  managerSubscriptions: [
-    {
-      id: 1,
-      ownerId: 7, // Property Owner
-      managerId: 2, // Sarah Property Manager
-      propertyId: 1,
-      planId: 2, // Professional Management
-      status: 'active', // active, suspended, cancelled, pending
-      startDate: new Date('2024-01-15').toISOString(),
-      endDate: null, // null for ongoing subscriptions
-      nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days from now
-      monthlyFee: 100,
-      setupFee: 0,
-      autoRenew: true,
-      cancelledAt: null,
-      createdAt: new Date('2024-01-15').toISOString(),
-      updatedAt: new Date('2024-01-15').toISOString()
-    }
-  ],
-
-  subscriptionPayments: [
-    {
-      id: 1,
-      subscriptionId: 1,
-      amount: 100,
-      status: 'paid', // paid, pending, failed, refunded
-      dueDate: new Date('2024-01-15').toISOString(),
-      paidDate: new Date('2024-01-14').toISOString(),
-      paymentMethod: 'credit_card',
-      transactionId: 'txn_123456789',
-      receiptUrl: '/receipts/subscription_1_payment_1.pdf',
-      createdAt: new Date('2024-01-14').toISOString()
-    },
-    {
-      id: 2,
-      subscriptionId: 1,
-      amount: 100,
-      status: 'pending',
-      dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-      paidDate: null,
-      paymentMethod: 'credit_card',
-      transactionId: null,
-      receiptUrl: null,
-      createdAt: new Date('2024-01-15').toISOString()
-    }
-  ],
-
-  serviceAgreements: [
-    {
-      id: 1,
-      subscriptionId: 1,
-      ownerId: 7,
-      managerId: 2,
-      propertyId: 1,
-      services: ['rent_collection', 'maintenance_coordination', 'documentation', 'marketing', 'legal_docs', 'financial_reports'],
-      commissionRate: 0, // 0% if subscription-based
-      terms: 'This agreement covers professional property management services including rent collection, maintenance coordination, tenant communication, documentation management, marketing, legal documentation, and financial reporting. The subscription fee is $100/month per property. Either party may cancel with 30 days notice.',
-      status: 'active', // active, cancelled, expired
-      signedDate: new Date('2024-01-15').toISOString(),
-      signedByOwner: true,
-      signedByManager: true,
-      agreementUrl: '/agreements/subscription_1_agreement.pdf',
-      createdAt: new Date('2024-01-15').toISOString(),
-      updatedAt: new Date('2024-01-15').toISOString()
-    }
-  ],
-
-  managerReviews: [
-    {
-      id: 1,
-      managerId: 2,
-      ownerId: 7,
-      subscriptionId: 1,
-      rating: 5,
-      review: 'Excellent service! Sarah is very responsive and handles everything professionally.',
-      createdAt: new Date('2024-01-20').toISOString()
-    },
-    {
-      id: 2,
-      managerId: 2,
-      ownerId: null, // Anonymous review
-      subscriptionId: null,
-      rating: 4,
-      review: 'Great property manager, very knowledgeable.',
-      createdAt: new Date('2024-01-18').toISOString()
-    }
-  ],
-
-  // ID counters for subscription models
-  nextSubscriptionPlanId: 4,
-  nextManagerProfileId: 3,
-  nextManagerSubscriptionId: 2,
-  nextSubscriptionPaymentId: 3,
-  nextServiceAgreementId: 2,
-  nextManagerReviewId: 3
+  ]
 };
 
-module.exports = data;
+async function migrateMockData() {
+  let connection;
+
+  try {
+    console.log('🔄 Connecting to MySQL database...');
+
+    connection = await mysql.createConnection({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'property_management_db'
+    });
+
+    console.log('✅ Connected to database');
+
+    // Migrate users
+    console.log('👥 Migrating users...');
+    for (const user of mockData.users) {
+      await connection.query(`
+        INSERT IGNORE INTO users (
+          id, email, password, name, role, status, invited_by, permissions,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        user.id,
+        user.email,
+        user.password,
+        user.name,
+        user.role,
+        user.status,
+        user.invitedBy,
+        JSON.stringify(user.permissions),
+        user.createdAt,
+        user.updatedAt
+      ]);
+    }
+    console.log(`✅ Migrated ${mockData.users.length} users`);
+
+    // Migrate properties
+    console.log('🏠 Migrating properties...');
+    for (const property of mockData.properties) {
+      await connection.query(`
+        INSERT IGNORE INTO properties (
+          id, owner_id, title, description, price, address, property_type,
+          bedrooms, bathrooms, square_feet, status, tenant_id, assigned_manager_id,
+          images, monthly_rent, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        property.id,
+        property.ownerId,
+        property.title,
+        property.description,
+        property.price,
+        property.address,
+        property.propertyType,
+        property.bedrooms,
+        property.bathrooms,
+        property.area,
+        property.status,
+        property.tenantId,
+        property.assignedManagerId,
+        JSON.stringify(property.images),
+        property.monthlyRent,
+        property.createdAt,
+        property.updatedAt
+      ]);
+
+      // Migrate property-vendor assignments
+      for (const vendorAssignment of property.assignedVendors || []) {
+        await connection.query(`
+          INSERT IGNORE INTO property_vendors (
+            property_id, vendor_user_id, permission_scope
+          ) VALUES (?, ?, ?)
+        `, [
+          property.id,
+          vendorAssignment.vendorId,
+          JSON.stringify({ scope: vendorAssignment.permissionScope })
+        ]);
+      }
+    }
+    console.log(`✅ Migrated ${mockData.properties.length} properties`);
+
+    // Migrate vendors
+    console.log('🔧 Migrating vendors...');
+    for (const vendor of mockData.vendors) {
+      await connection.query(`
+        INSERT IGNORE INTO vendor_profiles (
+          id, user_id, company_name, contact_name, email, phone,
+          service_types, certifications, availability_schedule,
+          performance_rating, contract_info, status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        vendor.id,
+        vendor.userId,
+        vendor.companyName,
+        vendor.contactName,
+        vendor.email,
+        vendor.phone,
+        JSON.stringify(vendor.serviceTypes),
+        JSON.stringify(vendor.certifications),
+        JSON.stringify(vendor.availabilitySchedule),
+        vendor.performanceRating,
+        JSON.stringify(vendor.contractInfo),
+        vendor.status,
+        vendor.createdAt,
+        vendor.updatedAt
+      ]);
+    }
+    console.log(`✅ Migrated ${mockData.vendors.length} vendors`);
+
+    // Migrate tasks
+    console.log('📋 Migrating tasks...');
+    for (const task of mockData.tasks) {
+      await connection.query(`
+        INSERT IGNORE INTO vendor_tasks (
+          id, property_id, assigned_vendor_id, assigned_by, title, description,
+          priority, status, due_date, completed_date, attachments, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        task.id,
+        task.propertyId,
+        task.assignedVendorId,
+        task.assignedBy,
+        task.title,
+        task.description,
+        task.priority,
+        task.status === 'completed' ? 'COMPLETED' : task.status === 'in_progress' ? 'IN_PROGRESS' : 'OPEN',
+        task.dueDate,
+        task.completedDate,
+        JSON.stringify(task.attachments),
+        task.createdAt,
+        task.updatedAt
+      ]);
+    }
+    console.log(`✅ Migrated ${mockData.tasks.length} tasks`);
+
+    // Create tenants for property 1 (John Tenant)
+    console.log('👤 Creating tenant relationship...');
+    await connection.query(`
+      INSERT IGNORE INTO tenants (
+        user_id, property_id, lease_start_date, monthly_rent, status
+      ) VALUES (?, ?, ?, ?, ?)
+    `, [
+      6, // John Tenant user ID
+      1, // Property ID
+      '2024-01-15',
+      1200,
+      'active'
+    ]);
+    console.log('✅ Created tenant relationship');
+
+    // Create sample payments
+    console.log('💰 Creating sample payments...');
+    const payments = [
+      { propertyId: 1, tenantId: 6, amount: 1200, dueDate: '2024-02-01', status: 'paid', paidDate: '2024-01-30' },
+      { propertyId: 1, tenantId: 6, amount: 1200, dueDate: '2024-03-01', status: 'pending', paidDate: null }
+    ];
+
+    for (const payment of payments) {
+      await connection.query(`
+        INSERT IGNORE INTO payments (
+          property_id, tenant_id, amount, due_date, status, paid_date, type
+        ) VALUES (?, ?, ?, ?, ?, ?, 'rent')
+      `, [
+        payment.propertyId,
+        payment.tenantId,
+        payment.amount,
+        payment.dueDate,
+        payment.status,
+        payment.paidDate
+      ]);
+    }
+    console.log(`✅ Created ${payments.length} sample payments`);
+
+    // Create sample maintenance requests
+    console.log('🔧 Creating sample maintenance requests...');
+    await connection.query(`
+      INSERT IGNORE INTO maintenance_requests (
+        property_id, requested_by, title, description, priority, status
+      ) VALUES (?, ?, ?, ?, ?, ?)
+    `, [
+      1, // Property ID
+      6, // John Tenant user ID
+      'Kitchen faucet leaking',
+      'The kitchen faucet has been leaking for the past few days.',
+      'medium',
+      'open'
+    ]);
+    console.log('✅ Created sample maintenance request');
+
+    console.log('🎉 Migration completed successfully!');
+    console.log('');
+    console.log('📊 Summary:');
+    console.log(`   - Users: ${mockData.users.length}`);
+    console.log(`   - Properties: ${mockData.properties.length}`);
+    console.log(`   - Vendors: ${mockData.vendors.length}`);
+    console.log(`   - Tasks: ${mockData.tasks.length}`);
+    console.log(`   - Plus additional relationships and sample data`);
+
+  } catch (error) {
+    console.error('❌ Migration failed:', error);
+    throw error;
+  } finally {
+    if (connection) await connection.end();
+  }
+}
+
+// Run migration if called directly
+if (require.main === module) {
+  migrateMockData()
+    .then(() => {
+      console.log('✅ Mock data migration completed successfully');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('❌ Mock data migration failed:', error);
+      process.exit(1);
+    });
+}
+
+module.exports = { migrateMockData };

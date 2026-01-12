@@ -69,10 +69,6 @@ async function startServer() {
         await initDB();
         console.log('✅ Database initialized');
 
-        // RUN SCHEMA FIX
-        const fixSchema = require('./fix_schema');
-        await fixSchema();
-
 
 
         // Create HTTP server

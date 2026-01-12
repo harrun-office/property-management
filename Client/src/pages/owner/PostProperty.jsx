@@ -24,11 +24,9 @@ function PostProperty() {
     yearBuilt: '',
     parking: '',
     leaseTerms: '12 months',
-    monthlyRent: '',
     securityDeposit: '',
     availableDate: ''
   });
-  const [imageUrl, setImageUrl] = useState('');
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [error, setError] = useState('');
@@ -121,11 +119,6 @@ function PostProperty() {
           error = 'Parking spaces must be a valid positive number';
         }
         break;
-      case 'monthlyRent':
-        if (value && (isNaN(value) || parseFloat(value) < 0)) {
-          error = 'Monthly rent must be a valid positive number';
-        }
-        break;
       case 'securityDeposit':
         if (value && (isNaN(value) || parseFloat(value) < 0)) {
           error = 'Security deposit must be a valid positive number';
@@ -197,21 +190,6 @@ function PostProperty() {
     });
   };
 
-  const handleAddImage = () => {
-    if (imageUrl.trim()) {
-      // Validate URL
-      try {
-        new URL(imageUrl.trim());
-        setFormData({
-          ...formData,
-          images: [...formData.images, imageUrl.trim()]
-        });
-        setImageUrl('');
-      } catch (err) {
-        setError('Please enter a valid image URL');
-      }
-    }
-  };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -278,7 +256,7 @@ function PostProperty() {
     });
 
     // Validate optional fields if they have values
-    ['yearBuilt', 'parking', 'monthlyRent', 'securityDeposit', 'availableDate'].forEach(field => {
+    ['yearBuilt', 'parking', 'securityDeposit', 'availableDate'].forEach(field => {
       if (formData[field]) {
         const error = validateField(field, formData[field]);
         if (error) {
@@ -365,7 +343,7 @@ function PostProperty() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
-                    label="Price ($)"
+                    label="Monthly Rent (₹)"
                     type="number"
                     name="price"
                     value={formData.price}
@@ -514,18 +492,7 @@ function PostProperty() {
               <Card.Title className="text-xl mb-4">Rental Information</Card.Title>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Monthly Rent ($)"
-                  type="number"
-                  name="monthlyRent"
-                  value={formData.monthlyRent}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  min="0"
-                  step="0.01"
-                  error={errors.monthlyRent && touched.monthlyRent ? errors.monthlyRent : undefined}
-                />
-                <Input
-                  label="Security Deposit ($)"
+                  label="Security Deposit (₹)"
                   type="number"
                   name="securityDeposit"
                   value={formData.securityDeposit}
@@ -592,7 +559,6 @@ function PostProperty() {
                   className="hidden"
                 />
 
-                <div className="flex gap-2">
                   <Button
                     type="button"
                     variant="secondary"
@@ -606,24 +572,6 @@ function PostProperty() {
                   >
                     Upload Image
                   </Button>
-                  <div className="flex-1 flex gap-2">
-                    <input
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder="Or enter image URL..."
-                      className="flex-1 px-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 bg-porcelain transition-colors"
-                    />
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={handleAddImage}
-                      disabled={!imageUrl.trim()}
-                    >
-                      Add URL
-                    </Button>
-                  </div>
-                </div>
               </div>
               {errors.images && (
                 <p className="mt-1 text-sm text-error-500">{errors.images}</p>

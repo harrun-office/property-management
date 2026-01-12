@@ -6,18 +6,20 @@ const User = function (user) {
     this.name = user.name;
     this.role = user.role;
     this.status = user.status;
+    this.mobileNumber = user.mobileNumber;
     this.permissions = user.permissions;
 };
 
 User.create = async (newUser) => {
     try {
-        const query = 'INSERT INTO users (email, password, name, role, status, permissions) VALUES (?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO users (email, password, name, role, status, mobile_number, permissions) VALUES (?, ?, ?, ?, ?, ?, ?)';
         const [res] = await sql.query(query, [
             newUser.email,
             newUser.password,
             newUser.name,
             newUser.role,
             newUser.status || 'active',
+            newUser.mobileNumber,
             JSON.stringify(newUser.permissions || {})
         ]);
         return { id: res.insertId, ...newUser };

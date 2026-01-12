@@ -94,7 +94,7 @@ function OwnerDashboard() {
         />
         <MetricCard
           title="Monthly Income"
-          value={`$${(metrics?.monthlyIncome || 0).toLocaleString()}`}
+          value={`₹${(metrics?.monthlyIncome || 0).toLocaleString()}`}
           subtitle="Current month"
           variant="accent"
           icon={
@@ -176,7 +176,7 @@ function OwnerDashboard() {
                 <p className="font-semibold text-charcoal mb-1">{subscription.manager?.name || 'Manager'}</p>
                 <p className="text-sm text-architectural mb-2">{subscription.property?.title || 'Property'}</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-architectural">${subscription.monthlyFee}/mo</span>
+                  <span className="text-sm text-architectural">₹{subscription.monthlyFee}/mo</span>
                   {subscription.nextPayment && (
                     <span className="text-xs text-architectural">
                       Due {new Date(subscription.nextPayment.dueDate).toLocaleDateString()}

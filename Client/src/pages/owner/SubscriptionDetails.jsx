@@ -155,7 +155,7 @@ function SubscriptionDetails() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-architectural text-sm">Monthly Fee</p>
-                  <p className="font-semibold text-charcoal">${subscription.monthlyFee}/month</p>
+                  <p className="font-semibold text-charcoal">₹{subscription.monthlyFee}/month</p>
                 </div>
                 <div>
                   <p className="text-architectural text-sm">Status</p>
@@ -176,7 +176,7 @@ function SubscriptionDetails() {
                 <div>
                   <p className="text-architectural text-sm">Next Payment</p>
                   <p className="font-semibold text-charcoal">
-                    ${subscription.nextPayment.amount} on {new Date(subscription.nextPayment.dueDate).toLocaleDateString()}
+                    ₹{subscription.nextPayment.amount} on {new Date(subscription.nextPayment.dueDate).toLocaleDateString()}
                   </p>
                 </div>
               )}
@@ -194,7 +194,7 @@ function SubscriptionDetails() {
                   <Card key={payment.id} variant="filled" padding="sm">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-semibold text-charcoal">${payment.amount}</p>
+                        <p className="font-semibold text-charcoal">₹{payment.amount}</p>
                         <p className="text-xs text-architectural">
                           {payment.paidDate ? new Date(payment.paidDate).toLocaleDateString() : 'Pending'}
                         </p>

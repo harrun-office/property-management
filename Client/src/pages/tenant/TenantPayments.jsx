@@ -143,7 +143,7 @@ function TenantPayments() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <MetricCard
             title="Total Paid"
-            value={`$${totalPaid.toLocaleString()}`}
+            value={`₹${totalPaid.toLocaleString()}`}
             variant="success"
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +153,7 @@ function TenantPayments() {
           />
           <MetricCard
             title="Pending Amount"
-            value={`$${pendingAmount.toLocaleString()}`}
+            value={`₹${pendingAmount.toLocaleString()}`}
             variant="default"
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +182,7 @@ function TenantPayments() {
                 <Card key={payment.id} variant="filled" padding="md" hover>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-semibold text-charcoal">${payment.amount.toLocaleString()}</p>
+                      <p className="font-semibold text-charcoal">₹{payment.amount.toLocaleString()}</p>
                       <p className="text-sm text-architectural">
                         {payment.property?.title} - Due {new Date(payment.dueDate).toLocaleDateString()}
                       </p>
@@ -275,7 +275,7 @@ function TenantPayments() {
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="text-lg font-semibold text-charcoal">
-                              ${payment.amount.toLocaleString()}
+                              ₹{payment.amount.toLocaleString()}
                             </h3>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(isOverdue ? 'overdue' : payment.status)}`}>
                               {isOverdue ? 'Overdue' : payment.status}
@@ -326,7 +326,7 @@ function TenantPayments() {
             <div className="space-y-4">
               <div>
                 <p className="text-architectural text-sm mb-1">Amount</p>
-                <p className="text-2xl font-bold text-charcoal">${selectedPayment.amount.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-charcoal">₹{selectedPayment.amount.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-architectural text-sm mb-1">Property</p>
@@ -387,7 +387,7 @@ function TenantPayments() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-architectural">Amount:</span>
-                    <span className="text-charcoal font-semibold">${paymentModal.payment.amount.toLocaleString()}</span>
+                    <span className="text-charcoal font-semibold">₹{paymentModal.payment.amount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-architectural">Due Date:</span>
@@ -460,7 +460,7 @@ function TenantPayments() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-architectural">Amount Paid:</span>
-                    <span className="text-charcoal font-semibold">${paymentSuccess.amount.toLocaleString()}</span>
+                    <span className="text-charcoal font-semibold">₹{paymentSuccess.amount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-architectural">Property:</span>

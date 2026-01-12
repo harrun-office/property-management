@@ -8,11 +8,13 @@ import ErrorDisplay from '../../components/ui/ErrorDisplay';
 
 function TenantDashboard() {
     const [dashboardData, setDashboardData] = useState(null);
+    const [pendingApplications, setPendingApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
         loadDashboard();
+        loadPendingApplications();
     }, []);
 
     const loadDashboard = async () => {
@@ -36,6 +38,32 @@ function TenantDashboard() {
             // setError(err.message || 'Failed to load dashboard');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadPendingApplications = async () => {
+        try {
+            const apps = await tenantAPI.getPendingApplications();
+            setPendingApplications(apps);
+        } catch (err) {
+            console.error("Pending applications load error", err);
+            // Don't show error for pending applications if it fails
+        }
+    };
+
+    const handlePaySecurityDeposit = async (applicationId) => {
+        if (!confirm('Are you sure you want to pay the security deposit? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            await tenantAPI.paySecurityDeposit(applicationId);
+            alert('Security deposit paid successfully! You are now a tenant.');
+            // Refresh dashboard and pending applications
+            loadDashboard();
+            loadPendingApplications();
+        } catch (err) {
+            alert('Failed to process security deposit payment: ' + err.message);
         }
     };
 
@@ -95,7 +123,7 @@ function TenantDashboard() {
                     </Card.Header>
                     <Card.Body>
                         <div className="text-2xl font-bold text-charcoal mb-2">
-                            ${dashboardData?.amountDue || 0}
+                            ₹{dashboardData?.amountDue || 0}
                         </div>
                         <p className="text-sm text-architectural">
                             Due on {dashboardData?.nextPaymentDate}
@@ -128,6 +156,58 @@ function TenantDashboard() {
                     </Card.Footer>
                 </Card>
             </div>
+
+            {/* Pending Applications Section */}
+            {pendingApplications.length > 0 && (
+                <div className="space-y-4">
+                    <h2 className="text-2xl font-bold text-charcoal">Pending Applications</h2>
+                    <div className="grid grid-cols-1 gap-4">
+                        {pendingApplications.map((application) => (
+                            <Card key={application.id}>
+                                <Card.Header>
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold text-charcoal">
+                                            {application.property_title}
+                                        </h3>
+                                        <span className="px-3 py-1 bg-info-100 text-info-700 rounded-full text-sm font-semibold">
+                                            Payment Pending
+                                        </span>
+                                    </div>
+                                </Card.Header>
+                                <Card.Body>
+                                    <div className="space-y-3">
+                                        <p className="text-architectural">
+                                            {application.property_address}
+                                        </p>
+                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <span className="font-medium text-charcoal">Monthly Rent:</span>
+                                                <span className="ml-2 text-success">₹{application.monthly_rent}</span>
+                                            </div>
+                                            <div>
+                                                <span className="font-medium text-charcoal">Security Deposit:</span>
+                                                <span className="ml-2 text-warning">₹{application.security_deposit || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-architectural">
+                                            Your application has been approved! Pay the security deposit to become the tenant.
+                                        </p>
+                                    </div>
+                                </Card.Body>
+                                <Card.Footer>
+                                    <Button
+                                        onClick={() => handlePaySecurityDeposit(application.id)}
+                                        fullWidth
+                                        className="bg-eucalyptus-500 hover:bg-eucalyptus-600 text-white"
+                                    >
+                                        Pay Security Deposit (₹{application.security_deposit || 'N/A'})
+                                    </Button>
+                                </Card.Footer>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Recent Activity or Messages could go here */}
             <Card>

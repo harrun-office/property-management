@@ -1,4 +1,3 @@
-// const data = require('../data/mockData'); // Deprecated
 const User = require('../models/user.model');
 const Property = require('../models/property.model');
 const Vendor = require('../models/vendor.model');

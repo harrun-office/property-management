@@ -61,7 +61,7 @@ function Reports() {
                   <Card key={month} variant="filled" padding="sm">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-charcoal">{month}</span>
-                      <span className="text-lg font-bold text-charcoal">${income.toLocaleString()}</span>
+                      <span className="text-lg font-bold text-charcoal">₹{income.toLocaleString()}</span>
                     </div>
                   </Card>
                 ))}

@@ -74,7 +74,7 @@ function Revenue() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <MetricCard
                 title="Total Revenue"
-                value={`$${(revenue.totalRevenue || 0).toLocaleString()}`}
+                value={`₹${(revenue.totalRevenue || 0).toLocaleString()}`}
                 variant="success"
                 icon={
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +94,7 @@ function Revenue() {
               />
               <MetricCard
                 title="Average per Payment"
-                value={`$${revenue.paymentCount > 0 ? Math.round((revenue.totalRevenue || 0) / revenue.paymentCount) : 0}`}
+                value={`₹${revenue.paymentCount > 0 ? Math.round((revenue.totalRevenue || 0) / revenue.paymentCount) : 0}`}
                 variant="default"
                 icon={
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +115,7 @@ function Revenue() {
                       <Card key={month} variant="filled" padding="sm">
                         <div className="flex justify-between items-center">
                           <span className="font-semibold text-charcoal">{month}</span>
-                          <span className="text-lg font-bold text-eucalyptus-700">${amount.toLocaleString()}</span>
+                          <span className="text-lg font-bold text-eucalyptus-700">₹{amount.toLocaleString()}</span>
                         </div>
                       </Card>
                     ))}
@@ -132,7 +132,7 @@ function Revenue() {
                     <Card key={payment.id} variant="filled" padding="md">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-semibold text-charcoal">${payment.amount.toLocaleString()}</p>
+                          <p className="font-semibold text-charcoal">₹{payment.amount.toLocaleString()}</p>
                           <p className="text-sm text-architectural">
                             {payment.paidDate ? new Date(payment.paidDate).toLocaleDateString() : 'Pending'}
                           </p>

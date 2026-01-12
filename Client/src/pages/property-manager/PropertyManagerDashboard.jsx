@@ -150,7 +150,7 @@ function PropertyManagerDashboard() {
           />
           <MetricCard
             title="Total Revenue"
-            value={`$${revenue?.totalRevenue ? revenue.totalRevenue.toLocaleString() : '0'}`}
+            value={`₹${revenue?.totalRevenue ? revenue.totalRevenue.toLocaleString() : '0'}`}
             subtitle={<Link to="/property-manager/revenue" className="text-xs hover:underline">Details →</Link>}
             variant="success"
             icon={

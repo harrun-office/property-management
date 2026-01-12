@@ -111,7 +111,7 @@ function TenantApplications() {
                       </div>
                       <div>
                         <span className="text-architectural">Price:</span>
-                        <p className="text-charcoal font-medium">${app.property?.price?.toLocaleString()}/mo</p>
+                        <p className="text-charcoal font-medium">₹{app.property?.price?.toLocaleString()}/mo</p>
                       </div>
                       <div>
                         <span className="text-architectural">Bedrooms:</span>

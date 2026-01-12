@@ -92,7 +92,7 @@ CREATE TABLE properties (
     year_built YEAR,
     amenities JSON,
 
-    status ENUM('UNASSIGNED', 'ONBOARDING', 'LISTED', 'OCCUPIED', 'MAINTENANCE_ACTIVE', 'INACTIVE') DEFAULT 'UNASSIGNED',
+    status ENUM('active', 'inactive', 'maintenance') DEFAULT 'inactive',
     status_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status_changed_by INT,
 
@@ -138,6 +138,10 @@ CREATE TABLE tenants (
     status_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status_changed_by INT,
 
+    terminated_at TIMESTAMP NULL,
+    termination_reason VARCHAR(255),
+    notes TEXT,
+
     lease_terms JSON,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -155,6 +159,28 @@ CREATE TABLE tenants (
     INDEX idx_tenant_property (property_id),
     INDEX idx_tenant_status (status),
     INDEX idx_tenant_dates (lease_start_date, lease_end_date)
+) ENGINE=InnoDB;
+
+-- 4.5. APPLICATIONS TABLE
+CREATE TABLE applications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    property_id INT NOT NULL,
+    applicant_id INT NOT NULL,
+
+    status ENUM('pending', 'approved_pending_payment', 'approved', 'rejected') DEFAULT 'pending',
+    notes JSON,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
+    FOREIGN KEY (applicant_id) REFERENCES users(id) ON DELETE CASCADE,
+
+    UNIQUE KEY unique_application (property_id, applicant_id),
+    INDEX idx_application_property (property_id),
+    INDEX idx_application_applicant (applicant_id),
+    INDEX idx_application_status (status),
+    INDEX idx_application_created (created_at)
 ) ENGINE=InnoDB;
 
 -- 5. NOTIFICATIONS TABLE

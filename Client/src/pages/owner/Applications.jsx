@@ -36,13 +36,27 @@ function Applications() {
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
       await ownerAPI.updateApplication(applicationId, { status: newStatus });
-      loadApplications();
+      loadApplications(); // Refresh the applications list
+
+      // Handle different status changes
+      if (newStatus === 'rejected') {
+        // Rejected applications are deleted, so clear selection if it was selected
       if (selectedApplication && selectedApplication.id === applicationId) {
+          setSelectedApplication(null);
+        }
+        alert('Application rejected and removed successfully.');
+      } else if (selectedApplication && selectedApplication.id === applicationId) {
+        // For other status changes, try to get updated details
+        try {
         const updated = await ownerAPI.getApplication(applicationId);
         setSelectedApplication(updated);
+        } catch (detailErr) {
+          // If we can't get details (shouldn't happen for approved/pending), just clear selection
+          setSelectedApplication(null);
+        }
       }
     } catch (err) {
-      alert(err.message);
+      alert('Error updating application: ' + err.message);
     }
   };
 
@@ -117,8 +131,8 @@ function Applications() {
                 >
                   <option value="">All Status</option>
                   <option value="pending">Pending</option>
+                  <option value="approved_pending_payment">Payment Pending</option>
                   <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
                 </select>
               </div>
 
@@ -155,17 +169,18 @@ function Applications() {
                             </h3>
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                               application.status === 'pending' ? 'bg-warning-100 text-warning-700' :
+                              application.status === 'approved_pending_payment' ? 'bg-info-100 text-info-700' :
                               application.status === 'approved' ? 'bg-eucalyptus-100 text-eucalyptus-700' :
                               'bg-error-100 text-error-700'
                             }`}>
-                              {application.status}
+                              {application.status === 'approved_pending_payment' ? 'Payment Pending' : application.status}
                             </span>
                           </div>
                           <p className="text-sm text-architectural mb-1">
                             Property: {application.property?.title || `Property #${application.propertyId}`}
                           </p>
                           <p className="text-xs text-architectural">
-                            Applied: {new Date(application.createdAt).toLocaleDateString()}
+                            Applied: {new Date(application.applicationDate).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -208,17 +223,25 @@ function Applications() {
                       value={selectedApplication.status}
                       onChange={(e) => handleStatusChange(selectedApplication.id, e.target.value)}
                       className="w-full p-2 border border-stone-300 rounded-lg bg-porcelain focus:ring-2 focus:ring-obsidian-500 focus:border-obsidian-500 transition-colors"
+                      disabled={selectedApplication.status === 'approved_pending_payment'}
                     >
                       <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
+                      <option value="approved">Approve & Require Payment</option>
+                      {selectedApplication.status === 'approved_pending_payment' && (
+                        <option value="approved_pending_payment">Payment Pending</option>
+                      )}
                     </select>
+                    {selectedApplication.status === 'approved_pending_payment' && (
+                      <p className="text-xs text-architectural mt-1">
+                        Tenant has been notified to pay security deposit. Application will be finalized upon payment.
+                      </p>
+                    )}
                   </div>
 
                   <div>
                     <h3 className="font-semibold text-charcoal mb-2">Application Date</h3>
                     <p className="text-sm text-architectural">
-                      {new Date(selectedApplication.createdAt).toLocaleString()}
+                      {new Date(selectedApplication.applicationDate).toLocaleString()}
                     </p>
                   </div>
 
@@ -269,7 +292,7 @@ function Applications() {
                       fullWidth
                       onClick={() => handleStatusChange(selectedApplication.id, 'rejected')}
                     >
-                      Reject
+                      Reject & Remove
                     </Button>
                   </div>
                 </div>

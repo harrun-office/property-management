@@ -699,3 +699,96 @@ exports.getBill = async (req, res) => {
     res.status(500).json({ error: 'Server error fetching bill' });
   }
 };
+
+// Get Pending Applications (Approved but waiting for security deposit payment)
+exports.getPendingApplications = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const [apps] = await sql.query(`
+      SELECT
+        a.id, a.property_id, a.status, a.created_at,
+        p.title as property_title, p.address as property_address,
+        p.security_deposit, p.price as monthly_rent
+      FROM applications a
+      JOIN properties p ON a.property_id = p.id
+      WHERE a.applicant_id = ? AND a.status = 'approved_pending_payment'
+      ORDER BY a.created_at DESC
+    `, [userId]);
+
+    res.json(apps);
+  } catch (error) {
+    console.error('Error fetching pending applications:', error);
+    res.status(500).json({ error: 'Server error fetching pending applications' });
+  }
+};
+
+// Pay Security Deposit for Approved Application
+exports.paySecurityDeposit = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { applicationId } = req.params;
+
+    // Verify application belongs to user and is in pending payment status
+    const [apps] = await sql.query(`
+      SELECT a.*, p.security_deposit, p.price as monthly_rent
+      FROM applications a
+      JOIN properties p ON a.property_id = p.id
+      WHERE a.id = ? AND a.applicant_id = ? AND a.status = 'approved_pending_payment'
+    `, [applicationId, userId]);
+
+    if (apps.length === 0) {
+      return res.status(404).json({ error: 'Application not found or not eligible for payment' });
+    }
+
+    const app = apps[0];
+
+    // Mock payment processing (since no real payment integration)
+    // In a real app, this would integrate with Stripe/PayPal/etc.
+
+    // Create tenant record
+    await sql.query(`
+      INSERT INTO tenants (user_id, property_id, lease_start_date, lease_end_date, monthly_rent, status, created_at)
+      VALUES (?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR), ?, 'active', NOW())
+    `, [userId, app.property_id, app.monthly_rent]);
+
+    // Update property status to active (occupied by tenant)
+    await sql.query("UPDATE properties SET status = 'active', tenant_id = ? WHERE id = ?", [userId, app.property_id]);
+
+    // Update application status
+    await sql.query("UPDATE applications SET status = 'approved', updated_at = NOW() WHERE id = ?", [applicationId]);
+
+    // Create payment record for security deposit
+    await sql.query(`
+      INSERT INTO payments (tenant_id, property_id, amount, type, status, due_date, created_at)
+      VALUES (?, ?, ?, 'security_deposit', 'paid', CURDATE(), NOW())
+    `, [userId, app.property_id, app.security_deposit]);
+
+    // Send success notification
+    await sql.query(`
+      INSERT INTO notifications (user_id, title, message, type, entity_type, entity_id, priority, created_by)
+      VALUES (?, ?, ?, 'success', 'application', ?, 'high', ?)
+    `, [
+      userId,
+      'Security Deposit Payment Successful',
+      `Congratulations! Your security deposit of ₹${app.security_deposit} has been paid successfully. You are now the tenant of "${app.property_title}".`,
+      applicationId,
+      userId
+    ]);
+
+    createAuditLog(userId, 'security_deposit_paid', 'application', applicationId, {
+      amount: app.security_deposit,
+      property_id: app.property_id
+    }, getIpAddress(req));
+
+    res.json({
+      success: true,
+      message: 'Security deposit paid successfully. You are now a tenant!',
+      tenantStatus: 'active'
+    });
+
+  } catch (error) {
+    console.error('Error processing security deposit payment:', error);
+    res.status(500).json({ error: 'Server error processing payment' });
+  }
+};

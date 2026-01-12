@@ -6,6 +6,10 @@ const { authenticate, requireTenant } = require('../middleware/auth');
 // Dashboard
 router.get('/dashboard', authenticate, requireTenant, tenantController.getDashboard);
 
+// Applications
+router.get('/applications/pending-payment', authenticate, requireTenant, tenantController.getPendingApplications);
+router.post('/applications/:applicationId/pay-security-deposit', authenticate, requireTenant, tenantController.paySecurityDeposit);
+
 // Payments
 router.get('/payments', authenticate, requireTenant, tenantController.getPayments);
 router.get('/payments/upcoming', authenticate, requireTenant, tenantController.getUpcomingPayments);
