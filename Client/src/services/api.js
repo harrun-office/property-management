@@ -1,4 +1,5 @@
-export const BASE_URL = 'http://localhost:5005';
+// export const BASE_URL = 'http://localhost:5005';
+export const BASE_URL = 'https://property-management-8b1d.onrender.com/api';
 const API_BASE_URL = `${BASE_URL}/api`;
 
 // Helper function to get auth headers
