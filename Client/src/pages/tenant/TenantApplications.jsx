@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { propertiesAPI } from '../../services/api';
+import { propertiesAPI, tenantAPI } from '../../services/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Skeleton from '../../components/ui/Skeleton';
@@ -9,11 +9,13 @@ import EmptyState from '../../components/ui/EmptyState';
 
 function TenantApplications() {
   const [applications, setApplications] = useState([]);
+  const [pendingApplications, setPendingApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     loadApplications();
+    loadPendingApplications();
   }, []);
 
   const loadApplications = async () => {
@@ -26,6 +28,32 @@ function TenantApplications() {
       setError(err.message || 'Failed to load applications');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPendingApplications = async () => {
+    try {
+      const apps = await tenantAPI.getPendingApplications();
+      setPendingApplications(apps);
+    } catch (err) {
+      console.error("Pending applications load error", err);
+      // Don't show error for pending applications if it fails
+    }
+  };
+
+  const handlePaySecurityDeposit = async (applicationId) => {
+    if (!confirm('Are you sure you want to pay the security deposit? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await tenantAPI.paySecurityDeposit(applicationId);
+      alert('Security deposit paid successfully! You are now a tenant.');
+      // Refresh applications and pending applications
+      loadApplications();
+      loadPendingApplications();
+    } catch (err) {
+      alert('Failed to process security deposit payment: ' + err.message);
     }
   };
 
@@ -71,6 +99,56 @@ function TenantApplications() {
         </div>
 
         {error && <ErrorDisplay message={error} onRetry={loadApplications} className="mb-6" />}
+
+        {/* Pending Applications Section */}
+        {pendingApplications.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-charcoal mb-4">Pending Applications</h2>
+            <div className="grid grid-cols-1 gap-4">
+              {pendingApplications.map((application) => (
+                <Card key={application.id} variant="elevated" padding="lg" hover className="border-info-200">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="text-xl font-semibold text-obsidian-500">
+                            {application.property_title}
+                          </h3>
+                          <p className="text-sm text-architectural mt-1">{application.property_address}</p>
+                        </div>
+                        <span className="px-3 py-1 bg-info-100 text-info-700 rounded-full text-sm font-semibold">
+                          Payment Pending
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+                        <div>
+                          <span className="text-architectural">Monthly Rent:</span>
+                          <p className="text-charcoal font-medium">₹{application.monthly_rent}</p>
+                        </div>
+                        <div>
+                          <span className="text-architectural">Security Deposit:</span>
+                          <p className="text-charcoal font-medium">₹{application.security_deposit || 'N/A'}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-architectural mt-3">
+                        Your application has been approved! Pay the security deposit to become the tenant.
+                      </p>
+                    </div>
+                    <div className="md:w-48">
+                      <Button
+                        onClick={() => handlePaySecurityDeposit(application.id)}
+                        fullWidth
+                        className="bg-eucalyptus-500 hover:bg-eucalyptus-600 text-white"
+                      >
+                        Pay Security Deposit (₹{application.security_deposit || 'N/A'})
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {applications.length === 0 ? (
           <EmptyState

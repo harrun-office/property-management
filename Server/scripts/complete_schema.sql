@@ -318,6 +318,7 @@ CREATE TABLE payments (
     amount DECIMAL(10,2) NOT NULL,
     due_date DATE NOT NULL,
 
+    type ENUM('rent', 'security_deposit', 'late_fee', 'maintenance', 'other') DEFAULT 'rent',
     status ENUM('pending', 'processing', 'completed', 'failed', 'overdue', 'cancelled') DEFAULT 'pending',
     status_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status_changed_by INT,

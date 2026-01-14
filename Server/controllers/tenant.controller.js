@@ -725,49 +725,90 @@ exports.getPendingApplications = async (req, res) => {
 
 // Pay Security Deposit for Approved Application
 exports.paySecurityDeposit = async (req, res) => {
+  const connection = await sql.getConnection();
+
   try {
     const userId = req.user.id;
     const { applicationId } = req.params;
 
-    // Verify application belongs to user and is in pending payment status
-    const [apps] = await sql.query(`
-      SELECT a.*, p.security_deposit, p.price as monthly_rent
+    // Start transaction
+    await connection.beginTransaction();
+
+    // Step 1: Verify application belongs to user and is in pending payment status
+    const [apps] = await connection.query(`
+      SELECT a.*, p.security_deposit, p.price as monthly_rent, p.title as property_title,
+             p.tenant_id as current_tenant_id, p.status as property_status
       FROM applications a
       JOIN properties p ON a.property_id = p.id
       WHERE a.id = ? AND a.applicant_id = ? AND a.status = 'approved_pending_payment'
     `, [applicationId, userId]);
 
     if (apps.length === 0) {
+      await connection.rollback();
       return res.status(404).json({ error: 'Application not found or not eligible for payment' });
     }
 
     const app = apps[0];
 
-    // Mock payment processing (since no real payment integration)
+    // Step 2: Validation checks
+    // Check if property is already occupied by another tenant
+    if (app.current_tenant_id && app.current_tenant_id !== userId) {
+      await connection.rollback();
+      return res.status(400).json({ error: 'Property is already occupied by another tenant' });
+    }
+
+    // Check if security deposit amount is valid
+    if (!app.security_deposit || app.security_deposit <= 0) {
+      await connection.rollback();
+      return res.status(400).json({ error: 'Invalid security deposit amount' });
+    }
+
+    // Check if user is already a tenant for this property
+    const [existingTenant] = await connection.query(
+      'SELECT id FROM tenants WHERE user_id = ? AND property_id = ? AND status = "active"',
+      [userId, app.property_id]
+    );
+
+    if (existingTenant.length > 0) {
+      await connection.rollback();
+      return res.status(400).json({ error: 'You are already a tenant for this property' });
+    }
+
+    // Step 3: Process the payment (mock processing since no real payment integration)
     // In a real app, this would integrate with Stripe/PayPal/etc.
 
-    // Create tenant record
-    await sql.query(`
-      INSERT INTO tenants (user_id, property_id, lease_start_date, lease_end_date, monthly_rent, status, created_at)
-      VALUES (?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR), ?, 'active', NOW())
-    `, [userId, app.property_id, app.monthly_rent]);
+    // Step 4: Create tenant record
+    const [tenantResult] = await connection.query(`
+      INSERT INTO tenants (user_id, property_id, lease_start_date, lease_end_date, monthly_rent, security_deposit, status, created_at)
+      VALUES (?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR), ?, ?, 'active', NOW())
+    `, [userId, app.property_id, app.monthly_rent, app.security_deposit]);
 
-    // Update property status to active (occupied by tenant)
-    await sql.query("UPDATE properties SET status = 'active', tenant_id = ? WHERE id = ?", [userId, app.property_id]);
+    const tenantId = tenantResult.insertId;
 
-    // Update application status
-    await sql.query("UPDATE applications SET status = 'approved', updated_at = NOW() WHERE id = ?", [applicationId]);
+    // Step 5: Update property status to active (occupied by tenant)
+    await connection.query(
+      "UPDATE properties SET status = 'active', tenant_id = ?, updated_at = NOW() WHERE id = ?",
+      [userId, app.property_id]
+    );
 
-    // Create payment record for security deposit
-    await sql.query(`
-      INSERT INTO payments (tenant_id, property_id, amount, type, status, due_date, created_at)
-      VALUES (?, ?, ?, 'security_deposit', 'paid', CURDATE(), NOW())
+    // Step 6: Update application status
+    await connection.query(
+      "UPDATE applications SET status = 'approved', updated_at = NOW() WHERE id = ?",
+      [applicationId]
+    );
+
+    // Step 7: Create payment record for security deposit
+    const [paymentResult] = await connection.query(`
+      INSERT INTO payments (tenant_id, property_id, amount, status, due_date, paid_date, payment_method, created_at)
+      VALUES (?, ?, ?, 'paid', CURDATE(), CURDATE(), 'bank_transfer', NOW())
     `, [userId, app.property_id, app.security_deposit]);
 
-    // Send success notification
-    await sql.query(`
-      INSERT INTO notifications (user_id, title, message, type, entity_type, entity_id, priority, created_by)
-      VALUES (?, ?, ?, 'success', 'application', ?, 'high', ?)
+    const paymentId = paymentResult.insertId;
+
+    // Step 8: Send success notification
+    await connection.query(`
+      INSERT INTO notifications (user_id, title, message, type, entity_type, entity_id, priority, created_by, created_at)
+      VALUES (?, ?, ?, 'success', 'application', ?, 'high', ?, NOW())
     `, [
       userId,
       'Security Deposit Payment Successful',
@@ -776,19 +817,42 @@ exports.paySecurityDeposit = async (req, res) => {
       userId
     ]);
 
+    // Step 9: Create audit log
     createAuditLog(userId, 'security_deposit_paid', 'application', applicationId, {
       amount: app.security_deposit,
-      property_id: app.property_id
+      property_id: app.property_id,
+      tenant_id: tenantId,
+      payment_id: paymentId
     }, getIpAddress(req));
+
+    // Commit transaction
+    await connection.commit();
 
     res.json({
       success: true,
       message: 'Security deposit paid successfully. You are now a tenant!',
-      tenantStatus: 'active'
+      tenantStatus: 'active',
+      tenantId: tenantId,
+      paymentId: paymentId
     });
 
   } catch (error) {
+    // Rollback transaction on any error
+    await connection.rollback();
     console.error('Error processing security deposit payment:', error);
-    res.status(500).json({ error: 'Server error processing payment' });
+
+    // Provide more specific error messages
+    let errorMessage = 'Server error processing payment';
+    if (error.code === 'ER_DUP_ENTRY') {
+      errorMessage = 'Duplicate entry - this payment may have already been processed';
+    } else if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+      errorMessage = 'Invalid reference - user or property may not exist';
+    } else if (error.message) {
+      errorMessage = `Payment processing failed: ${error.message}`;
+    }
+
+    res.status(500).json({ error: errorMessage });
+  } finally {
+    connection.release();
   }
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { tenantAPI } from '../../../services/api';
+import { tenantAPI, propertiesAPI } from '../../../services/api';
 import TenantSidebar from './TenantSidebar';
 import RoleBasedNavbar from '../../RoleBasedNavbar';
 import Footer from '../../Footer';
@@ -12,9 +12,11 @@ function TenantLayout() {
     const { user, logout } = useAuth();
     const location = useLocation();
     const [hasActiveTenancy, setHasActiveTenancy] = useState(user?.hasActiveTenancy || false);
+    const [hasRejectedApplication, setHasRejectedApplication] = useState(false);
 
     useEffect(() => {
         if (user?.role?.trim().toLowerCase() === 'tenant') {
+            // Check for active tenancy
             tenantAPI.getDashboard()
                 .then(data => {
                     setHasActiveTenancy(!!data.currentProperty);
@@ -22,11 +24,21 @@ function TenantLayout() {
                 .catch(() => {
                     setHasActiveTenancy(false);
                 });
+
+            // Check for rejected applications
+            propertiesAPI.getMyApplications?.()
+                .then(applications => {
+                    const hasRejected = applications.some(app => app.status === 'rejected');
+                    setHasRejectedApplication(hasRejected);
+                })
+                .catch(() => {
+                    setHasRejectedApplication(false);
+                });
         }
     }, [user]);
 
-    // If tenant has no active property, show public layout structure
-    if (user?.role?.trim().toLowerCase() === 'tenant' && !hasActiveTenancy) {
+    // If tenant has no active property or has rejected applications, show public layout structure (normal tenant login UI style)
+    if (user?.role?.trim().toLowerCase() === 'tenant' && (!hasActiveTenancy || hasRejectedApplication)) {
         return (
             <div className="h-full overflow-y-auto bg-[var(--ui-bg-page)] flex flex-col">
                 <RoleBasedNavbar />

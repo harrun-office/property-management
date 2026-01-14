@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { tenantAPI } from '../services/api';
+import { tenantAPI, propertiesAPI } from '../services/api';
 
 /**
  * Advanced Navigation Component - Fully compliant with modern design system.
@@ -24,16 +24,26 @@ function RoleBasedNavbar() {
   const userMenuRef = useRef(null);
   const notificationRef = useRef(null);
 
-  // Check if tenant has active property
+  // Check if tenant has active property and rejected applications
   useEffect(() => {
     if (isTenant && user) {
-      tenantAPI.getDashboard()
-        .then(data => {
-          setHasActiveProperty(!!data.currentProperty);
+      Promise.all([
+        tenantAPI.getDashboard().catch(() => ({ currentProperty: null })),
+        propertiesAPI.getMyApplications?.().catch(() => [])
+      ])
+        .then(([dashboardData, applications]) => {
+          const hasActiveProp = !!dashboardData.currentProperty;
+          const hasRejectedApplications = applications.some(app => app.status === 'rejected');
+
+          // If tenant has rejected applications, show normal tenant navigation
+          setHasActiveProperty(hasActiveProp && !hasRejectedApplications);
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Error checking tenant status:', error);
           setHasActiveProperty(false);
         });
+    } else {
+      setHasActiveProperty(false);
     }
   }, [isTenant, user]);
 

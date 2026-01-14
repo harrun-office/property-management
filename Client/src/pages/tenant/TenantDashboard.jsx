@@ -8,14 +8,22 @@ import ErrorDisplay from '../../components/ui/ErrorDisplay';
 
 function TenantDashboard() {
     const [dashboardData, setDashboardData] = useState(null);
-    const [pendingApplications, setPendingApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
         loadDashboard();
-        loadPendingApplications();
     }, []);
+
+    const loadAllApplications = async () => {
+        try {
+            const apps = await propertiesAPI.getMyApplications?.() || [];
+            setApplications(apps);
+            setHasRejectedApplications(apps.some(app => app.status === 'rejected'));
+        } catch (err) {
+            console.error("Applications load error", err);
+        }
+    };
 
     const loadDashboard = async () => {
         setLoading(true);
@@ -41,31 +49,7 @@ function TenantDashboard() {
         }
     };
 
-    const loadPendingApplications = async () => {
-        try {
-            const apps = await tenantAPI.getPendingApplications();
-            setPendingApplications(apps);
-        } catch (err) {
-            console.error("Pending applications load error", err);
-            // Don't show error for pending applications if it fails
-        }
-    };
 
-    const handlePaySecurityDeposit = async (applicationId) => {
-        if (!confirm('Are you sure you want to pay the security deposit? This action cannot be undone.')) {
-            return;
-        }
-
-        try {
-            await tenantAPI.paySecurityDeposit(applicationId);
-            alert('Security deposit paid successfully! You are now a tenant.');
-            // Refresh dashboard and pending applications
-            loadDashboard();
-            loadPendingApplications();
-        } catch (err) {
-            alert('Failed to process security deposit payment: ' + err.message);
-        }
-    };
 
     if (loading) {
         return (
@@ -91,121 +75,172 @@ function TenantDashboard() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-charcoal">Welecome Home</h1>
-                <p className="text-architectural mt-2">Here's what's happening with your property.</p>
+                <h1 className="text-3xl font-bold text-charcoal">
+                    {hasRejectedApplications ? 'Welcome Back' : 'Welcome Home'}
+                </h1>
+                <p className="text-architectural mt-2">
+                    {hasRejectedApplications
+                        ? 'Browse new properties and find your perfect home.'
+                        : 'Here\'s what\'s happening with your property.'
+                    }
+                </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Lease Status Card */}
-                <Card>
-                    <Card.Header>
-                        <h3 className="text-lg font-semibold text-charcoal">Lease Status</h3>
-                    </Card.Header>
-                    <Card.Body>
-                        <div className="text-2xl font-bold text-success mb-2">
-                            {dashboardData?.leaseStatus || 'Active'}
-                        </div>
-                        <p className="text-sm text-architectural">
-                            Current Lease
-                        </p>
-                    </Card.Body>
-                    <Card.Footer>
-                        <Link to="/tenant/lease">
-                            <Button variant="outline" size="sm" fullWidth>View Details</Button>
-                        </Link>
-                    </Card.Footer>
-                </Card>
+            {hasRejectedApplications ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Browse Properties Card */}
+                    <Card>
+                        <Card.Header>
+                            <h3 className="text-lg font-semibold text-charcoal">Browse Properties</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <div className="text-2xl font-bold text-primary mb-2">
+                                Find New Home
+                            </div>
+                            <p className="text-sm text-architectural">
+                                Discover available properties in your area
+                            </p>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Link to="/properties">
+                                <Button variant="primary" size="sm" fullWidth>Browse Now</Button>
+                            </Link>
+                        </Card.Footer>
+                    </Card>
 
-                {/* Rent Status Card */}
-                <Card>
-                    <Card.Header>
-                        <h3 className="text-lg font-semibold text-charcoal">Next Payment</h3>
-                    </Card.Header>
-                    <Card.Body>
-                        <div className="text-2xl font-bold text-charcoal mb-2">
-                            ₹{dashboardData?.amountDue || 0}
-                        </div>
-                        <p className="text-sm text-architectural">
-                            Due on {dashboardData?.nextPaymentDate}
-                        </p>
-                    </Card.Body>
-                    <Card.Footer>
-                        <Link to="/tenant/payments">
-                            <Button variant="primary" size="sm" fullWidth>Pay Now</Button>
-                        </Link>
-                    </Card.Footer>
-                </Card>
+                    {/* Saved Properties Card */}
+                    <Card>
+                        <Card.Header>
+                            <h3 className="text-lg font-semibold text-charcoal">Saved Properties</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <div className="text-2xl font-bold text-secondary mb-2">
+                                View Saved
+                            </div>
+                            <p className="text-sm text-architectural">
+                                Check your saved properties
+                            </p>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Link to="/tenant/saved">
+                                <Button variant="outline" size="sm" fullWidth>View Saved</Button>
+                            </Link>
+                        </Card.Footer>
+                    </Card>
 
-                {/* Maintenance Card */}
-                <Card>
-                    <Card.Header>
-                        <h3 className="text-lg font-semibold text-charcoal">Maintenance</h3>
-                    </Card.Header>
-                    <Card.Body>
-                        <div className="text-2xl font-bold text-charcoal mb-2">
-                            {dashboardData?.maintenanceRequests?.length || 0}
-                        </div>
-                        <p className="text-sm text-architectural">
-                            Open Requests
-                        </p>
-                    </Card.Body>
-                    <Card.Footer>
-                        <Link to="/tenant/maintenance">
-                            <Button variant="outline" size="sm" fullWidth>New Request</Button>
-                        </Link>
-                    </Card.Footer>
-                </Card>
-            </div>
+                    {/* Applications Card */}
+                    <Card>
+                        <Card.Header>
+                            <h3 className="text-lg font-semibold text-charcoal">My Applications</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <div className="text-2xl font-bold text-charcoal mb-2">
+                                Track Status
+                            </div>
+                            <p className="text-sm text-architectural">
+                                Monitor your application progress
+                            </p>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Link to="/tenant/applications">
+                                <Button variant="outline" size="sm" fullWidth>View Applications</Button>
+                            </Link>
+                        </Card.Footer>
+                    </Card>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Lease Status Card */}
+                    <Card>
+                        <Card.Header>
+                            <h3 className="text-lg font-semibold text-charcoal">Lease Status</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <div className="text-2xl font-bold text-success mb-2">
+                                {dashboardData?.leaseStatus || 'Active'}
+                            </div>
+                            <p className="text-sm text-architectural">
+                                Current Lease
+                            </p>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Link to="/tenant/lease">
+                                <Button variant="outline" size="sm" fullWidth>View Details</Button>
+                            </Link>
+                        </Card.Footer>
+                    </Card>
 
-            {/* Pending Applications Section */}
-            {pendingApplications.length > 0 && (
+                    {/* Rent Status Card */}
+                    <Card>
+                        <Card.Header>
+                            <h3 className="text-lg font-semibold text-charcoal">Next Payment</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <div className="text-2xl font-bold text-charcoal mb-2">
+                                ₹{dashboardData?.amountDue || 0}
+                            </div>
+                            <p className="text-sm text-architectural">
+                                Due on {dashboardData?.nextPaymentDate}
+                            </p>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Link to="/tenant/payments">
+                                <Button variant="primary" size="sm" fullWidth>Pay Now</Button>
+                            </Link>
+                        </Card.Footer>
+                    </Card>
+
+                    {/* Maintenance Card */}
+                    <Card>
+                        <Card.Header>
+                            <h3 className="text-lg font-semibold text-charcoal">Maintenance</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <div className="text-2xl font-bold text-charcoal mb-2">
+                                {dashboardData?.maintenanceRequests?.length || 0}
+                            </div>
+                            <p className="text-sm text-architectural">
+                                Open Requests
+                            </p>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Link to="/tenant/maintenance">
+                                <Button variant="outline" size="sm" fullWidth>New Request</Button>
+                            </Link>
+                        </Card.Footer>
+                    </Card>
+                </div>
+            )}
+
+
+            {/* Rejected Applications Section */}
+            {hasRejectedApplications && (
                 <div className="space-y-4">
-                    <h2 className="text-2xl font-bold text-charcoal">Pending Applications</h2>
-                    <div className="grid grid-cols-1 gap-4">
-                        {pendingApplications.map((application) => (
-                            <Card key={application.id}>
-                                <Card.Header>
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold text-charcoal">
-                                            {application.property_title}
-                                        </h3>
-                                        <span className="px-3 py-1 bg-info-100 text-info-700 rounded-full text-sm font-semibold">
-                                            Payment Pending
-                                        </span>
-                                    </div>
-                                </Card.Header>
-                                <Card.Body>
-                                    <div className="space-y-3">
-                                        <p className="text-architectural">
-                                            {application.property_address}
-                                        </p>
-                                        <div className="grid grid-cols-2 gap-4 text-sm">
-                                            <div>
-                                                <span className="font-medium text-charcoal">Monthly Rent:</span>
-                                                <span className="ml-2 text-success">₹{application.monthly_rent}</span>
-                                            </div>
-                                            <div>
-                                                <span className="font-medium text-charcoal">Security Deposit:</span>
-                                                <span className="ml-2 text-warning">₹{application.security_deposit || 'N/A'}</span>
-                                            </div>
-                                        </div>
-                                        <p className="text-sm text-architectural">
-                                            Your application has been approved! Pay the security deposit to become the tenant.
-                                        </p>
-                                    </div>
-                                </Card.Body>
-                                <Card.Footer>
-                                    <Button
-                                        onClick={() => handlePaySecurityDeposit(application.id)}
-                                        fullWidth
-                                        className="bg-eucalyptus-500 hover:bg-eucalyptus-600 text-white"
-                                    >
-                                        Pay Security Deposit (₹{application.security_deposit || 'N/A'})
-                                    </Button>
-                                </Card.Footer>
-                            </Card>
-                        ))}
-                    </div>
+                    <h2 className="text-2xl font-bold text-charcoal">Application Status</h2>
+                    <Card variant="outlined" className="border-warning-200 bg-warning-50">
+                        <Card.Body>
+                            <div className="flex items-center space-x-3">
+                                <div className="flex-shrink-0">
+                                    <svg className="w-8 h-8 text-warning-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-warning-800">Application Rejected</h3>
+                                    <p className="text-warning-700 mt-1">
+                                        One or more of your property applications have been rejected. You can browse other properties and submit new applications.
+                                    </p>
+                                </div>
+                            </div>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Link to="/properties">
+                                <Button variant="primary">
+                                    Browse Properties
+                                </Button>
+                            </Link>
+                        </Card.Footer>
+                    </Card>
                 </div>
             )}
 
